@@ -73,7 +73,7 @@ public class FFAudioFileReader extends AudioFileReader {
     public AudioFileFormat getAudioFileFormat(final InputStream stream) throws UnsupportedAudioFileException, IOException {
         if (!nativeLibraryLoaded) throw new UnsupportedAudioFileException("Native library ffsampledsp not loaded.");
         if (!stream.markSupported()) throw new IOException("InputStream must support mark()");
-        final int readlimit = 1024 * 8;
+        final int readlimit = 1024 * 32;
         stream.mark(readlimit);
 
         final ReadableByteChannel channel = Channels.newChannel(stream);

@@ -20,6 +20,7 @@
  */
 package com.tagtraum.ffsampledsp;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
@@ -39,6 +40,7 @@ import static org.junit.Assert.*;
 public class TestFFStreamInputStream {
 
     @Test
+    @Ignore("Can only work with FFmpeg package that supports mp3.")
     public void testReadThroughMP3File() throws IOException, UnsupportedAudioFileException {
         final String filename = "test.mp3";
         final File file = File.createTempFile("testReadThroughMP3File", filename);
@@ -68,9 +70,68 @@ public class TestFFStreamInputStream {
     }
 
     @Test
+    public void testReadThroughOggFile() throws IOException, UnsupportedAudioFileException {
+        final String filename = "test.ogg";
+        final File file = File.createTempFile("testReadThroughOggFile", filename);
+        extractFile(filename, file);
+        int bytesRead = 0;
+        FFStreamInputStream in = null;
+        try {
+            in = new FFStreamInputStream(new FileInputStream(file));
+            int justRead;
+            final byte[] buf = new byte[1024*8];
+            while ((justRead = in.read(buf)) != -1) {
+                assertTrue(justRead > 0);
+                bytesRead += justRead;
+            }
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            file.delete();
+        }
+        System.out.println("Read " + bytesRead + " bytes.");
+        assertTrue(bytesRead != 0);
+    }
+
+    @Test
+    @Ignore("Can only work with FFmpeg package that supports m4a.")
     public void testReadThroughM4AFile() throws IOException, UnsupportedAudioFileException {
         final String filename = "test.m4a";
         final File file = File.createTempFile("testReadThroughM4AFile", filename);
+        extractFile(filename, file);
+        int bytesRead = 0;
+        FFStreamInputStream in = null;
+        try {
+            in = new FFStreamInputStream(new FileInputStream(file));
+            int justRead;
+            final byte[] buf = new byte[1024*8];
+            while ((justRead = in.read(buf)) != -1) {
+                assertTrue(justRead > 0);
+                bytesRead += justRead;
+            }
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            file.delete();
+        }
+        System.out.println("Read " + bytesRead + " bytes.");
+        assertTrue(bytesRead != 0);
+    }
+
+    @Test
+    public void testReadThroughFLACFile() throws IOException, UnsupportedAudioFileException {
+        final String filename = "test.flac";
+        final File file = File.createTempFile("testReadThroughFLACFile", filename);
         extractFile(filename, file);
         int bytesRead = 0;
         FFStreamInputStream in = null;

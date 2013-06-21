@@ -284,9 +284,9 @@ public class FFAudioFormat extends AudioFormat {
             AMR_WB("AMR WB", AV_CODEC_ID_AMR_WB),
             AMR_NB("AMR NB", AV_CODEC_ID_AMR_NB),
             AC3("AC3", AV_CODEC_ID_AC3),
-            VORBIS("AC3", AV_CODEC_ID_VORBIS),
-            FLAC("AC3", AV_CODEC_ID_FLAC),
-            DTS("AC3", AV_CODEC_ID_DTS),
+            VORBIS("VORBIS", AV_CODEC_ID_VORBIS),
+            FLAC("FLAC", AV_CODEC_ID_FLAC),
+            DTS("DTS", AV_CODEC_ID_DTS),
 
             WMA_V1("WMA 1", AV_CODEC_ID_WMAV1),
             WMA_V2("WMA 2", AV_CODEC_ID_WMAV2),

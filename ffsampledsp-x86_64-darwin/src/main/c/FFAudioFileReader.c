@@ -224,6 +224,7 @@ static jobject create_ffaudiofileformat(JNIEnv *env, jstring url, jint codecId, 
     jboolean big_endian = 1;
     jobject audio_format = NULL;
     jint frame_size = -1;
+    jint sample_size = 0;
 
     init_ids(env);
 
@@ -240,11 +241,16 @@ static jobject create_ffaudiofileformat(JNIEnv *env, jstring url, jint codecId, 
     }
     // TODO: Support VBR.
 
+    sample_size = stream->codec->bits_per_coded_sample
+        ? stream->codec->bits_per_coded_sample
+        : stream->codec->bits_per_raw_sample;
+
+
 #ifdef DEBUG
     fprintf(stderr, "stream->codec->bits_per_coded_sample: %i\n", stream->codec->bits_per_coded_sample);
     fprintf(stderr, "stream->codec->bits_per_raw_sample  : %i\n", stream->codec->bits_per_raw_sample);
     fprintf(stderr, "stream->codec->bit_rate             : %i\n", stream->codec->bit_rate);
-    fprintf(stderr, "format_context->packet_size                : %i\n", format_context->packet_size);
+    fprintf(stderr, "format_context->packet_size         : %i\n", format_context->packet_size);
     fprintf(stderr, "frames     : %" PRId64 "\n", stream->nb_frames);
     fprintf(stderr, "sample_rate: %i\n", stream->codec->sample_rate);
     fprintf(stderr, "sampleSize : %i\n", stream->codec->bits_per_coded_sample);
@@ -252,7 +258,7 @@ static jobject create_ffaudiofileformat(JNIEnv *env, jstring url, jint codecId, 
     fprintf(stderr, "frame_size : %i\n", frame_size);
     fprintf(stderr, "codec_id   : %i\n", stream->codec->codec_id);
     fprintf(stderr, "duration   : %" PRId64 "\n", (int64_t)duration_in_microseconds);
-    fprintf(stderr, "frame_rate  : %f\n", frame_rate);
+    fprintf(stderr, "frame_rate : %f\n", frame_rate);
     if (big_endian) {
         fprintf(stderr, "big_endian  : true\n");
     } else {
@@ -262,7 +268,7 @@ static jobject create_ffaudiofileformat(JNIEnv *env, jstring url, jint codecId, 
     audio_format = create_ffaudiofileformat(env, url,
                                                    stream->codec->codec_id,
                                                    (jfloat)stream->codec->sample_rate,
-                                                   stream->codec->bits_per_coded_sample,
+                                                   sample_size,
                                                    stream->codec->channels,
                                                    frame_size,
                                                    frame_rate,
@@ -300,6 +306,7 @@ bail:
     jboolean big_endian = 1;
     jobject audio_format = NULL;
     jint frame_size = -1;
+    jint sample_size = 0;
 
     unsigned char* callbackBuffer = NULL;
     FFCallback *callback = NULL;
@@ -364,12 +371,16 @@ bail:
         frame_size = (stream->codec->bits_per_coded_sample / 8) * stream->codec->channels;
     }
 
+    sample_size = stream->codec->bits_per_coded_sample
+        ? stream->codec->bits_per_coded_sample
+        : stream->codec->bits_per_raw_sample;
+
 #ifdef DEBUG
     fprintf(stderr, "stream->codec->bits_per_coded_sample: %i\n", stream->codec->bits_per_coded_sample);
     fprintf(stderr, "stream->codec->bits_per_raw_sample  : %i\n", stream->codec->bits_per_raw_sample);
     fprintf(stderr, "stream->codec->bit_rate             : %i\n", stream->codec->bit_rate);
 
-    fprintf(stderr, "format_context->packet_size                : %i\n", format_context->packet_size);
+    fprintf(stderr, "format_context->packet_size         : %i\n", format_context->packet_size);
     fprintf(stderr, "frames     : %" PRId64 "\n", stream->nb_frames);
     fprintf(stderr, "sample_rate: %i\n", stream->codec->sample_rate);
     fprintf(stderr, "sampleSize : %i\n", stream->codec->bits_per_coded_sample);
@@ -386,7 +397,7 @@ bail:
     audio_format = create_ffaudiofileformat(env, NULL,
                                                    stream->codec->codec_id,
                                                    (jfloat)stream->codec->sample_rate,
-                                                   stream->codec->bits_per_coded_sample,
+                                                   sample_size,
                                                    stream->codec->channels,
                                                    frame_size,
                                                    frame_rate,

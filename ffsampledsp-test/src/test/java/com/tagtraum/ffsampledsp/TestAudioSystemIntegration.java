@@ -43,7 +43,7 @@ public class TestAudioSystemIntegration {
 
     @Test
     public void testAudioFileFormat() throws IOException, UnsupportedAudioFileException {
-        final String filename = "test.mp3";
+        final String filename = "test.flac";
         final File file = File.createTempFile("testAudioFileFormat", filename);
         extractFile(filename, file);
         try {
@@ -55,7 +55,7 @@ public class TestAudioSystemIntegration {
 
     @Test
     public void testAudioFileReader() throws IOException, UnsupportedAudioFileException {
-        final String filename = "test.mp3";
+        final String filename = "test.flac";
         final File file = File.createTempFile("testAudioFileReader", filename);
         extractFile(filename, file);
 
@@ -84,15 +84,15 @@ public class TestAudioSystemIntegration {
 
     @Test
     public void testAudioFileReader2() throws IOException, UnsupportedAudioFileException {
-        final String filename = "test.mp3";
+        final String filename = "test.flac";
         final File file = File.createTempFile("testAudioFileReader", filename);
         extractFile(filename, file);
 
         int bytesRead = 0;
         AudioInputStream in = null;
         try {
-            final AudioInputStream mp3Stream = AudioSystem.getAudioInputStream(file);
-            in = AudioSystem.getAudioInputStream(AudioFormat.Encoding.PCM_SIGNED, mp3Stream);
+            final AudioInputStream flacStream = AudioSystem.getAudioInputStream(file);
+            in = AudioSystem.getAudioInputStream(AudioFormat.Encoding.PCM_SIGNED, flacStream);
             int justRead;
             final byte[] buf = new byte[1024];
             while ((justRead = in.read(buf)) != -1) {

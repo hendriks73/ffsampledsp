@@ -20,6 +20,7 @@
  */
 package com.tagtraum.ffsampledsp;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.sound.sampled.AudioFileFormat;
@@ -74,6 +75,7 @@ public class TestFFAudioFileReader {
     }
 
     @Test
+    @Ignore("Can only work with FFmpeg package that supports m4a.")
     public void testGetAudioFileFormatM4AFile() throws IOException, UnsupportedAudioFileException {
         // first copy the file from resources to actual location in temp
         final String filename = "test.m4a"; // apple lossless
@@ -100,6 +102,7 @@ public class TestFFAudioFileReader {
     }
 
     @Test
+    @Ignore("Can only work with FFmpeg package that supports mp3.")
     public void testGetAudioFileFormatMP3File() throws IOException, UnsupportedAudioFileException {
         // first copy the file from resources to actual location in temp
         final String filename = "test.mp3";
@@ -129,29 +132,85 @@ public class TestFFAudioFileReader {
     }
 
     @Test
-    public void testGetAudioFileFormatSpacesUmlautsPunctuation() throws IOException, UnsupportedAudioFileException {
+    public void testGetAudioFileFormatFLACFile() throws IOException, UnsupportedAudioFileException {
         // first copy the file from resources to actual location in temp
-        final String filename = "test.mp3";
-        final File file = File.createTempFile("testGetAudioFileFormatSpacesAndUmlauts-t\u00fcst file [;:&= @[]?]", filename);
+        final String filename = "test.flac";
+        final File file = File.createTempFile("testGetAudioFileFormatFLACFile", filename);
         extractFile(filename, file);
         try {
             final AudioFileFormat fileFormat = new FFAudioFileReader().getAudioFileFormat(file);
             System.out.println(fileFormat);
 
-            assertEquals("mp3", fileFormat.getType().getExtension());
+            assertEquals("flac", fileFormat.getType().getExtension());
             assertEquals(file.length(), fileFormat.getByteLength());
-            assertEquals(143251, fileFormat.getFrameLength());
+            assertEquals(133632, fileFormat.getFrameLength());
 
             final AudioFormat format = fileFormat.getFormat();
             assertEquals(-1, format.getFrameSize());
             assertEquals(2, format.getChannels());
             final Long duration = (Long)fileFormat.getProperty("duration");
             assertNotNull(duration);
-            assertEquals(3248333, (long)duration);
-            assertEquals(38.28125f, format.getFrameRate(), 0.001f);
+            assertEquals(3030204, (long)duration);
+            assertEquals(44100.0f, format.getFrameRate(), 0.001f);
             final Integer bitrate = (Integer)format.getProperty("bitrate");
-            assertNotNull(bitrate);
-            assertEquals(192000, (int)bitrate);
+            assertNull("Expcted bitrate to be missing, but it is not: " + bitrate, bitrate);
+        } finally {
+            file.delete();
+        }
+    }
+
+    @Test
+    public void testGetAudioFileFormatOggFile() throws IOException, UnsupportedAudioFileException {
+        // first copy the file from resources to actual location in temp
+        final String filename = "test.ogg";
+        final File file = File.createTempFile("testGetAudioFileFormatOggCFile", filename);
+        extractFile(filename, file);
+        try {
+            final AudioFileFormat fileFormat = new FFAudioFileReader().getAudioFileFormat(file);
+            System.out.println(fileFormat);
+
+            assertEquals("ogg", fileFormat.getType().getExtension());
+            assertEquals(file.length(), fileFormat.getByteLength());
+            assertEquals(133632, fileFormat.getFrameLength());
+
+            final AudioFormat format = fileFormat.getFormat();
+            assertEquals(-1, format.getFrameSize());
+            assertEquals(2, format.getChannels());
+            final Long duration = (Long)fileFormat.getProperty("duration");
+            assertNotNull(duration);
+            assertEquals(3030204, (long)duration);
+            assertEquals(44100.0f, format.getFrameRate(), 0.001f);
+            final Integer bitrate = (Integer)format.getProperty("bitrate");
+            assertNotNull("Bitrate missing", bitrate);
+            assertEquals(112000, (int)bitrate);
+        } finally {
+            file.delete();
+        }
+    }
+    @Test
+    public void testGetAudioFileFormatSpacesUmlautsPunctuation() throws IOException, UnsupportedAudioFileException {
+        // first copy the file from resources to actual location in temp
+        final String filename = "test.ogg";
+        final File file = File.createTempFile("testGetAudioFileFormatSpacesAndUmlauts-t\u00fcst file [;:&= @[]?]", filename);
+        extractFile(filename, file);
+        try {
+            final AudioFileFormat fileFormat = new FFAudioFileReader().getAudioFileFormat(file);
+            System.out.println(fileFormat);
+
+            assertEquals("ogg", fileFormat.getType().getExtension());
+            assertEquals(file.length(), fileFormat.getByteLength());
+            assertEquals(133632, fileFormat.getFrameLength());
+
+            final AudioFormat format = fileFormat.getFormat();
+            assertEquals(-1, format.getFrameSize());
+            assertEquals(2, format.getChannels());
+            final Long duration = (Long)fileFormat.getProperty("duration");
+            assertNotNull(duration);
+            assertEquals(3030204, (long)duration);
+            assertEquals(44100.0f, format.getFrameRate(), 0.001f);
+            final Integer bitrate = (Integer)format.getProperty("bitrate");
+            assertNotNull("Bitrate missing", bitrate);
+            assertEquals(112000, (int)bitrate);
         } finally {
             file.delete();
         }
@@ -160,27 +219,27 @@ public class TestFFAudioFileReader {
     @Test
     public void testGetAudioFileFormatURL() throws IOException, UnsupportedAudioFileException {
         // first copy the file from resources to actual location in temp
-        final String filename = "test.mp3";
+        final String filename = "test.ogg";
         final File file = File.createTempFile("testGetAudioFileFormatURL", filename);
         extractFile(filename, file);
         try {
             final AudioFileFormat fileFormat = new FFAudioFileReader().getAudioFileFormat(file.toURI().toURL());
             System.out.println(fileFormat);
 
-            assertEquals("mp3", fileFormat.getType().getExtension());
+            assertEquals("ogg", fileFormat.getType().getExtension());
             assertEquals(file.length(), fileFormat.getByteLength());
-            assertEquals(143251, fileFormat.getFrameLength());
+            assertEquals(133632, fileFormat.getFrameLength());
 
             final AudioFormat format = fileFormat.getFormat();
             assertEquals(-1, format.getFrameSize());
             assertEquals(2, format.getChannels());
             final Long duration = (Long)fileFormat.getProperty("duration");
             assertNotNull(duration);
-            assertEquals(3248333, (long)duration);
-            assertEquals(38.28125f, format.getFrameRate(), 0.001f);
+            assertEquals(3030204, (long)duration);
+            assertEquals(44100.0f, format.getFrameRate(), 0.001f);
             final Integer bitrate = (Integer)format.getProperty("bitrate");
-            assertNotNull(bitrate);
-            assertEquals(192000, (int) bitrate);
+            assertNotNull("Bitrate missing", bitrate);
+            assertEquals(112000, (int) bitrate);
         } finally {
             file.delete();
         }
@@ -189,14 +248,14 @@ public class TestFFAudioFileReader {
     @Test
     public void testGetAudioFileFormatInputStream() throws IOException, UnsupportedAudioFileException {
         // first copy the file from resources to actual location in temp
-        final String filename = "test.mp3";
+        final String filename = "test.ogg";
         final File file = File.createTempFile("testGetAudioFileFormatInputStream", filename);
         extractFile(filename, file);
         try {
             final AudioFileFormat fileFormat = new FFAudioFileReader().getAudioFileFormat(new BufferedInputStream(new FileInputStream(file)));
             System.out.println(fileFormat);
 
-            assertEquals("mp3", fileFormat.getType().getExtension());
+            assertEquals("ogg", fileFormat.getType().getExtension());
             assertEquals(AudioSystem.NOT_SPECIFIED, fileFormat.getByteLength());
             assertEquals(AudioSystem.NOT_SPECIFIED, fileFormat.getFrameLength());
 
@@ -205,7 +264,7 @@ public class TestFFAudioFileReader {
             assertEquals(-1, format.getFrameSize());
             final Long duration = (Long)fileFormat.getProperty("duration");
             assertNull(duration);
-            assertEquals(38.28125f, format.getFrameRate(), 0.00001f);
+            assertEquals(44100.0f, format.getFrameRate(), 0.00001f);
         } finally {
             file.delete();
         }
@@ -213,7 +272,7 @@ public class TestFFAudioFileReader {
 
     @Test
     public void testNotExistingURL() throws IOException, UnsupportedAudioFileException {
-        final File file =  new File("test" + System.currentTimeMillis()+ ".wav");
+        final File file = new File("test" + System.currentTimeMillis()+ ".wav");
         try {
             new FFAudioFileReader().getAudioFileFormat(file.toURI().toURL());
             fail("Expected FileNotFoundException");
@@ -320,6 +379,37 @@ public class TestFFAudioFileReader {
         }
     }
 
+    @Test
+    public void testGetAudioFileFormatFile24bitFLAC() throws IOException, UnsupportedAudioFileException {
+        // first copy the file from resources to actual location in temp
+        final String filename = "test24bit.flac";
+        final File file = File.createTempFile("testGetAudioFileFormatFile24bitFLAC", filename);
+        extractFile(filename, file);
+
+        try {
+            final AudioFileFormat fileFormat = new FFAudioFileReader().getAudioFileFormat(file);
+            System.out.println(fileFormat);
+
+            assertEquals("flac", fileFormat.getType().getExtension());
+            assertEquals(file.length(), fileFormat.getByteLength());
+            assertEquals(133632, fileFormat.getFrameLength());
+            final AudioFormat format = fileFormat.getFormat();
+            assertEquals("FLAC", format.getEncoding().toString());
+            assertEquals(-1, format.getFrameSize());
+            assertEquals(false, format.isBigEndian());
+            assertEquals(2, format.getChannels());
+            final Long duration = (Long)fileFormat.getProperty("duration");
+            assertNotNull(duration);
+            assertEquals(3030204, (long)duration);
+            assertEquals(44100f, format.getSampleRate(), 0.001f);
+            assertEquals(44100f, format.getFrameRate(), 0.001f);
+            assertEquals(24, format.getSampleSizeInBits());
+            final Integer bitrate = (Integer)format.getProperty("bitrate");
+            assertNull("Expcted bitrate to be missing, but it is not: " + bitrate, bitrate);
+        } finally {
+            file.delete();
+        }
+    }
     @Test
     public void testGetAudioFileFormatFileW64() throws IOException, UnsupportedAudioFileException {
         // first copy the file from resources to actual location in temp

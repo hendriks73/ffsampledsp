@@ -47,7 +47,11 @@ public final class FFNativeLibraryLoader {
     private static final String CLASS_FILE_EXTENSION = ".class";
     private static final String NATIVE_LIBRARY_EXTENSION = System.getProperty("os.name").toLowerCase().contains("mac")
             ? ".jnilib" : ".dll";
+    private static final String HOST = System.getProperty("os.name").toLowerCase().contains("mac")
+            ? "darwin" : "mingw32";
     private static final String NATIVE_LIBRARY_PREFIX = "lib";
+    private static final String ARCH = arch();
+
     private static final Set<String> LOADED = new HashSet<String>();
 
     private static Boolean ffSampledSPLibraryLoaded;
@@ -87,6 +91,10 @@ public final class FFNativeLibraryLoader {
 
     /**
      * Loads a library.
+     * First tries {@code libname-arch-host}, via the library path,
+     * then {@code (lib)libname-arch-*.ext} via the classpath,
+     * then {@code libname} via the library path,
+     * and finally {@code (lib)libname*.ext} via the classpath.
      *
      * @param libName name of the library, as described in {@link System#loadLibrary(String)} );
      * @param baseClass class that identifies the jar
@@ -95,15 +103,26 @@ public final class FFNativeLibraryLoader {
         final String key = libName + "|" + baseClass.getName();
         if (LOADED.contains(key)) return;
         try {
-            System.loadLibrary(libName);
+            System.loadLibrary(libName + "-" + ARCH + "-" + HOST);
             LOADED.add(key);
         } catch (Error e) {
             try {
-                final String libFilename = findFile(libName, baseClass, new LibFileFilter(libName));
+                final String libFilename = findFile(libName, baseClass, new LibFileFilter(libName, ARCH));
                 Runtime.getRuntime().load(libFilename);
                 LOADED.add(key);
             } catch (FileNotFoundException e1) {
-                throw e;
+                try {
+                    System.loadLibrary(libName);
+                    LOADED.add(key);
+                } catch (Error e0) {
+                    try {
+                        final String libFilename = findFile(libName, baseClass, new LibFileFilter(libName));
+                        Runtime.getRuntime().load(libFilename);
+                        LOADED.add(key);
+                    } catch (FileNotFoundException e2) {
+                        throw e;
+                    }
+                }
             }
         }
     }
@@ -127,7 +146,7 @@ public final class FFNativeLibraryLoader {
             if (url == null) {
                 throw new FileNotFoundException("Failed to get URL of " + fullyQualifiedBaseClassName);
             } else {
-                File directory = null;
+                File directory;
                 final String path = URLDecoder.decode(url.getPath(), "UTF-8");
                 if (JAR_PROTOCOL.equals(url.getProtocol())) {
                     final String jarFileName = new URL(path.substring(0, path.lastIndexOf('!'))).getPath();
@@ -135,6 +154,8 @@ public final class FFNativeLibraryLoader {
                 } else if (FILE_PROTOCOL.equals(url.getProtocol())) {
                     directory = new File(path.substring(0, path.length()
                             - fullyQualifiedBaseClassName.length() - CLASS_FILE_EXTENSION.length()));
+                } else {
+                    throw new FileNotFoundException("Base class was not loaded via jar: or file: protocol.");
                 }
                 final File[] libs = directory.listFiles(filter);
                 if (libs == null || libs.length == 0) {
@@ -156,17 +177,32 @@ public final class FFNativeLibraryLoader {
 
     private static class LibFileFilter implements FileFilter {
         private final String libName;
+        private final String arch;
 
         public LibFileFilter(final String libName) {
+            this(libName, null);
+        }
+
+        public LibFileFilter(final String libName, final String arch) {
             this.libName = libName;
+            this.arch = arch == null ? "" : "-" + arch;
         }
 
         public boolean accept(final File file) {
             final String fileString = file.toString();
             final String fileName = file.getName();
             return file.isFile()
-                    && (fileName.startsWith(libName) || fileName.startsWith(NATIVE_LIBRARY_PREFIX + libName))
+                    && (fileName.startsWith(libName + arch) || fileName.startsWith(NATIVE_LIBRARY_PREFIX + libName + arch))
                     && fileString.endsWith(NATIVE_LIBRARY_EXTENSION);
         }
+    }
+
+    private static String arch() {
+        final String arch = System.getProperty("os.arch");
+        final boolean x84_64 = "x86_64".equals(arch) || "amd64".equals(arch);
+        final boolean i386 = "i386".equals(arch) || "i486".equals(arch) || "i586".equals(arch) || "i686".equals(arch);
+        return x84_64
+                ? "x86_64"
+                : (i386 ? "i386" : arch);
     }
 }

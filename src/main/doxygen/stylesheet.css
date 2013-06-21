@@ -1,0 +1,22 @@
+/* custom additions */
+
+body, table, div, p, dl {
+    font-family: Trebuchet MS, Verdana, Arial, Helvetica, sans-serif;
+}
+
+/* Headings */
+h1 {
+    color:  #0C55FC;
+}
+
+h2 {
+    color:  #0C55FC;
+}
+
+h3 {
+    color:  #0C55FC;
+}
+
+.title {
+    color:  #0C55FC;
+}

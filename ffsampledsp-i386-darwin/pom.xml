@@ -1,0 +1,174 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.tagtraum</groupId>
+        <artifactId>ffsampledsp</artifactId>
+        <version>0.9.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    <artifactId>ffsampledsp-i386-darwin</artifactId>
+    <packaging>jnilib</packaging>
+    <name>FFSampledSP Native Library Darwin (32bit)</name>
+    <description>Darwin 32bit binary library for FFSampledSP.</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.tagtraum</groupId>
+            <artifactId>ffsampledsp-java</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.tagtraum.ffmpeg</groupId>
+            <artifactId>ffmpeg</artifactId>
+            <version>${ffmpeg.version}</version>
+            <classifier>sources-${arch}-${host}</classifier>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>com.tagtraum.ffmpeg</groupId>
+            <artifactId>libavcodec</artifactId>
+            <version>${avcodec.version}</version>
+            <classifier>${arch}-${host}</classifier>
+            <type>a</type>
+        </dependency>
+        <dependency>
+            <groupId>com.tagtraum.ffmpeg</groupId>
+            <artifactId>libavformat</artifactId>
+            <version>${avformat.version}</version>
+            <classifier>${arch}-${host}</classifier>
+            <type>a</type>
+        </dependency>
+        <dependency>
+            <groupId>com.tagtraum.ffmpeg</groupId>
+            <artifactId>libavutil</artifactId>
+            <version>${avutil.version}</version>
+            <classifier>${arch}-${host}</classifier>
+            <type>a</type>
+        </dependency>
+        <dependency>
+            <groupId>com.tagtraum.ffmpeg</groupId>
+            <artifactId>libswresample</artifactId>
+            <version>${swresample.version}</version>
+            <classifier>${arch}-${host}</classifier>
+            <type>a</type>
+        </dependency>
+        <dependency>
+            <groupId>com.tagtraum.ffmpeg</groupId>
+            <artifactId>libz</artifactId>
+            <version>${zlib.version}</version>
+            <classifier>${arch}-${host}</classifier>
+            <type>a</type>
+        </dependency>
+        <dependency>
+            <groupId>com.tagtraum.ffmpeg</groupId>
+            <artifactId>libbz2</artifactId>
+            <version>${bzip2.version}</version>
+            <classifier>${arch}-${host}</classifier>
+            <type>a</type>
+        </dependency>
+    </dependencies>
+
+    <properties>
+        <arch>i386</arch>
+        <host>darwin</host>
+    </properties>
+
+    <build>
+        <plugins>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>unpack</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>com.tagtraum.ffmpeg</groupId>
+                                    <artifactId>ffmpeg</artifactId>
+                                    <version>${ffmpeg.version}</version>
+                                    <type>jar</type>
+                                    <classifier>sources-${arch}-${host}</classifier>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${project.build.directory}/native/include</outputDirectory>
+                                    <includes>**/*.h</includes>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>native-maven-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <compilerProvider>generic</compilerProvider>
+
+                    <compilerStartOptions>
+                        <compilerStartOption>${darwin.compiler.startoptions}</compilerStartOption>
+                    </compilerStartOptions>
+
+                    <javahOS>darwin</javahOS>
+
+                    <sources>
+                        <source>
+                            <directory>../ffsampledsp-x86_64-darwin/src/main/c</directory>
+                            <includes>
+                                <include>*.c</include>
+                            </includes>
+                        </source>
+                        <!-- additional include path -->
+                        <source>
+                            <!-- FFmpeg headers -->
+                            <directory>${project.build.directory}/native/include</directory>
+                        </source>
+                        <!-- additional system include path -->
+                        <source>
+                            <directory>/System/Library/Frameworks/JavaVM.framework/Headers</directory>
+                            <dependencyAnalysisParticipation>false</dependencyAnalysisParticipation>
+                        </source>
+                    </sources>
+
+                    <linkerStartOptions>
+                        <linkerStartOption>${darwin.linker.startoptions}</linkerStartOption>
+                    </linkerStartOptions>
+
+                    <linkerEndOptions>
+                        <linkerEndOption>${darwin.linker.endoptions}</linkerEndOption>
+                    </linkerEndOptions>
+                </configuration>
+
+                <!-- Generate JNI header files based on a list of class name on the classpath -->
+                <!-- The generated include directory is automatically added to include path at compile phase -->
+                <!-- Ensure to have appropriate dependency jar file(s) in your pom -->
+
+                <executions>
+                    <execution>
+                        <id>javah</id>
+                        <phase>generate-sources</phase>
+                        <configuration>
+                            <classNames>
+                                <className>com.tagtraum.ffsampledsp.FFAudioFileReader</className>
+                                <className>com.tagtraum.ffsampledsp.FFCodecInputStream</className>
+                                <className>com.tagtraum.ffsampledsp.FFURLInputStream</className>
+                                <className>com.tagtraum.ffsampledsp.FFStreamInputStream</className>
+                            </classNames>
+                        </configuration>
+                        <goals>
+                            <goal>javah</goal>
+                        </goals>
+                    </execution>
+
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

@@ -252,8 +252,13 @@
     <scm>
         <connection>scm:git:git://github.com/hendriks73/ffsampledsp.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/hendriks73/ffsampledsp.git</developerConnection>
-        <url>https://github.com/hendriks73/ffsampledsp</url>
+        <url>https://github.com/hendriks73/ffsampledsp/tree/master</url>
     </scm>
+
+    <issueManagement>
+        <system>GitHub Issues</system>
+        <url>https://github.com/hendriks73/ffsampledsp/issues</url>
+    </issueManagement>
 
     <properties>
         <arch>x86_64</arch>

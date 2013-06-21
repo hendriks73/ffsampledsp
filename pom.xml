@@ -39,12 +39,12 @@
     </developers>
     <modules>
         <module>ffsampledsp-java</module>
-        <module>ffsampledsp-test</module>
-        <module>ffsampledsp-universal</module>
         <module>ffsampledsp-i386-darwin</module>
         <module>ffsampledsp-i386-mingw32</module>
         <module>ffsampledsp-x86_64-darwin</module>
         <module>ffsampledsp-x86_64-mingw32</module>
+        <module>ffsampledsp-test</module>
+        <module>ffsampledsp-universal</module>
     </modules>
     <dependencies>
         <dependency>

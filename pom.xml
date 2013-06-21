@@ -1,10 +1,11 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <prerequisites>
         <maven>3.0.5</maven>
     </prerequisites>
     <groupId>com.tagtraum</groupId>
-    <version>0.9.1-SNAPSHOT</version>
+    <version>0.9.0-SNAPSHOT</version>
     <artifactId>ffsampledsp</artifactId>
     <packaging>pom</packaging>
     <name>FFSampledSP</name>
@@ -182,8 +183,10 @@
                                 <echo>Project.Basedir: ${project.basedir}}</echo>
                                 <echo>This doxygen call may fail for modules without doxygen configuration.</echo>
                                 <echo>=====================================================================</echo>
-                                <exec dir="${basedir}" executable="doxygen" failonerror="false">
-                                    <arg line="${basedir}/src/main/doxygen/Doxyfile" />
+                                <exec dir="${basedir}"
+                                      executable="doxygen"
+                                      failonerror="false">
+                                    <arg line="${basedir}/src/main/doxygen/Doxyfile"/>
                                 </exec>
                             </target>
                         </configuration>
@@ -272,7 +275,7 @@
 
         <ccompiler>gcc</ccompiler>
         <!-- override with -D on commandline to pass additional flags, like -DDEBUG via the cflags property -->
-        <cflags />
+        <cflags/>
 
         <mingw.i386.path>/Users/hendrik/mingw/mingw-w32-i686/bin</mingw.i386.path>
         <mingw.i386.crossprefix>i686-w64-mingw32-</mingw.i386.crossprefix>
@@ -292,7 +295,7 @@
             -I${darwin.headers.jni}</darwin.compiler.startoptions>
         <darwin.linker.startoptions>-arch ${arch} -dynamiclib -isysroot ${isysroot}
             -mmacosx-version-min=${mmacosx-version-min} -single_module -compatibility_version 1 -current_version 1</darwin.linker.startoptions>
-        <darwin.linker.endoptions />
+        <darwin.linker.endoptions/>
         <!-- Custom JDK: -->
         <!-- <darwin.headers.jni>/Library/Java/JavaVirtualMachines/jdk1.7.0_25.jdk/Contents/Home/include/</darwin.headers.jni> -->
         <!-- Apple JDK: -->

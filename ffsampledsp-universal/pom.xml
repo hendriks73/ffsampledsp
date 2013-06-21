@@ -1,9 +1,10 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.tagtraum</groupId>
         <artifactId>ffsampledsp</artifactId>
-        <version>0.9.1-SNAPSHOT</version>
+        <version>0.9.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>ffsampledsp-universal</artifactId>
@@ -44,11 +45,14 @@
                             <target>
                                 <!-- hack to work around limitations of maven-dependency-plugin - basically not working with javadoc aggregate reports -->
                                 <!-- related to http://jira.codehaus.org/browse/MDEP-187 -->
-                                <mkdir dir="${project.build.directory}/lib" />
-                                <copy file="../ffsampledsp-i386-darwin/target/ffsampledsp-i386-darwin.jnilib" toDir="${project.build.directory}/lib" />
-                                <copy file="../ffsampledsp-x86_64-darwin/target/ffsampledsp-x86_64-darwin.jnilib" toDir="${project.build.directory}/lib" />
+                                <mkdir dir="${project.build.directory}/lib"/>
+                                <copy file="../ffsampledsp-i386-darwin/target/ffsampledsp-i386-darwin.jnilib" toDir="${project.build.directory}/lib"/>
+                                <copy file="../ffsampledsp-x86_64-darwin/target/ffsampledsp-x86_64-darwin.jnilib" toDir="${project.build.directory}/lib"/>
 
-                                <exec dir="${project.build.directory}" executable="/usr/bin/lipo" failonerror="true">
+                                <exec
+                                        dir="${project.build.directory}"
+                                        executable="/usr/bin/lipo"
+                                        failonerror="true">
 
                                     <arg line="-create lib/ffsampledsp-x86_64-darwin.jnilib lib/ffsampledsp-i386-darwin.jnilib -output ${project.artifactId}.jnilib" />
                                 </exec>

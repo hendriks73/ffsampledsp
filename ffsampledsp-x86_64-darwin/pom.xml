@@ -132,6 +132,8 @@
                     </compilerStartOptions>
 
                     <javahOS>darwin</javahOS>
+                    <jdkIncludePath>${darwin.headers.jni}</jdkIncludePath>
+
                     <sources>
                         <source>
                             <directory>src/main/c</directory>
@@ -143,11 +145,6 @@
                         <source>
                             <!-- FFmpeg headers -->
                             <directory>${project.build.directory}/native/include</directory>
-                        </source>
-                        <!-- additional system include path -->
-                        <source>
-                            <directory>/System/Library/Frameworks/JavaVM.framework/Headers</directory>
-                            <dependencyAnalysisParticipation>false</dependencyAnalysisParticipation>
                         </source>
                     </sources>
 

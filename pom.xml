@@ -292,8 +292,7 @@
         <!-- add -DDEBUG to enable standard out debug messages -->
         <darwin.compiler.startoptions>${cflags} -Wall -x c -arch ${arch} -fmessage-length=0 -pipe -Wno-trigraphs
             -fpascal-strings -fasm-blocks -Os -s -isysroot ${isysroot}
-            -mmacosx-version-min=${mmacosx-version-min}
-            -I${darwin.headers.jni}</darwin.compiler.startoptions>
+            -mmacosx-version-min=${mmacosx-version-min}</darwin.compiler.startoptions>
         <darwin.linker.startoptions>-arch ${arch} -dynamiclib -isysroot ${isysroot}
             -mmacosx-version-min=${mmacosx-version-min} -single_module -compatibility_version 1 -current_version 1</darwin.linker.startoptions>
         <darwin.linker.endoptions />

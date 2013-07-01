@@ -260,7 +260,11 @@
     <properties>
         <arch>x86_64</arch>
         <host>darwin</host>
+        <!-- For newer XCode versions: -->
+        <!-- <mmacosx-version-min>10.7</mmacosx-version-min> -->
         <mmacosx-version-min>10.6</mmacosx-version-min>
+        <!-- For newer XCode versions: -->
+        <!-- <isysroot>/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.7.sdk/</isysroot> -->
         <isysroot>/Developer/SDKs/MacOSX${mmacosx-version-min}.sdk</isysroot>
         <ffmpeg.version>1.2.1</ffmpeg.version>
         <avcodec.version>54.92.100</avcodec.version>

@@ -9,7 +9,9 @@ Introduction
 
     <FFSampledSP> is a free implementation of the
     {{{http://docs.oracle.com/javase/7/docs/api/javax/sound/sampled/spi/package-summary.html}javax.sound.sampled.spi}}
-    interfaces.
+    interfaces. It is part of the {{{http://www.tagtraum.com/sampledsp.html}SampledSP}} collection of
+    <<<javax.sound.sampled>>> libraries.
+
     Its main purpose is to decode audio from various formats at high speed using {{{http://www.ffmpeg.org}FFmpeg}}.
     To do so, it uses the {{{http://www.tagtraum.com/ffmpeg/}tagtraum FFmpeg package}}, which offers
     FFmpeg binaries configured to decode audio while avoiding codecs with patent problems. In other words,
@@ -23,13 +25,24 @@ Introduction
 
 * Getting Started
 
-    The easiest way to use FFSampledSP (other than simply using the
-    {{{http://www.beatunes.com/repo/maven2/com/tagtraum/ffsampledsp/}jar and jnilib/dll}}) is to start a
-    {{{http://maven.apache.org/}Maven}} project and introduce a FFSampledSP dependency.
+    The easiest way to use <FFSampledSP> (other than simply using the
+    {{{http://www.beatunes.com/repo/maven2/com/tagtraum/ffsampledsp-java/${projectversion}/ffsampledsp-java-${projectversion}.jar}jar}} and
+    {{{http://www.beatunes.com/repo/maven2/com/tagtraum/ffsampledsp/${projectversion}/ffsampledsp-universal-${projectversion}.jnilib}jnilib}}/
+    {{{http://www.beatunes.com/repo/maven2/com/tagtraum/ffsampledsp/${projectversion}/ffsampledsp-x86_64-mingw32-${projectversion}.dll}64bit-dll}}/
+    {{{http://www.beatunes.com/repo/maven2/com/tagtraum/ffsampledsp/${projectversion}/ffsampledsp-i386-mingw32-${projectversion}.dll}32bit-dll}})
+    is to start a
+    {{{http://maven.apache.org/}Maven}} project and introduce a <FFSampledSP> dependency.
 
     To do so, add something like this to the dependencies section of your pom:
 
 +-------------------------------+
+<dependency>
+    <groupId>com.tagtraum</groupId>
+    <artifactId>ffsampledsp-java</artifactId>
+    <version>${projectversion}</version>
+    <type>jar</type>
+</dependency>
+
 <dependency>
     <groupId>com.tagtraum</groupId>
     <!-- artifact for the OS X universal fat binary -->
@@ -77,13 +90,6 @@ Introduction
     <type>jnilib</type>
 </dependency>
 -->
-
-<dependency>
-    <groupId>com.tagtraum</groupId>
-    <artifactId>ffsampledsp-java</artifactId>
-    <version>${projectversion}</version>
-    <type>jar</type>
-</dependency>
 +-------------------------------+
 
 
@@ -98,7 +104,9 @@ Introduction
 </repository>
 +-------------------------------+
 
-    To use the library, simply use the <<<javax.sound.sampled>>> classes like you normally would.
+    To use the library, simply use the
+    {{{http://docs.oracle.com/javase/7/docs/api/javax/sound/sampled/package-summary.html}javax.sound.sampled}}
+    classes like you normally would.
 
 * Requirements
 
@@ -116,3 +124,24 @@ Introduction
 
     For a service provider based on Apple's CoreAudio, check out {{{http://www.tagtraum.com/casampledsp/}CASampledSP}}.
     This provider also supports many codecs with patent problems.
+
+* Other Java FFmpeg Projects
+
+    There are numerous other Java-FFmpeg projects. Here's the short list, of the projects I'm aware of:
+
+        * {{{http://www.xuggle.com}Xuggle}} - Java wrapper around FFmpeg using JNI.
+
+        * {{{http://code.google.com/p/jjmpeg/}jjmpeg}} - thin Java wrapper around FFmpeg using JNI.
+
+        * {{{http://www.sauronsoftware.it/projects/jave/}JAVE}} - Java wrapper around FFmpeg executables.
+
+        * {{{http://fmj-sf.net/ffmpeg-java/getting_started.php}FFMPEG-Java}} - Java wrapper around FFmpeg,
+        using {{{https://github.com/twall/jna}JNA}}. Apparently abandoned in 2007.
+
+        * {{{http://jffmpeg.sourceforge.net/index.html}Jffmpeg}} - Plugins for the Java Media Framework (JMF).
+        Apparently abandoned in 2006.
+
+    As far as I am aware, except for the abandoned <Jffmpeg>, all these wrappers require you to learn either
+    the FFmpeg API or some other proprietary API.
+    Contrary to this, you can use the familiar Java APIs when using <FFSampledSP> or other
+    {{{http://www.tagtraum.com/sampledsp.html}SampledSP}} libraries for decoding audio.

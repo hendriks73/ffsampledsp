@@ -11,6 +11,7 @@
     <description>FFmpeg based service provider for javax.sound.sampled.</description>
     <url>http://www.tagtraum.com/ffsampledsp</url>
     <inceptionYear>2013</inceptionYear>
+
     <licenses>
         <license>
             <name>LGPL 2.1</name>
@@ -18,10 +19,12 @@
             <comments>LGPL 2.1</comments>
         </license>
     </licenses>
+
     <organization>
         <name>tagtraum industries incorporated</name>
         <url>http://www.tagtraum.com/</url>
     </organization>
+
     <developers>
         <developer>
             <id>hendrik</id>
@@ -36,6 +39,7 @@
             <timezone>+1</timezone>
         </developer>
     </developers>
+
     <modules>
         <module>ffsampledsp-java</module>
         <module>ffsampledsp-i386-darwin</module>
@@ -45,6 +49,66 @@
         <module>ffsampledsp-test</module>
         <module>ffsampledsp-universal</module>
     </modules>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.tagtraum</groupId>
+                <artifactId>ffsampledsp-java</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.tagtraum.ffmpeg</groupId>
+                <artifactId>ffmpeg</artifactId>
+                <version>${ffmpeg.version}</version>
+                <classifier>sources-${arch}-${host}</classifier>
+                <type>jar</type>
+            </dependency>
+            <dependency>
+                <groupId>com.tagtraum.ffmpeg</groupId>
+                <artifactId>libavcodec</artifactId>
+                <version>${avcodec.version}</version>
+                <classifier>${arch}-${host}</classifier>
+                <type>a</type>
+            </dependency>
+            <dependency>
+                <groupId>com.tagtraum.ffmpeg</groupId>
+                <artifactId>libavformat</artifactId>
+                <version>${avformat.version}</version>
+                <classifier>${arch}-${host}</classifier>
+                <type>a</type>
+            </dependency>
+            <dependency>
+                <groupId>com.tagtraum.ffmpeg</groupId>
+                <artifactId>libavutil</artifactId>
+                <version>${avutil.version}</version>
+                <classifier>${arch}-${host}</classifier>
+                <type>a</type>
+            </dependency>
+            <dependency>
+                <groupId>com.tagtraum.ffmpeg</groupId>
+                <artifactId>libswresample</artifactId>
+                <version>${swresample.version}</version>
+                <classifier>${arch}-${host}</classifier>
+                <type>a</type>
+            </dependency>
+            <dependency>
+                <groupId>com.tagtraum.ffmpeg</groupId>
+                <artifactId>libz</artifactId>
+                <version>${zlib.version}</version>
+                <classifier>${arch}-${host}</classifier>
+                <type>a</type>
+            </dependency>
+            <dependency>
+                <groupId>com.tagtraum.ffmpeg</groupId>
+                <artifactId>libbz2</artifactId>
+                <version>${bzip2.version}</version>
+                <classifier>${arch}-${host}</classifier>
+                <type>a</type>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
@@ -113,8 +177,8 @@
             </plugin>
         </plugins>
     </reporting>
-    <build>
 
+    <build>
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -287,10 +351,10 @@
         <!-- For newer XCode versions: -->
         <!-- <isysroot>/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.7.sdk/</isysroot> -->
         <isysroot>/Developer/SDKs/MacOSX${mmacosx-version-min}.sdk</isysroot>
-        <ffmpeg.version>1.2.1</ffmpeg.version>
-        <avcodec.version>54.92.100</avcodec.version>
-        <avutil.version>52.18.100</avutil.version>
-        <avformat.version>54.63.104</avformat.version>
+        <ffmpeg.version>2.0</ffmpeg.version>
+        <avcodec.version>55.18.102</avcodec.version>
+        <avutil.version>52.38.100</avutil.version>
+        <avformat.version>55.12.100</avformat.version>
         <swresample.version>0.17.102</swresample.version>
         <bzip2.version>1.0.6</bzip2.version>
         <zlib.version>1.2.8</zlib.version>
@@ -321,8 +385,10 @@
         <!-- <darwin.headers.jni>/Library/Java/JavaVirtualMachines/jdk1.7.0_25.jdk/Contents/Home/include/</darwin.headers.jni> -->
         <!-- Apple JDK: -->
         <darwin.headers.jni>/System/Library/Frameworks/JavaVM.framework/Headers</darwin.headers.jni>
-        <projectversion>${project.version}</projectversion> <!-- alias, because of http://maven.apache.org/plugins/maven-site-plugin/examples/creating-content.html#Filtering -->
 
+        <!-- aliases, because of http://maven.apache.org/plugins/maven-site-plugin/examples/creating-content.html#Filtering -->
+        <projectversion>${project.version}</projectversion>
+        <ffmpegversion>${ffmpeg.version}}</ffmpegversion>
 
     </properties>
 

@@ -19,42 +19,36 @@
         <dependency>
             <groupId>com.tagtraum.ffmpeg</groupId>
             <artifactId>libavcodec</artifactId>
-            <version>${avcodec.version}</version>
             <classifier>${arch}-${host}</classifier>
             <type>a</type>
         </dependency>
         <dependency>
             <groupId>com.tagtraum.ffmpeg</groupId>
             <artifactId>libavformat</artifactId>
-            <version>${avformat.version}</version>
             <classifier>${arch}-${host}</classifier>
             <type>a</type>
         </dependency>
         <dependency>
             <groupId>com.tagtraum.ffmpeg</groupId>
             <artifactId>libavutil</artifactId>
-            <version>${avutil.version}</version>
             <classifier>${arch}-${host}</classifier>
             <type>a</type>
         </dependency>
         <dependency>
             <groupId>com.tagtraum.ffmpeg</groupId>
             <artifactId>libswresample</artifactId>
-            <version>${swresample.version}</version>
             <classifier>${arch}-${host}</classifier>
             <type>a</type>
         </dependency>
         <dependency>
             <groupId>com.tagtraum.ffmpeg</groupId>
             <artifactId>libz</artifactId>
-            <version>${zlib.version}</version>
             <classifier>${arch}-${host}</classifier>
             <type>a</type>
         </dependency>
         <dependency>
             <groupId>com.tagtraum.ffmpeg</groupId>
             <artifactId>libbz2</artifactId>
-            <version>${bzip2.version}</version>
             <classifier>${arch}-${host}</classifier>
             <type>a</type>
         </dependency>

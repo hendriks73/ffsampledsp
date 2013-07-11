@@ -14,7 +14,6 @@
         <dependency>
             <groupId>com.tagtraum</groupId>
             <artifactId>ffsampledsp-java</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.tagtraum</groupId>

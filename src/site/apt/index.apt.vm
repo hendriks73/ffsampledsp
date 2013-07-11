@@ -12,7 +12,8 @@ Introduction
     interfaces. It is part of the {{{http://www.tagtraum.com/sampledsp.html}SampledSP}} collection of
     <<<javax.sound.sampled>>> libraries.
 
-    Its main purpose is to decode audio from various formats at high speed using {{{http://www.ffmpeg.org}FFmpeg}}.
+    Its main purpose is to decode audio from various formats at high speed using
+    {{{http://www.ffmpeg.org}FFmpeg ${ffmpegversion}}}.
     To do so, it uses the {{{http://www.tagtraum.com/ffmpeg/}tagtraum FFmpeg package}}, which offers
     FFmpeg binaries configured to decode audio while avoiding codecs with patent problems. In other words,
     it supports formats like OGG and FLAC well, while leaving MPEG-4 and MP3 unsupported. In order to decode

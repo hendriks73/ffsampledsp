@@ -903,7 +903,8 @@ void dumpCodecIds() {
         fprintf(stdout, "private final int AV_CODEC_ID_COMFORT_NOISE = %#x;\n", AV_CODEC_ID_COMFORT_NOISE);
         fprintf(stdout, "private final int AV_CODEC_ID_TAK_DEPRECATED = %#x;\n", AV_CODEC_ID_TAK_DEPRECATED);
         fprintf(stdout, "private final int AV_CODEC_ID_FFWAVESYNTH = %#x;\n", AV_CODEC_ID_FFWAVESYNTH);
-        fprintf(stdout, "private final int AV_CODEC_ID_8SVX_RAW = %#x;\n", AV_CODEC_ID_8SVX_RAW);
+        // apparently not existent in FFmpeg 2:
+        //fprintf(stdout, "private final int AV_CODEC_ID_8SVX_RAW = %#x;\n", AV_CODEC_ID_8SVX_RAW);
         fprintf(stdout, "private final int AV_CODEC_ID_SONIC = %#x;\n", AV_CODEC_ID_SONIC);
         fprintf(stdout, "private final int AV_CODEC_ID_SONIC_LS = %#x;\n", AV_CODEC_ID_SONIC_LS);
         fprintf(stdout, "private final int AV_CODEC_ID_PAF_AUDIO = %#x;\n", AV_CODEC_ID_PAF_AUDIO);

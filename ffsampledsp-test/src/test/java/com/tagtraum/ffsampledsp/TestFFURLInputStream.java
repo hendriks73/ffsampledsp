@@ -284,7 +284,11 @@ public class TestFFURLInputStream {
         } catch (UnsupportedAudioFileException e) {
             // expected this
             e.printStackTrace();
-            assertTrue(e.toString().endsWith("(Operation not permitted)") || e.toString().endsWith("(Invalid data found when processing input)"));
+            assertTrue(e.toString().endsWith("(Operation not permitted)")
+                    || e.toString().endsWith("(Invalid data found when processing input)")
+                    || e.toString().endsWith("(End of file)")
+                    || e.toString().endsWith("(Invalid data found when processing input)")
+            );
         } finally {
             if (in != null) {
                 try {

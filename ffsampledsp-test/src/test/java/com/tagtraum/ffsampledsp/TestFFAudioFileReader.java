@@ -291,22 +291,19 @@ public class TestFFAudioFileReader {
             out.write(random.nextInt());
         }
         out.close();
-        FFURLInputStream in = null;
         try {
             new FFAudioFileReader().getAudioFileFormat(file.toURI().toURL());
             fail("Expected UnsupportedAudioFileException");
         } catch (UnsupportedAudioFileException e) {
             // expected this
             e.printStackTrace();
-            assertTrue(e.toString().endsWith("(Operation not permitted)") || e.toString().endsWith("(Invalid data found when processing input)"));
+            assertTrue(e.toString().endsWith("(Operation not permitted)")
+                    || e.toString().endsWith("(Invalid data found when processing input)")
+                    || e.toString().endsWith("(End of file)")
+                    || e.toString().endsWith("(Invalid data found when processing input)")
+            );
         } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+            file.delete();
         }
     }
 

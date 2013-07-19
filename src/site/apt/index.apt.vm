@@ -146,3 +146,8 @@ Introduction
     the FFmpeg API or some other proprietary API.
     Contrary to this, you can use the familiar Java APIs when using <FFSampledSP> or other
     {{{http://www.tagtraum.com/sampledsp.html}SampledSP}} libraries for decoding audio.
+
+* FFmpeg Sources
+
+    You can find the FFmpeg sources used for this package
+    {{{http://www.beatunes.com/repo/maven2/com/tagtraum/ffmpeg/ffmpeg/${ffmpegversion}/}here}}.

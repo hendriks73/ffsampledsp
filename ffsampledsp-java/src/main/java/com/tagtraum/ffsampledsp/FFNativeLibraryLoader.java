@@ -103,20 +103,24 @@ public final class FFNativeLibraryLoader {
         final String key = libName + "|" + baseClass.getName();
         if (LOADED.contains(key)) return;
         try {
+            Logger.getLogger(FFNativeLibraryLoader.class.getName()).fine("Trying System.loadLibrary(\"" + libName + "-" + ARCH + "-" + HOST + "\")");
             System.loadLibrary(libName + "-" + ARCH + "-" + HOST);
             LOADED.add(key);
         } catch (Error e) {
             try {
                 final String libFilename = findFile(libName, baseClass, new LibFileFilter(libName, ARCH));
+                Logger.getLogger(FFNativeLibraryLoader.class.getName()).fine("Trying Runtime.getRuntime().load(\"" + libFilename + "\")");
                 Runtime.getRuntime().load(libFilename);
                 LOADED.add(key);
             } catch (FileNotFoundException e1) {
                 try {
+                    Logger.getLogger(FFNativeLibraryLoader.class.getName()).fine("Trying System.loadLibrary(\"" + libName + "\")");
                     System.loadLibrary(libName);
                     LOADED.add(key);
                 } catch (Error e0) {
                     try {
                         final String libFilename = findFile(libName, baseClass, new LibFileFilter(libName));
+                        Logger.getLogger(FFNativeLibraryLoader.class.getName()).fine("Trying Runtime.getRuntime().load(\"" + libFilename + "\")");
                         Runtime.getRuntime().load(libFilename);
                         LOADED.add(key);
                     } catch (FileNotFoundException e2) {
@@ -125,6 +129,7 @@ public final class FFNativeLibraryLoader {
                 }
             }
         }
+        Logger.getLogger(FFNativeLibraryLoader.class.getName()).fine("Successfully loaded " + libName);
     }
 
     /**
@@ -197,12 +202,19 @@ public final class FFNativeLibraryLoader {
         }
     }
 
+    /**
+     * Effective architecture name. I.e. either {@code i386} or {@code x86_64}.
+     *
+     * @return {@code "i386"} or {@code "x86_64"}
+     */
     private static String arch() {
         final String arch = System.getProperty("os.arch");
         final boolean x84_64 = "x86_64".equals(arch) || "amd64".equals(arch);
-        final boolean i386 = "i386".equals(arch) || "i486".equals(arch) || "i586".equals(arch) || "i686".equals(arch);
-        return x84_64
+        final boolean i386 = "x86".equals(arch) || "i386".equals(arch) || "i486".equals(arch) || "i586".equals(arch) || "i686".equals(arch);
+        final String resultingArch = x84_64
                 ? "x86_64"
                 : (i386 ? "i386" : arch);
+        Logger.getLogger(FFNativeLibraryLoader.class.getName()).fine("Effective arch name: " + resultingArch);
+        return resultingArch;
     }
 }

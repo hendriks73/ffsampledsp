@@ -322,7 +322,7 @@
             <uniqueVersion>false</uniqueVersion>
             <id>beatunes-repository</id>
             <name>beaTunes Repository</name>
-            <url>sftp://www.beatunes.com/var/www/vhosts/beatunes.com/httpdocs/repo/maven2</url>
+            <url>sftp://www.beatunes.com/var/www/html/repo/maven2</url>
         </repository>
         <downloadUrl>http://www.beatunes.com/repo/maven2</downloadUrl>
         <site>
@@ -352,11 +352,11 @@
         <!-- For newer XCode versions: -->
         <!-- <isysroot>/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.7.sdk/</isysroot> -->
         <isysroot>/Developer/SDKs/MacOSX${mmacosx-version-min}.sdk</isysroot>
-        <ffmpeg.version>2.0</ffmpeg.version>
-        <avcodec.version>55.18.102</avcodec.version>
-        <avutil.version>52.38.100</avutil.version>
-        <avformat.version>55.12.100</avformat.version>
-        <swresample.version>0.17.102</swresample.version>
+        <ffmpeg.version>2.1</ffmpeg.version>
+        <avutil.version>52.48.100</avutil.version>
+        <avcodec.version>55.39.100</avcodec.version>
+        <avformat.version>55.19.104</avformat.version>
+        <swresample.version>0.17.104</swresample.version>
         <bzip2.version>1.0.6</bzip2.version>
         <zlib.version>1.2.8</zlib.version>
 

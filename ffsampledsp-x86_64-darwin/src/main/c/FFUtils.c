@@ -293,7 +293,7 @@ int ff_init_encoder(JNIEnv *env, FFAudioIO *aio, AVCodec *encoder) {
     // make sure we clean up before resetting this
     // in case this is called twice
     if (aio->encode_frame) {
-        avcodec_free_frame(&aio->encode_frame);
+        av_frame_free(&aio->encode_frame);
     }
     if (aio->encode_context) {
         avcodec_close(aio->encode_context);
@@ -325,7 +325,7 @@ int ff_init_encoder(JNIEnv *env, FFAudioIO *aio, AVCodec *encoder) {
         goto bail;
     }
 
-    aio->encode_frame = avcodec_alloc_frame();
+    aio->encode_frame = av_frame_alloc();
     if (!aio->encode_frame) {
         res = AVERROR(ENOMEM);
         throwIOExceptionIfError(env, res, "Could not allocate encoder frame.");
@@ -389,7 +389,7 @@ int ff_init_audioio(JNIEnv *env, FFAudioIO *aio) {
         goto bail;
     }
 
-    aio->decode_frame = avcodec_alloc_frame();
+    aio->decode_frame = av_frame_alloc();
     if (!aio->decode_frame) {
         res = AVERROR(ENOMEM);
         throwIOExceptionIfError(env, res, "Could not allocate frame.");
@@ -695,7 +695,7 @@ void ff_audioio_free(FFAudioIO *aio) {
     if (aio) {
 
         if (aio->encode_frame) {
-            avcodec_free_frame(&aio->encode_frame);
+            av_frame_free(&aio->encode_frame);
         }
         if (aio->encode_context) {
             avcodec_close(aio->encode_context);

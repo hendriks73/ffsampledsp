@@ -302,15 +302,12 @@ public class TestFFURLInputStream {
     }
 
 
-    @Test
+    @Test(expected = FileNotFoundException.class)
     public void testNonExistingFile() throws IOException, UnsupportedAudioFileException {
         FFURLInputStream in = null;
         try {
             in = new FFURLInputStream(new File("/Users/hendrik/bcisdbvigfeir.wav").toURI().toURL());
             in.read(new byte[1024]);
-            fail("Expected FileNotFoundException");
-        } catch (FileNotFoundException e) {
-            // expected this
         } finally {
             if (in != null) {
                 try {
@@ -323,15 +320,12 @@ public class TestFFURLInputStream {
     }
 
 
-    @Test
-    public void testNonExistingURL() throws UnsupportedAudioFileException {
+    @Test(expected = IOException.class)
+    public void testNonExistingURL() throws UnsupportedAudioFileException, IOException {
         FFURLInputStream in = null;
         try {
-            in = new FFURLInputStream(new URL("http://www.bubu.de/hendrik/bcisdbvigfeir.wav"));
+            in = new FFURLInputStream(new URL("http://www.tagtraum.com/hendrik/bcisdbvigfeir.wav"));
             in.read(new byte[1024]);
-            fail("Expected FileNotFoundException/IOException");
-        } catch (IOException e) {
-            // expected this
         } finally {
             if (in != null) {
                 try {

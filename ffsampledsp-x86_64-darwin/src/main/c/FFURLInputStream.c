@@ -56,20 +56,20 @@ JNIEXPORT void JNICALL Java_com_tagtraum_ffsampledsp_FFURLInputStream_fillNative
 JNIEXPORT jlong JNICALL Java_com_tagtraum_ffsampledsp_FFURLInputStream_open(JNIEnv *env, jobject stream, jstring url) {
 
     int res = 0;
-    FFAudioIO *aio;
-
-    aio = calloc(1, sizeof(FFAudioIO));
-    if (!aio) {
-        res = AVERROR(ENOMEM);
-        throwIOExceptionIfError(env, res, "Could not allocate audio io");
-        goto bail;
-    }
+    FFAudioIO *aio = NULL;
 
     // copy URL to local char*
     const char *input_url = (*env)->GetStringUTFChars(env, url, NULL);
     if (!input_url) {
         res = AVERROR(ENOMEM);
         throwIOExceptionIfError(env, res, "Failed to get url");
+        goto bail;
+    }
+
+    aio = calloc(1, sizeof(FFAudioIO));
+    if (!aio) {
+        res = AVERROR(ENOMEM);
+        throwIOExceptionIfError(env, res, "Could not allocate audio io");
         goto bail;
     }
 

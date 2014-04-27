@@ -402,11 +402,12 @@ public class TestFFAudioFileReader {
             assertEquals(44100f, format.getFrameRate(), 0.001f);
             assertEquals(24, format.getSampleSizeInBits());
             final Integer bitrate = (Integer)format.getProperty("bitrate");
-            assertNull("Expcted bitrate to be missing, but it is not: " + bitrate, bitrate);
+            assertNull("Expected bitrate to be missing, but it is not: " + bitrate, bitrate);
         } finally {
             file.delete();
         }
     }
+
     @Test
     public void testGetAudioFileFormatFileW64() throws IOException, UnsupportedAudioFileException {
         // first copy the file from resources to actual location in temp

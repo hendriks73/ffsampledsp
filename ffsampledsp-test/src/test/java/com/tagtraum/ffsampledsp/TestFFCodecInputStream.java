@@ -128,7 +128,6 @@ public class TestFFCodecInputStream {
     }
 
     @Test
-    @Ignore("Can only work with FFmpeg package that supports m4a.")
     public void testReadConvertM4AFileToPCM() throws IOException, UnsupportedAudioFileException {
         final String filename = "test.m4a"; // apple lossless
         final File file = File.createTempFile("testReadConvertM4AFileToPCM", filename);
@@ -264,7 +263,7 @@ public class TestFFCodecInputStream {
     }
 
     @Test
-    @Ignore("Can only work with FFmpeg package that supports m4a.")
+    @Ignore("Can only work with FFmpeg package that supports mp3.")
     public void testDownsampleMP3File() throws IOException, UnsupportedAudioFileException {
         final String filename = "test.mp3";
         final File file = File.createTempFile("testDownsampleMP3File", filename);
@@ -540,7 +539,6 @@ public class TestFFCodecInputStream {
     }
 
     @Test
-    @Ignore("Can only work with FFmpeg package that supports m4a.")
     public void testReadConvertM4AStreamToPCMAndDownsample() throws IOException, UnsupportedAudioFileException {
         final String filename = "test.m4a";
         final File file = File.createTempFile("testReadConvertM4AFileToPCM", filename);
@@ -657,7 +655,6 @@ public class TestFFCodecInputStream {
     }
 
     @Test
-    @Ignore("Can only work with FFmpeg package that supports m4a.")
     public void testReadConvertM4AStreamToPCM() throws IOException, UnsupportedAudioFileException {
         final String filename = "test.m4a";
         final File file = File.createTempFile("testReadConvertM4AFileToPCM", filename);

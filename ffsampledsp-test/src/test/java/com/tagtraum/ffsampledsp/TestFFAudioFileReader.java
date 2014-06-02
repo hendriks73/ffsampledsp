@@ -75,7 +75,6 @@ public class TestFFAudioFileReader {
     }
 
     @Test
-    @Ignore("Can only work with FFmpeg package that supports m4a.")
     public void testGetAudioFileFormatM4AFile() throws IOException, UnsupportedAudioFileException {
         // first copy the file from resources to actual location in temp
         final String filename = "test.m4a"; // apple lossless
@@ -126,6 +125,28 @@ public class TestFFAudioFileReader {
             final Integer bitrate = (Integer)format.getProperty("bitrate");
             assertNotNull(bitrate);
             assertEquals(192000, (int)bitrate);
+        } finally {
+            //file.delete();
+        }
+    }
+
+    /**
+     * Try to load a file with a format that is unsupported.
+     * This test does not work properly, if mp3 is actually supported!
+     *
+     * @throws IOException
+     */
+    @Test
+    public void testGetAudioFileFormatLowProbeScoreFile() throws IOException {
+        // first copy the file from resources to actual location in temp
+        final String filename = "test.mp3";
+        final File file = File.createTempFile("testGetAudioFileFormatMP3File", filename);
+        extractFile(filename, file);
+        try {
+            new FFAudioFileReader().getAudioFileFormat(file);
+        } catch (UnsupportedAudioFileException e) {
+            // we want to test for the specific error message
+            assertTrue(e.toString().contains("Probe score too low"));
         } finally {
             file.delete();
         }
@@ -301,6 +322,7 @@ public class TestFFAudioFileReader {
                     || e.toString().endsWith("(Invalid data found when processing input)")
                     || e.toString().endsWith("(End of file)")
                     || e.toString().endsWith("(Invalid data found when processing input)")
+                    || e.toString().contains("Probe score too low")
             );
         } finally {
             file.delete();

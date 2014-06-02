@@ -71,7 +71,6 @@ public class TestFFURLInputStream {
     }
 
     @Test
-    @Ignore("Can only work with FFmpeg package that supports m4a.")
     public void testReadThroughM4AFile() throws IOException, UnsupportedAudioFileException {
         final String filename = "test.m4a";
         final File file = File.createTempFile("testReadThroughM4AFile", filename);
@@ -288,6 +287,7 @@ public class TestFFURLInputStream {
                     || e.toString().endsWith("(Invalid data found when processing input)")
                     || e.toString().endsWith("(End of file)")
                     || e.toString().endsWith("(Invalid data found when processing input)")
+                    || e.toString().contains("Probe score too low")
             );
         } finally {
             if (in != null) {

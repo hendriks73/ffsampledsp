@@ -1,3 +1,9 @@
+0.9.4
+
+- Enabled Apple Lossless (alac) test cases
+- Require a minimum probe score to avoid misdetection
+
+
 0.9.3
 
 - Moved to FFmpeg 2.2.1

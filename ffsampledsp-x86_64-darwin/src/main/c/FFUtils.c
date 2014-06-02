@@ -28,6 +28,7 @@ static jmethodID rewind_MID = NULL;
 static jmethodID limit_MID = NULL;
 static jmethodID capacity_MID = NULL;
 static jmethodID setNativeBufferCapacity_MID = NULL;
+static int MIN_PROBE_SCORE = 5; // this is fairly arbitrary, but we need to give other javax.sound.sampled impls a chance
 
 /**
  * Init static method and field ids for Java methods/fields, if we don't have them already.
@@ -145,6 +146,7 @@ void throwFileNotFoundExceptionIfError(JNIEnv *env, int err, const char *message
  */
 int ff_open_file(JNIEnv *env, AVFormatContext **format_context, AVStream **stream, int *stream_index, const char *url) {
     int res = 0;
+    int probe_score = 0;
 
     res = avformat_open_input(format_context, url, NULL, NULL);
     if (res) {
@@ -155,6 +157,17 @@ int ff_open_file(JNIEnv *env, AVFormatContext **format_context, AVStream **strea
         } else {
             throwUnsupportedAudioFileExceptionIfError(env, res, "Failed to open audio file");
         }
+        goto bail;
+    }
+    probe_score = av_format_get_probe_score(*format_context);
+
+    #ifdef DEBUG
+        fprintf(stderr, "ff_open_file(): probe score=%i\n", probe_score);
+    #endif
+
+    if (probe_score < MIN_PROBE_SCORE) {
+        res = probe_score;
+        throwUnsupportedAudioFileExceptionIfError(env, probe_score, "Probe score too low");
         goto bail;
     }
 

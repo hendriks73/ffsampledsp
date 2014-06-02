@@ -8,7 +8,7 @@
 Introduction
 
     <FFSampledSP> is a free implementation of the
-    {{{http://docs.oracle.com/javase/7/docs/api/javax/sound/sampled/spi/package-summary.html}javax.sound.sampled.spi}}
+    {{{http://docs.oracle.com/javase/8/docs/api/javax/sound/sampled/spi/package-summary.html}javax.sound.sampled.spi}}
     interfaces. It is part of the {{{http://www.tagtraum.com/sampledsp.html}SampledSP}} collection of
     <<<javax.sound.sampled>>> libraries.
 
@@ -106,7 +106,7 @@ Introduction
 +-------------------------------+
 
     To use the library, simply use the
-    {{{http://docs.oracle.com/javase/7/docs/api/javax/sound/sampled/package-summary.html}javax.sound.sampled}}
+    {{{http://docs.oracle.com/javase/8/docs/api/javax/sound/sampled/package-summary.html}javax.sound.sampled}}
     classes like you normally would.
 
 * Requirements

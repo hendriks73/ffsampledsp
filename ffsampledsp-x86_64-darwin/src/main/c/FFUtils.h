@@ -27,7 +27,7 @@
  * \section intro_sec Introduction
  *
  * <a href="../index.html">FFSampledSP</a> is a free implementation
- * of the <a href="http://docs.oracle.com/javase/7/docs/api/javax/sound/sampled/spi/package-summary.html">javax.sound.sampled.spi</a>
+ * of the <a href="http://docs.oracle.com/javase/8/docs/api/javax/sound/sampled/spi/package-summary.html">javax.sound.sampled.spi</a>
  * interfaces.
  * <br/>
  * Its main purpose is to decode audio from various formats at high speed.

@@ -4,7 +4,7 @@
         <maven>3.0.5</maven>
     </prerequisites>
     <groupId>com.tagtraum</groupId>
-    <version>0.9.5-SNAPSHOT</version>
+    <version>0.9.5</version>
     <artifactId>ffsampledsp</artifactId>
     <packaging>pom</packaging>
     <name>FFSampledSP</name>
@@ -335,7 +335,7 @@
         <connection>scm:git:git://github.com/hendriks73/ffsampledsp.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/hendriks73/ffsampledsp.git</developerConnection>
         <url>https://github.com/hendriks73/ffsampledsp/tree/master</url>
-      <tag>HEAD</tag>
+      <tag>ffsampledsp-0.9.5</tag>
   </scm>
 
     <issueManagement>

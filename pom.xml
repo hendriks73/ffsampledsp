@@ -352,7 +352,7 @@
         <!-- For newer XCode versions: -->
         <!-- <isysroot>/Developer/SDKs/MacOSX${mmacosx-version-min}.sdk</isysroot> -->
         <isysroot>/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk/</isysroot>
-        <ffmpeg.version>2.3</ffmpeg.version>
+        <ffmpeg.version>2.3.3</ffmpeg.version>
         <avutil.version>52.92.100</avutil.version>
         <avcodec.version>55.69.100</avcodec.version>
         <avformat.version>55.48.100</avformat.version>

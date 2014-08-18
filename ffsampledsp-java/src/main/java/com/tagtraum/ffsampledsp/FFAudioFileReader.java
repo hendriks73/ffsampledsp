@@ -113,13 +113,18 @@ public class FFAudioFileReader extends AudioFileReader {
     }
 
     /**
-     * Make sure that file URLs on Windows follow the super special libav style, e.g. "file:C:/path/file.ext".
+     * Make sure that file URLs on Windows follow the super special libav style, e.g. "file:C:/path/file.ext"
+     * or "file://UNCServerName/path/file.ext".
      */
     static String urlToString(final URL url) {
         if (url == null) return null;
         final String s = url.toString();
         if (WINDOWS && s.matches("file\\:/[^\\/].*")) {
             return s.replace("file:/", "file:");
+        }
+        // deal with UNC paths
+        if (WINDOWS && s.matches("file\\:////[^\\/].*")) {
+            return s.replace("file://", "file:");
         }
         return s;
     }

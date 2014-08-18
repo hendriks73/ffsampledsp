@@ -146,7 +146,7 @@ public class TestFFAudioFileReader {
             new FFAudioFileReader().getAudioFileFormat(file);
         } catch (UnsupportedAudioFileException e) {
             // we want to test for the specific error message
-            assertTrue(e.toString().contains("Probe score too low"));
+            assertTrue(e.toString().contains("Invalid data found"));
         } finally {
             file.delete();
         }

@@ -168,7 +168,7 @@ static jlong duration(AVFormatContext *format_context, AVStream *stream) {
 static jfloat get_frame_rate(AVStream *stream, jlong duration) {
     jfloat frame_rate = -1;
 
-    if (stream->nb_frames > 0 && duration > 0) {
+    if (frame_rate <=0 && stream->nb_frames > 0 && duration > 0) {
         frame_rate = stream->nb_frames * 1000000LL / (jfloat)duration;
     }
 
@@ -179,6 +179,19 @@ static jfloat get_frame_rate(AVStream *stream, jlong duration) {
     if (frame_rate <=0 && stream->codec->frame_size == 0 && stream->codec->sample_rate > 0) {
         frame_rate = (jfloat)stream->codec->sample_rate;
     }
+
+
+#ifdef DEBUG
+    if (stream->nb_frames > 0 && duration > 0) {
+        fprintf(stderr, "1 frame rate : %f\n", stream->nb_frames * 1000000LL / (jfloat)duration);
+    }
+    if (stream->codec->frame_size > 0 && stream->codec->sample_rate > 0) {
+        fprintf(stderr, "2 frame rate : %f\n", (jfloat)stream->codec->sample_rate/(jfloat)stream->codec->frame_size);
+    }
+    if (stream->codec->frame_size == 0 && stream->codec->sample_rate > 0) {
+        fprintf(stderr, "3 frame rate : %f\n", (jfloat)stream->codec->sample_rate);
+    }
+#endif
 
     return frame_rate;
 }

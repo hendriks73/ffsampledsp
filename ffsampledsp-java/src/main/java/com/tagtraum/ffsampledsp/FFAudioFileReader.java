@@ -61,7 +61,7 @@ public class FFAudioFileReader extends AudioFileReader {
         }
     });
 
-    private static void addAudioAudioFileFormatToCache(final URL url, final AudioFileFormat audioFileFormat) {
+    private static void addAudioFileFormatToCache(final URL url, final AudioFileFormat audioFileFormat) {
         cache.put(url, audioFileFormat);
     }
 
@@ -138,7 +138,7 @@ public class FFAudioFileReader extends AudioFileReader {
         }
         final AudioFileFormat audioFileFormat = lockedGetAudioFileFormatFromURL(urlToString(url));
         if (audioFileFormat != null) {
-            addAudioAudioFileFormatToCache(url, audioFileFormat);
+            addAudioFileFormatToCache(url, audioFileFormat);
         }
         return audioFileFormat;
     }

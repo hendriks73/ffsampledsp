@@ -9,6 +9,8 @@
     <bannerRight>
         <href>http://www.tagtraum.com/</href>
         <src>../images/tagtraum-banner.png</src>
+        <width>90</width>
+        <height>60</height>
     </bannerRight>
     <body>
         <links>

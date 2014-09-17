@@ -1,3 +1,8 @@
+0.9.9
+
+- Fixed tagtraum banner size in sub-modules
+
+
 0.9.8
 
 - Moved to FFmpeg 2.4

@@ -1,3 +1,10 @@
+0.9.8
+
+- Moved to FFmpeg 2.4
+- Changed Maven skin to Fluido
+- Added GitHub ribbon
+
+
 0.9.7
 
 - Moved to FFmpeg 2.3.3

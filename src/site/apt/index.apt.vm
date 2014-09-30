@@ -7,7 +7,7 @@
 
 Introduction
 
-    <FFSampledSP> is a free implementation of the
+    <FFSampledSP> is a free service provider implementation of the
     {{{http://docs.oracle.com/javase/8/docs/api/javax/sound/sampled/spi/package-summary.html}javax.sound.sampled.spi}}
     interfaces. It is part of the {{{http://www.tagtraum.com/sampledsp.html}SampledSP}} collection of
     <<<javax.sound.sampled>>> libraries.
@@ -16,8 +16,8 @@ Introduction
     {{{http://www.ffmpeg.org}FFmpeg ${ffmpegversion}}.
     To do so, it uses the {{{http://www.tagtraum.com/ffmpeg/}tagtraum FFmpeg package}}, which offers
     FFmpeg binaries configured to decode audio while avoiding codecs with patent problems. In other words,
-    it supports formats like OGG and FLAC well, while leaving MPEG-4 and MP3 unsupported. In order to decode
-    those, please see {{{#Alternatives}alternatives}} below.
+    it supports formats like OGG, FLAC, GSM, ... well, while leaving MPEG-4 and MP3 unsupported.
+    In order to decode those, please see {{{#Alternatives}alternatives}} below.
 
     Because <FFSampledSP> depends on native code, you need to add the provided jnilib/dll to your
     <<<java.library.path>>> (make sure it's named <<<ffsampledsp.dll>>> or <<<libffsampledsp.jnilib>>>) and the
@@ -101,7 +101,7 @@ Introduction
 <repository>
     <id>beatunes</id>
     <name>beaTunes Repository</name>
-    <url>http://www.beatunes.com/repo/maven2</url>
+    <url>https://www.beatunes.com/repo/maven2</url>
 </repository>
 +-------------------------------+
 
@@ -150,4 +150,4 @@ Introduction
 * FFmpeg Sources
 
     You can find the FFmpeg sources used for this package
-    {{{http://www.beatunes.com/repo/maven2/com/tagtraum/ffmpeg/ffmpeg/${ffmpegversion}here}}.
+    {{{https://www.beatunes.com/repo/maven2/com/tagtraum/ffmpeg/ffmpeg/${ffmpegversion}here}}.

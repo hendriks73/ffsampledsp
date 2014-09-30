@@ -15,13 +15,13 @@
     <body>
         <links>
             <item name="tagtraum" href="http://www.tagtraum.com/"/>
-            <item name="beaTunes" href="http://www.beatunes.com/"/>
+            <item name="beaTunes" href="https://www.beatunes.com/"/>
             <item name="FFmpeg" href="http://www.ffmpeg.org/"/>
         </links>
 
         <menu name="FFSampledSP">
             <item name="Introduction" href="index.html"/>
-            <item name="Release" href="http://www.beatunes.com/repo/maven2/com/tagtraum/ffsampledsp/ffsampledsp-test"/>
+            <item name="Release" href="https://www.beatunes.com/repo/maven2/com/tagtraum/ffsampledsp/ffsampledsp-test"/>
             <item name="TestDocs" href="testapidocs/index.html"/>
             <item name="JavaDocs" href="../apidocs/index.html"/>
             <item name="C-Docs" href="../doxygen/index.html"/>

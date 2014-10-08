@@ -50,6 +50,14 @@
         <module>ffsampledsp-universal</module>
     </modules>
 
+    <repositories>
+        <repository>
+            <id>beatunes</id>
+            <name>beaTunes Repository</name>
+            <url>https://www.beatunes.com/repo/maven2</url>
+        </repository>
+    </repositories>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -335,7 +343,7 @@
         <developerConnection>scm:git:ssh://git@github.com/hendriks73/ffsampledsp.git</developerConnection>
         <url>https://github.com/hendriks73/ffsampledsp/tree/master</url>
       <tag>HEAD</tag>
-  </scm>
+    </scm>
 
     <issueManagement>
         <system>GitHub Issues</system>
@@ -351,7 +359,7 @@
         <!-- For newer XCode versions: -->
         <!-- <isysroot>/Developer/SDKs/MacOSX${mmacosx-version-min}.sdk</isysroot> -->
         <isysroot>/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk/</isysroot>
-        <ffmpeg.version>2.4</ffmpeg.version>
+        <ffmpeg.version>2.4.2</ffmpeg.version>
         <avutil.version>54.7.100</avutil.version>
         <avcodec.version>56.1.100</avcodec.version>
         <avformat.version>56.4.101</avformat.version>

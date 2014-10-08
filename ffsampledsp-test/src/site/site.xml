@@ -21,7 +21,7 @@
 
         <menu name="FFSampledSP">
             <item name="Introduction" href="index.html"/>
-            <item name="Release" href="https://www.beatunes.com/repo/maven2/com/tagtraum/ffsampledsp/ffsampledsp-test"/>
+            <item name="Release" href="https://www.beatunes.com/repo/maven2/com/tagtraum/ffsampledsp-test"/>
             <item name="TestDocs" href="testapidocs/index.html"/>
             <item name="JavaDocs" href="../apidocs/index.html"/>
             <item name="C-Docs" href="../doxygen/index.html"/>

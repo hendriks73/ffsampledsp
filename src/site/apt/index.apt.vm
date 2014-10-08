@@ -28,9 +28,9 @@ Introduction
 
     The easiest way to use <FFSampledSP> (other than simply using the
     {{{https://www.beatunes.com/repo/maven2/com/tagtraum/ffsampledsp-java/${projectversion}/ffsampledsp-java-${projectversion}.jar}jar}} and
-    {{{https://www.beatunes.com/repo/maven2/com/tagtraum/ffsampledsp/${projectversion}/ffsampledsp-universal-${projectversion}.jnilib}jnilib}}/
-    {{{https://www.beatunes.com/repo/maven2/com/tagtraum/ffsampledsp/${projectversion}/ffsampledsp-x86_64-mingw32-${projectversion}.dll}64bit-dll}}/
-    {{{https://www.beatunes.com/repo/maven2/com/tagtraum/ffsampledsp/${projectversion}/ffsampledsp-i386-mingw32-${projectversion}.dll}32bit-dll}})
+    {{{https://www.beatunes.com/repo/maven2/com/tagtraum/ffsampledsp-universal/${projectversion}/ffsampledsp-universal-${projectversion}.jnilib}jnilib}}/
+    {{{https://www.beatunes.com/repo/maven2/com/tagtraum/ffsampledsp-x86_64-mingw32/${projectversion}/ffsampledsp-x86_64-mingw32-${projectversion}.dll}64bit-dll}}/
+    {{{https://www.beatunes.com/repo/maven2/com/tagtraum/ffsampledsp-i386-mingw32/${projectversion}/ffsampledsp-i386-mingw32-${projectversion}.dll}32bit-dll}})
     is to start a
     {{{http://maven.apache.org/}Maven}} project and introduce a <FFSampledSP> dependency.
 

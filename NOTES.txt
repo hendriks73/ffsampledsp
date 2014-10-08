@@ -1,3 +1,9 @@
+0.9.10
+
+- Fixed direct links to native libs on site
+- Fixed direct links to release repo on site
+
+
 0.9.9
 
 - Fixed tagtraum banner size in sub-modules

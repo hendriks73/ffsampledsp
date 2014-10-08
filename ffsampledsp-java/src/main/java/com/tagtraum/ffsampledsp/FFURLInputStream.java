@@ -38,6 +38,11 @@ public class FFURLInputStream extends FFNativePeerInputStream {
     private URL url;
 
     public FFURLInputStream(final URL url) throws IOException, UnsupportedAudioFileException {
+        // FFmpeg does not recognize the DRM protection and produces garbage data.
+        // Therefore we avoid decoding altogether.
+        if (url.toString().toLowerCase().endsWith(".m4p")) {
+            throw new UnsupportedAudioFileException("DRM protected file is unsupported: " + url);
+        }
         this.url = url;
         this.nativeBuffer.limit(0);
         this.pointer = lockedOpen(FFAudioFileReader.urlToString(url));

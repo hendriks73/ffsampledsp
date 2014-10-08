@@ -70,6 +70,11 @@ public class TestFFURLInputStream {
         System.out.println("Read " + bytesRead + " bytes.");
     }
 
+    @Test(expected = UnsupportedAudioFileException.class)
+    public void testReadThroughM4PFile() throws IOException, UnsupportedAudioFileException {
+        new FFURLInputStream(new URL("file://somefile.m4p"));
+    }
+
     @Test
     public void testReadThroughM4AFile() throws IOException, UnsupportedAudioFileException {
         final String filename = "test.m4a";

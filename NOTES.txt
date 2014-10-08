@@ -1,6 +1,7 @@
 0.9.9
 
 - Fixed tagtraum banner size in sub-modules
+- Made sure DRM protected m4p files are not decoded
 
 
 0.9.8

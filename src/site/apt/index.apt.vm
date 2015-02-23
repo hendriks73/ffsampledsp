@@ -19,8 +19,8 @@ Introduction
     it supports formats like OGG, FLAC, GSM, ... well, while leaving MPEG-4 and MP3 unsupported.
     In order to decode those, please see {{{#Alternatives}alternatives}} below.
 
-    Because <FFSampledSP> depends on native code, you need to add the provided jnilib/dll to your
-    <<<java.library.path>>> (make sure it's named <<<ffsampledsp.dll>>> or <<<libffsampledsp.jnilib>>>) and the
+    Because <FFSampledSP> depends on native code, you need to add the provided dylib/dll to your
+    <<<java.library.path>>> (make sure it's named <<<ffsampledsp.dll>>> or <<<libffsampledsp.dylib>>>) and the
     provided jar to your classpath. Everything else is taken care of automatically.
 
 
@@ -28,7 +28,7 @@ Introduction
 
     The easiest way to use <FFSampledSP> (other than simply using the
     {{{https://www.beatunes.com/repo/maven2/com/tagtraum/ffsampledsp-java/${projectversion}/ffsampledsp-java-${projectversion}.jar}jar}} and
-    {{{https://www.beatunes.com/repo/maven2/com/tagtraum/ffsampledsp-universal/${projectversion}/ffsampledsp-universal-${projectversion}.jnilib}jnilib}}/
+    {{{https://www.beatunes.com/repo/maven2/com/tagtraum/ffsampledsp-universal/${projectversion}/ffsampledsp-universal-${projectversion}.dylib}dylib}}/
     {{{https://www.beatunes.com/repo/maven2/com/tagtraum/ffsampledsp-x86_64-mingw32/${projectversion}/ffsampledsp-x86_64-mingw32-${projectversion}.dll}64bit-dll}}/
     {{{https://www.beatunes.com/repo/maven2/com/tagtraum/ffsampledsp-i386-mingw32/${projectversion}/ffsampledsp-i386-mingw32-${projectversion}.dll}32bit-dll}})
     is to start a
@@ -49,7 +49,7 @@ Introduction
     <!-- artifact for the OS X universal fat binary -->
     <artifactId>ffsampledsp-universal</artifactId>
     <version>${projectversion}</version>
-    <type>jnilib</type>
+    <type>dylib</type>
 </dependency>
 
 <!-- alternative dependency for 64bit Windows -->
@@ -78,7 +78,7 @@ Introduction
     <groupId>com.tagtraum</groupId>
     <artifactId>ffsampledsp-x86_64-darwin</artifactId>
     <version>${projectversion}</version>
-    <type>jnilib</type>
+    <type>dylib</type>
 </dependency>
 -->
 
@@ -88,7 +88,7 @@ Introduction
     <groupId>com.tagtraum</groupId>
     <artifactId>ffsampledsp-i386-darwin</artifactId>
     <version>${projectversion}</version>
-    <type>jnilib</type>
+    <type>dylib</type>
 </dependency>
 -->
 +-------------------------------+

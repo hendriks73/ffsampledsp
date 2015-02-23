@@ -2,6 +2,7 @@
 
 - Fixed direct links to native libs on site
 - Fixed direct links to release repo on site
+- Moved to .dylib instead of .jnilib.
 
 
 0.9.9

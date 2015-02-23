@@ -9,7 +9,7 @@
     <artifactId>ffsampledsp-universal</artifactId>
     <packaging>pom</packaging>
     <name>FFSampledSP Universal Binary</name>
-    <description>Combines i386 and x86_64 binaries for Darwin into one fat jnilib.</description>
+    <description>Combines i386 and x86_64 binaries for Darwin into one fat dylib.</description>
     <dependencies>
         <dependency>
             <groupId>com.tagtraum</groupId>
@@ -19,14 +19,14 @@
             <groupId>com.tagtraum</groupId>
             <artifactId>ffsampledsp-i386-darwin</artifactId>
             <version>${project.version}</version>
-            <type>jnilib</type>
+            <type>dylib</type>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.tagtraum</groupId>
             <artifactId>ffsampledsp-x86_64-darwin</artifactId>
             <version>${project.version}</version>
-            <type>jnilib</type>
+            <type>dylib</type>
             <scope>provided</scope>
         </dependency>
     </dependencies>
@@ -44,12 +44,12 @@
                                 <!-- hack to work around limitations of maven-dependency-plugin - basically not working with javadoc aggregate reports -->
                                 <!-- related to http://jira.codehaus.org/browse/MDEP-187 -->
                                 <mkdir dir="${project.build.directory}/lib" />
-                                <copy file="../ffsampledsp-i386-darwin/target/ffsampledsp-i386-darwin.jnilib" toDir="${project.build.directory}/lib" />
-                                <copy file="../ffsampledsp-x86_64-darwin/target/ffsampledsp-x86_64-darwin.jnilib" toDir="${project.build.directory}/lib" />
+                                <copy file="../ffsampledsp-i386-darwin/target/ffsampledsp-i386-darwin.dylib" toDir="${project.build.directory}/lib" />
+                                <copy file="../ffsampledsp-x86_64-darwin/target/ffsampledsp-x86_64-darwin.dylib" toDir="${project.build.directory}/lib" />
 
                                 <exec dir="${project.build.directory}" executable="/usr/bin/lipo" failonerror="true">
 
-                                    <arg line="-create lib/ffsampledsp-x86_64-darwin.jnilib lib/ffsampledsp-i386-darwin.jnilib -output ${project.artifactId}.jnilib" />
+                                    <arg line="-create lib/ffsampledsp-x86_64-darwin.dylib lib/ffsampledsp-i386-darwin.dylib -output ${project.artifactId}.dylib" />
                                 </exec>
                             </target>
                         </configuration>
@@ -75,8 +75,8 @@
                         <configuration>
                             <artifacts>
                                 <artifact>
-                                    <file>${project.build.directory}/${project.artifactId}.jnilib</file>
-                                    <type>jnilib</type>
+                                    <file>${project.build.directory}/${project.artifactId}.dylib</file>
+                                    <type>dylib</type>
                                 </artifact>
                             </artifacts>
                         </configuration>

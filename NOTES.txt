@@ -3,6 +3,8 @@
 - Fixed direct links to native libs on site
 - Fixed direct links to release repo on site
 - Moved to .dylib instead of .jnilib.
+- Improved HTTP error reporting
+- Moved to FFmpeg 2.6.1
 
 
 0.9.9

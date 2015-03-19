@@ -150,9 +150,15 @@ int ff_open_file(JNIEnv *env, AVFormatContext **format_context, AVStream **strea
 
     res = avformat_open_input(format_context, url, NULL, NULL);
     if (res) {
-        if (res == AVERROR(ENOENT)) {
+        if (res == AVERROR(ENOENT) || res == AVERROR_HTTP_NOT_FOUND) {
             throwFileNotFoundExceptionIfError(env, res, url);
-        } else if (res == AVERROR_PROTOCOL_NOT_FOUND || res == AVERROR(EIO)) {
+        } else if (res == AVERROR_PROTOCOL_NOT_FOUND
+                || res == AVERROR_HTTP_BAD_REQUEST
+                || res == AVERROR_HTTP_UNAUTHORIZED
+                || res == AVERROR_HTTP_FORBIDDEN
+                || res == AVERROR_HTTP_OTHER_4XX
+                || res == AVERROR_HTTP_SERVER_ERROR
+                || res == AVERROR(EIO)) {
             throwIOExceptionIfError(env, res, url);
         } else {
             throwUnsupportedAudioFileExceptionIfError(env, res, "Failed to open audio file");

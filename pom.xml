@@ -127,7 +127,7 @@
         <dependency>
             <groupId>org.apache.ant</groupId>
             <artifactId>ant</artifactId>
-            <version>1.8.4</version>
+            <version>1.9.4</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
@@ -359,10 +359,10 @@
         <!-- For newer XCode versions: -->
         <!-- <isysroot>/Developer/SDKs/MacOSX${mmacosx-version-min}.sdk</isysroot> -->
         <isysroot>/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk/</isysroot>
-        <ffmpeg.version>2.4.2</ffmpeg.version>
-        <avutil.version>54.7.100</avutil.version>
-        <avcodec.version>56.1.100</avcodec.version>
-        <avformat.version>56.4.101</avformat.version>
+        <ffmpeg.version>2.6.1</ffmpeg.version>
+        <avutil.version>54.20.100</avutil.version>
+        <avcodec.version>56.26.100</avcodec.version>
+        <avformat.version>56.25.101</avformat.version>
         <swresample.version>1.1.100</swresample.version>
         <bzip2.version>1.0.6</bzip2.version>
         <zlib.version>1.2.8</zlib.version>

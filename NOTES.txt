@@ -4,6 +4,7 @@
 - Removed references to deprecated FFmpeg APIs
 - Removed useless -s as Clang parameter
 - Fixed Java8-related Javadoc problems
+- Specified UTF-8 as source encoding
 
 
 0.9.10

@@ -59,7 +59,7 @@ public class FFAudioFormat extends AudioFormat {
     }
 
     /**
-     * Special libavcodec encodings that are aware of their AVCodecID.
+     * libavcodec encodings that are aware of their AVCodecID.
      */
     public static class FFEncoding extends Encoding {
 
@@ -216,7 +216,7 @@ public class FFAudioFormat extends AudioFormat {
         private static final String PCM_FLOAT_STRING = "PCM_FLOAT";
 
         /**
-         * Codec supported by libavcodec.
+         * Codecs supported by libavcodec.
          */
         public enum Codec {
             MP1("MPEG-1, Layer 1", AV_CODEC_ID_MP1),

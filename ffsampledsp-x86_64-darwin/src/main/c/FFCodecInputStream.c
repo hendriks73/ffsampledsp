@@ -79,7 +79,7 @@ JNIEXPORT jlong JNICALL Java_com_tagtraum_ffsampledsp_FFCodecInputStream_open(JN
 
     init_ids(env);
 
-    FFAudioIO *aio = (FFAudioIO*)aio_pointer;
+    FFAudioIO *aio = (FFAudioIO*)(intptr_t)aio_pointer;
 
     jfloat sample_rate = (*env)->CallFloatMethod(env, target_format, getSampleRate_MID);
     jint sample_size_in_bits = (*env)->CallIntMethod(env, target_format, getSampleSizeInBits_MID);
@@ -186,5 +186,5 @@ JNIEXPORT jlong JNICALL Java_com_tagtraum_ffsampledsp_FFCodecInputStream_open(JN
 
     bail:
 
-    return (jlong)aio;
+    return (jlong)(intptr_t)aio;
 }

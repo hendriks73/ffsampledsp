@@ -1,3 +1,9 @@
+0.9.11
+
+- Added (intptr_t) casts to avoid warnings
+- Removed references to deprecated FFmpeg APIs
+
+
 0.9.10
 
 - Fixed direct links to native libs on site

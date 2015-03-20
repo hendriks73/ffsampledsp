@@ -34,7 +34,7 @@
  */
 JNIEXPORT void JNICALL Java_com_tagtraum_ffsampledsp_FFURLInputStream_fillNativeBuffer(JNIEnv *env, jobject stream, jlong aio_pointer) {
 
-    FFAudioIO *aio = (FFAudioIO*)aio_pointer;
+    FFAudioIO *aio = (FFAudioIO*)(intptr_t)aio_pointer;
     aio->env = env;
     aio->java_instance = stream;
 
@@ -98,7 +98,7 @@ bail:
     if (res) ff_audioio_free(aio);
     (*env)->ReleaseStringUTFChars(env, url, input_url);
     
-    return (jlong)aio;
+    return (jlong)(intptr_t)aio;
 }
 
 /**
@@ -110,7 +110,7 @@ bail:
  * @return true or false, depending on whether the URL is seekable
  */
 JNIEXPORT jboolean JNICALL Java_com_tagtraum_ffsampledsp_FFURLInputStream_isSeekable(JNIEnv *env, jobject stream, jlong aio_pointer) {
-    FFAudioIO *aio = (FFAudioIO*)aio_pointer;
+    FFAudioIO *aio = (FFAudioIO*)(intptr_t)aio_pointer;
     jboolean seekable = JNI_FALSE;
     seekable = aio->format_context->pb->seekable != 0;
     return seekable;
@@ -125,7 +125,7 @@ JNIEXPORT jboolean JNICALL Java_com_tagtraum_ffsampledsp_FFURLInputStream_isSeek
  * @param microseconds timestamp to seek to
  */
 JNIEXPORT void JNICALL Java_com_tagtraum_ffsampledsp_FFURLInputStream_seek(JNIEnv *env, jobject stream, jlong aio_pointer, jlong microseconds) {
-    FFAudioIO *aio = (FFAudioIO*)aio_pointer;
+    FFAudioIO *aio = (FFAudioIO*)(intptr_t)aio_pointer;
     int res = 0;
     int64_t seek_target = microseconds;
     int64_t current_timestamp = 0;
@@ -163,5 +163,5 @@ JNIEXPORT void JNICALL Java_com_tagtraum_ffsampledsp_FFURLInputStream_seek(JNIEn
  * @param aio_pointer pointer to FFAudioIO
  */
 JNIEXPORT void JNICALL Java_com_tagtraum_ffsampledsp_FFURLInputStream_close(JNIEnv *env, jobject stream, jlong aio_pointer) {
-    ff_audioio_free((FFAudioIO*)aio_pointer);
+    ff_audioio_free((FFAudioIO*)(intptr_t)aio_pointer);
 }

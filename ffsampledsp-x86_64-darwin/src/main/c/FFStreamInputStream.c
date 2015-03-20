@@ -112,7 +112,7 @@ bail:
  */
 JNIEXPORT void JNICALL Java_com_tagtraum_ffsampledsp_FFStreamInputStream_fillNativeBuffer(JNIEnv *env, jobject stream, jlong aio_pointer) {
 
-    FFAudioIO *aio = (FFAudioIO*)aio_pointer;
+    FFAudioIO *aio = (FFAudioIO*)(intptr_t)aio_pointer;
     aio->env = env;
     aio->java_instance = stream;
     ff_fill_buffer(aio);
@@ -155,8 +155,8 @@ JNIEXPORT jlong JNICALL Java_com_tagtraum_ffsampledsp_FFStreamInputStream_open(J
     }
 
     // limit probe to less than what we read in one chunk...
-    aio->format_context->probesize = 8*1024;
-    aio->format_context->max_analyze_duration = 5*AV_TIME_BASE;
+    aio->format_context->probesize2 = 8*1024;
+    aio->format_context->max_analyze_duration2 = 5*AV_TIME_BASE;
 
     callback_buffer = (unsigned char*)av_malloc(CALLBACK_BUFFERSIZE * sizeof(uint8_t));
     if (!callback_buffer) {
@@ -211,7 +211,7 @@ JNIEXPORT jlong JNICALL Java_com_tagtraum_ffsampledsp_FFStreamInputStream_open(J
 bail:
 
     if (res) ff_audioio_free(aio);
-    return (jlong)aio;
+    return (jlong)(intptr_t)aio;
 }
 
 /**
@@ -222,5 +222,5 @@ bail:
  * @param aio_pointer    pointer to FFAudioIO
  */
 JNIEXPORT void JNICALL Java_com_tagtraum_ffsampledsp_FFStreamInputStream_close(JNIEnv *env, jobject stream, jlong aio_pointer) {
-    ff_audioio_free((FFAudioIO*)aio_pointer);
+    ff_audioio_free((FFAudioIO*)(intptr_t)aio_pointer);
 }

@@ -345,8 +345,8 @@ bail:
     }
 
     // limit probe to less than what we read in one chunk...
-    format_context->probesize = 8*1024; // this corresponds to the Java code!
-    format_context->max_analyze_duration = 5*AV_TIME_BASE;
+    format_context->probesize2 = 8*1024; // this corresponds to the Java code!
+    format_context->max_analyze_duration2 = 5*AV_TIME_BASE;
 
     callbackBuffer = (unsigned char*)av_malloc(CALLBACK_BUFFERSIZE * sizeof(uint8_t));
     if (!callbackBuffer) {

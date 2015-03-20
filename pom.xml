@@ -393,7 +393,7 @@
             -mmacosx-version-min=${mmacosx-version-min} -single_module -compatibility_version 1 -current_version 1 -read_only_relocs suppress</darwin.linker.startoptions>
         <darwin.linker.endoptions />
         <!-- Custom JDK: -->
-        <!-- <darwin.headers.jni>/Library/Java/JavaVirtualMachines/jdk1.7.0_25.jdk/Contents/Home/include/</darwin.headers.jni> -->
+        <!-- <darwin.headers.jni>/Library/Java/JavaVirtualMachines/jdk1.8.0_40.jdk/Contents/Home/include/</darwin.headers.jni> -->
         <!-- Apple JDK: -->
         <darwin.headers.jni>/System/Library/Frameworks/JavaVM.framework/Headers</darwin.headers.jni>
 

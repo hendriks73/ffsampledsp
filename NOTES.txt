@@ -2,6 +2,7 @@
 
 - Added (intptr_t) casts to avoid warnings
 - Removed references to deprecated FFmpeg APIs
+- Removed useless -s as Clang parameter
 
 
 0.9.10

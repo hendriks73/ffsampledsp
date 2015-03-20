@@ -33,8 +33,6 @@ import static org.junit.Assert.*;
 
 /**
  * TestAudioSystemIntegration.
- * <p/>
- * Date: 8/25/11
  *
  * @author <a href="mailto:hs@tagtraum.com">Hendrik Schreiber</a>
  */

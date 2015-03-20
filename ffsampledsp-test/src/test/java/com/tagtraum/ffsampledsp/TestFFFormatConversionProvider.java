@@ -34,8 +34,6 @@ import static org.junit.Assert.assertTrue;
 
 /**
  * TestFFFormatConversionProvider.
- * <p/>
- * Date: 8/25/11
  *
  * @author <a href="mailto:hs@tagtraum.com">Hendrik Schreiber</a>
  */

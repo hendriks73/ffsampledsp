@@ -32,8 +32,6 @@ import static org.junit.Assert.*;
 
 /**
  * TestFFStreamInputStream.
- * <p/>
- * Date: 8/20/11
  *
  * @author <a href="mailto:hs@tagtraum.com">Hendrik Schreiber</a>
  */

@@ -36,8 +36,6 @@ import static org.junit.Assert.*;
 
 /**
  * TestFFAudioFileReader.
- * <p/>
- * Date: 8/19/11
  *
  * @author <a href="mailto:hs@tagtraum.com">Hendrik Schreiber</a>
  */
@@ -134,7 +132,7 @@ public class TestFFAudioFileReader {
      * Try to load a file with a format that is unsupported.
      * This test does not work properly, if mp3 is actually supported!
      *
-     * @throws IOException
+     * @throws IOException if there is som IO error
      */
     @Test
     public void testGetAudioFileFormatLowProbeScoreFile() throws IOException {

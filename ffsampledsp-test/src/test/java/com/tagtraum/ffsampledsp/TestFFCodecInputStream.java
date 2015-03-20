@@ -32,8 +32,6 @@ import static org.junit.Assert.fail;
 
 /**
  * TestFFCodecInputStream.
- * <p/>
- * Date: 8/22/11
  *
  * @author <a href="mailto:hs@tagtraum.com">Hendrik Schreiber</a>
  */

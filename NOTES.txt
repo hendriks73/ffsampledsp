@@ -5,6 +5,7 @@
 - Removed useless -s as Clang parameter
 - Fixed Java8-related Javadoc problems
 - Specified UTF-8 as source encoding
+- Moved to FFmpeg 2.7.2
 
 
 0.9.10

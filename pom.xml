@@ -362,11 +362,11 @@
         <!-- For newer XCode versions: -->
         <!-- <isysroot>/Developer/SDKs/MacOSX${mmacosx-version-min}.sdk</isysroot> -->
         <isysroot>/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk/</isysroot>
-        <ffmpeg.version>2.6.1</ffmpeg.version>
-        <avutil.version>54.20.100</avutil.version>
-        <avcodec.version>56.26.100</avcodec.version>
-        <avformat.version>56.25.101</avformat.version>
-        <swresample.version>1.1.100</swresample.version>
+        <ffmpeg.version>2.7.2</ffmpeg.version>
+        <avutil.version>54.27.100</avutil.version>
+        <avcodec.version>56.41.100</avcodec.version>
+        <avformat.version>56.36.100</avformat.version>
+        <swresample.version>1.2.100</swresample.version>
         <bzip2.version>1.0.6</bzip2.version>
         <zlib.version>1.2.8</zlib.version>
 
@@ -390,7 +390,7 @@
             -fpascal-strings -fasm-blocks -Os -isysroot ${isysroot}
             -mmacosx-version-min=${mmacosx-version-min}</darwin.compiler.startoptions>
         <darwin.linker.startoptions>-arch ${arch} -dynamiclib -isysroot ${isysroot}
-            -mmacosx-version-min=${mmacosx-version-min} -single_module -compatibility_version 1 -current_version 1 -read_only_relocs suppress</darwin.linker.startoptions>
+            -mmacosx-version-min=${mmacosx-version-min} -framework CoreFoundation -framework Security -single_module -compatibility_version 1 -current_version 1 -read_only_relocs suppress</darwin.linker.startoptions>
         <darwin.linker.endoptions />
         <!-- Custom JDK: -->
         <!-- <darwin.headers.jni>/Library/Java/JavaVirtualMachines/jdk1.8.0_40.jdk/Contents/Home/include/</darwin.headers.jni> -->

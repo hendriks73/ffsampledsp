@@ -91,7 +91,7 @@ public class TestFFAudioFileReader {
             assertEquals(2, format.getChannels());
             final Long duration = (Long)fileFormat.getProperty("duration");
             assertNotNull(duration);
-            assertEquals(3030204, (long)duration);
+            assertEquals(3030204, (long) duration);
             assertEquals(10.890356f, format.getFrameRate(), 0.001f);
         } finally {
             file.delete();
@@ -142,6 +142,7 @@ public class TestFFAudioFileReader {
         extractFile(filename, file);
         try {
             new FFAudioFileReader().getAudioFileFormat(file);
+            fail("Expected UnsupportedAudioFileException as mp3 is unsupported.");
         } catch (UnsupportedAudioFileException e) {
             // we want to test for the specific error message
             assertTrue(e.toString().contains("Invalid data found"));
@@ -172,7 +173,7 @@ public class TestFFAudioFileReader {
             assertEquals(3030204, (long)duration);
             assertEquals(44100.0f, format.getFrameRate(), 0.001f);
             final Integer bitrate = (Integer)format.getProperty("bitrate");
-            assertNull("Expcted bitrate to be missing, but it is not: " + bitrate, bitrate);
+            assertNull("Expected bitrate to be missing, but it is not: " + bitrate, bitrate);
         } finally {
             file.delete();
         }

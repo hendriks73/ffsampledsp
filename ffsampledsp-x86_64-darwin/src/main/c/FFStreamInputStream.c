@@ -129,7 +129,7 @@ JNIEXPORT void JNICALL Java_com_tagtraum_ffsampledsp_FFStreamInputStream_fillNat
  * @param stream    calling FFStreamInputStream instance
  * @return          pointer to the created FFAudioIO
  */
-JNIEXPORT jlong JNICALL Java_com_tagtraum_ffsampledsp_FFStreamInputStream_open(JNIEnv *env, jobject stream) {
+JNIEXPORT jlong JNICALL Java_com_tagtraum_ffsampledsp_FFStreamInputStream_open(JNIEnv *env, jobject stream, jint streamIndex) {
 
     int res = 0;
     FFAudioIO *aio;
@@ -184,6 +184,7 @@ JNIEXPORT jlong JNICALL Java_com_tagtraum_ffsampledsp_FFStreamInputStream_open(J
     io_context->seekable = 0;
 
     aio->format_context->pb = io_context;
+    aio->stream_index = (int)streamIndex;
 
     res = ff_open_file(env, &aio->format_context, &aio->stream, &aio->stream_index, "MemoryAVIOContext");
     if (res) {

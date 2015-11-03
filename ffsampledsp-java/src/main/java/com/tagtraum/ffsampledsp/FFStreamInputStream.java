@@ -41,9 +41,13 @@ public class FFStreamInputStream extends FFNativePeerInputStream {
     private final ReadableByteChannel channel;
 
     public FFStreamInputStream(final InputStream stream) throws IOException, UnsupportedAudioFileException {
+        this(stream, 0);
+    }
+
+    public FFStreamInputStream(final InputStream stream, final int streamIndex) throws IOException, UnsupportedAudioFileException {
         this.nativeBuffer.limit(0);
         this.channel = Channels.newChannel(stream);
-        this.pointer = lockedOpen();
+        this.pointer = lockedOpen(streamIndex);
     }
 
     /**
@@ -102,15 +106,15 @@ public class FFStreamInputStream extends FFNativePeerInputStream {
     }
 
     /**
-     * Synchronizes calls to {@link #open()}.
+     * Synchronizes calls to {@link #open(int)}.
      *
      * @return pointer to native peer
      * @throws IOException
      */
-    private long lockedOpen() throws IOException {
+    private long lockedOpen(final int streamIndex) throws IOException {
         LOCK.lock();
         try {
-            return open();
+            return open(streamIndex);
         } finally {
             LOCK.unlock();
         }
@@ -129,10 +133,11 @@ public class FFStreamInputStream extends FFNativePeerInputStream {
     /**
      * Allocates native peer.
      *
+     * @param streamIndex index of the desired audio stream (if there are multiple ones)
      * @return pointer to native peer
      * @throws IOException
      */
-    private native long open() throws IOException;
+    private native long open(final int streamIndex) throws IOException;
 
     @Override
     protected native void close(final long pointer) throws IOException;

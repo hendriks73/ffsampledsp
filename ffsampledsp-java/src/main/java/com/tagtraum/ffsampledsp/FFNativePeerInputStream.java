@@ -112,11 +112,14 @@ public abstract class FFNativePeerInputStream extends InputStream {
     }
 
     /**
+     * @return true or false
      * @see com.tagtraum.ffsampledsp.FFAudioInputStream#isSeekable()
      */
     public abstract boolean isSeekable();
 
     /**
+     * @param time time
+     * @param timeUnit time unit
      * @see com.tagtraum.ffsampledsp.FFAudioInputStream#seek(long, java.util.concurrent.TimeUnit)
      */
     public abstract void seek(final long time, final TimeUnit timeUnit) throws UnsupportedOperationException, IOException;

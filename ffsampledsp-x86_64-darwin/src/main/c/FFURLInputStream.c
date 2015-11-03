@@ -53,7 +53,7 @@ JNIEXPORT void JNICALL Java_com_tagtraum_ffsampledsp_FFURLInputStream_fillNative
  * @param url URL
  * @return pointer to new FFAudioIO
  */
-JNIEXPORT jlong JNICALL Java_com_tagtraum_ffsampledsp_FFURLInputStream_open(JNIEnv *env, jobject stream, jstring url) {
+JNIEXPORT jlong JNICALL Java_com_tagtraum_ffsampledsp_FFURLInputStream_open(JNIEnv *env, jobject stream, jstring url, jint streamIndex) {
 
     int res = 0;
     FFAudioIO *aio = NULL;
@@ -72,6 +72,7 @@ JNIEXPORT jlong JNICALL Java_com_tagtraum_ffsampledsp_FFURLInputStream_open(JNIE
         throwIOExceptionIfError(env, res, "Could not allocate audio io");
         goto bail;
     }
+    aio->stream_index = (int)streamIndex;
 
     res = ff_open_file(env, &(aio->format_context), &(aio->stream), &(aio->stream_index), input_url);
     if (res) {

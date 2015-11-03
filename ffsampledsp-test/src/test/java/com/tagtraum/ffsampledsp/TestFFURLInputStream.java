@@ -101,6 +101,58 @@ public class TestFFURLInputStream {
         System.out.println("Read " + bytesRead + " bytes.");
     }
 
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void testBadStreamIndex() throws IOException, UnsupportedAudioFileException {
+        final String filename = "test.stem.mp4";
+        final File file = File.createTempFile("testReadThroughStemMP4File", filename);
+        extractFile(filename, file);
+        try {
+            final URL url = file.toURI().toURL();
+            final AudioFileFormat[] audioFileFormats = new FFAudioFileReader().getAudioFileFormats(url);
+            System.out.println("Found " + audioFileFormats.length + " streams.");
+            new FFURLInputStream(url, audioFileFormats.length);
+        } finally {
+            file.delete();
+        }
+    }
+
+    @Test
+    public void testReadThroughStemMP4File() throws IOException, UnsupportedAudioFileException {
+        final String filename = "test.stem.mp4";
+        final File file = File.createTempFile("testReadThroughStemMP4File", filename);
+        extractFile(filename, file);
+        try {
+            final URL url = file.toURI().toURL();
+            final AudioFileFormat[] audioFileFormats = new FFAudioFileReader().getAudioFileFormats(url);
+
+            System.out.println("Found " + audioFileFormats.length + " streams.");
+            for (int i = 0; i < audioFileFormats.length; i++) {
+                System.out.println("Reading stream " + i + " ...");
+                int bytesRead = 0;
+                FFURLInputStream in = null;
+                try {
+                    in = new FFURLInputStream(url, i);
+                    int justRead;
+                    final byte[] buf = new byte[1024];
+                    while ((justRead = in.read(buf)) != -1) {
+                        assertTrue(justRead > 0);
+                        bytesRead += justRead;
+                    }
+                } finally {
+                    if (in != null) {
+                        try {
+                            in.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+                System.out.println("Read " + bytesRead + " bytes.");
+            }
+        } finally {
+            file.delete();
+        }
+    }
 
     @Test
     public void testReadThroughOggFile() throws IOException, UnsupportedAudioFileException {

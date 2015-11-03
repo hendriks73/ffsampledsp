@@ -97,7 +97,7 @@ JNIEXPORT jlong JNICALL Java_com_tagtraum_ffsampledsp_FFCodecInputStream_open(JN
     fprintf(stderr, "encoding = %s\n", encoding_name);
     fprintf(stderr, "signed   = %d\n", is_signed);
     fprintf(stderr, "float    = %d\n", is_float);
-    fprintf(stderr, "bits     = %d\n", sample_size_in_bits);
+    fprintf(stderr, "bits     = %d\n", (int)sample_size_in_bits);
 #endif
 
     if (sample_size_in_bits <= 8) {

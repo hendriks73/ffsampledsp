@@ -87,9 +87,15 @@ void throwUnsupportedAudioFileExceptionIfError(JNIEnv*, int, const char*);
 
 void throwIOExceptionIfError(JNIEnv*, int, const char*);
 
+void throwIndexOutOfBoundsExceptionIfError(JNIEnv*, int, int);
+
 void throwFileNotFoundExceptionIfError(JNIEnv*, int, const char*);
 
 void dumpCodecIds();
+
+int ff_open_stream(JNIEnv*, AVStream*);
+
+int ff_open_format_context(JNIEnv*, AVFormatContext**, const char*);
 
 int ff_open_file(JNIEnv*, AVFormatContext**, AVStream**, int*, const char*);
 

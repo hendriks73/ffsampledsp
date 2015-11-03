@@ -53,6 +53,48 @@ static void init_ids(JNIEnv *env, jobject stream) {
 }
 
 /**
+ * Opens the given stream, i.e. sets up a decoder.
+ *
+ * @param env JNIEnv
+ * @param stream AVStream
+ */
+int ff_open_stream(JNIEnv *env, AVStream *stream) {
+#ifdef DEBUG
+    fprintf(stderr, "Opening stream...\n");
+#endif
+
+    int res = 0;
+    AVCodec *decoder = NULL;
+    AVDictionary *opts = NULL;
+    int refcount = 0; // is this correct?
+
+    decoder = avcodec_find_decoder(stream->codec->codec_id);
+    if (!decoder) {
+        fprintf(stderr, "Failed to find %s codec\n",
+        av_get_media_type_string(AVMEDIA_TYPE_AUDIO));
+        res = AVERROR(EINVAL);
+        throwUnsupportedAudioFileExceptionIfError(env, res, "Failed to find codec.");
+        goto bail;
+    }
+
+    /* Init the decoders, with or without reference counting */
+    av_dict_set(&opts, "refcounted_frames", refcount ? "1" : "0", 0);
+    if ((res = avcodec_open2(stream->codec, decoder, &opts)) < 0) {
+        fprintf(stderr, "Failed to open %s codec\n",
+        av_get_media_type_string(AVMEDIA_TYPE_AUDIO));
+        throwUnsupportedAudioFileExceptionIfError(env, res, "Failed to open codec.");
+        goto bail;
+    }
+
+#ifdef DEBUG
+    fprintf(stderr, "Stream was opened.\n");
+#endif
+
+bail:
+    return res;
+}
+
+/**
  * Find a decoder and open it for the given AVFormatContext and AVMediaType.
  *
  * @param[out]  stream_index  index of the stream the decoder was opened for
@@ -105,6 +147,21 @@ void throwUnsupportedAudioFileExceptionIfError(JNIEnv *env, int err, const char 
 }
 
 /**
+ * Throws an IndexOutOfBoundsException.
+ */
+void throwIndexOutOfBoundsExceptionIfError(JNIEnv *env, int err, int index) {
+    if (err) {
+        char formattedMessage [15];
+        snprintf(formattedMessage, 15, "%d", index);
+#ifdef DEBUG
+        fprintf(stderr, "IndexOutOfBoundsException: %d\n", index);
+#endif
+        jclass excCls = (*env)->FindClass(env, "java/lang/IndexOutOfBoundsException");
+        (*env)->ThrowNew(env, excCls, formattedMessage);
+    }
+}
+
+/**
  * Throws an IOException.
  */
 void throwIOExceptionIfError(JNIEnv *env, int err, const char *message) {
@@ -134,17 +191,15 @@ void throwFileNotFoundExceptionIfError(JNIEnv *env, int err, const char *message
 
 
 /**
- * Opens the input file/url, allocate a AVFormatContext for it and opens the audio stream with an
+ * Opens the input file/url and allocates a AVFormatContext for it, but does not open the audio stream with an
  * appropriate decoder.
  *
  * @param env JNIEnv
  * @param format_context AVFormatContext
- * @param stream audio AVStream
- * @param stream_index index of the selected stream
  * @param url URL to open
  * @return negative value, if something went wrong
  */
-int ff_open_file(JNIEnv *env, AVFormatContext **format_context, AVStream **stream, int *stream_index, const char *url) {
+int ff_open_format_context(JNIEnv *env, AVFormatContext **format_context, const char *url) {
     int res = 0;
     int probe_score = 0;
 
@@ -168,7 +223,7 @@ int ff_open_file(JNIEnv *env, AVFormatContext **format_context, AVStream **strea
     probe_score = av_format_get_probe_score(*format_context);
 
     #ifdef DEBUG
-        fprintf(stderr, "ff_open_file(): probe score=%i\n", probe_score);
+        fprintf(stderr, "ff_open_format_context(): probe score=%i\n", probe_score);
     #endif
 
     if (probe_score < MIN_PROBE_SCORE) {
@@ -183,12 +238,82 @@ int ff_open_file(JNIEnv *env, AVFormatContext **format_context, AVStream **strea
         goto bail;
     }
 
-    res = open_codec_context(stream_index, *format_context, AVMEDIA_TYPE_AUDIO);
+bail:
+
+    return res;
+}
+
+/**
+ * Opens the input file/url, allocates a AVFormatContext for it and opens the audio stream with an
+ * appropriate decoder.
+ *
+ * @param env JNIEnv
+ * @param format_context AVFormatContext
+ * @param openedStream opened audio AVStream
+ * @param stream_index[in] index of the desired <em>audio</em> stream
+ * @param stream_index[out] index of the selected stream (index of <em>all</em> streams)
+ * @param url URL to open
+ * @return negative value, if something went wrong
+ */
+int ff_open_file(JNIEnv *env, AVFormatContext **format_context, AVStream **openedStream, int *stream_index, const char *url) {
+    int res = 0;
+    res = ff_open_format_context(env, format_context, url);
     if (res) {
-        throwUnsupportedAudioFileExceptionIfError(env, res, "Failed to open codec context.");
+        // exception has already been thrown
         goto bail;
     }
-    *stream = (*format_context)->streams[*stream_index];
+
+#ifdef DEBUG
+    fprintf(stderr, "Desired audio stream index: %i.\n", *stream_index);
+#endif
+
+    if (*stream_index <= 0) {
+        // use best audio stream
+        res = open_codec_context(stream_index, *format_context, AVMEDIA_TYPE_AUDIO);
+        if (res) {
+            throwUnsupportedAudioFileExceptionIfError(env, res, "Failed to open codec context.");
+            goto bail;
+        }
+        *openedStream = (*format_context)->streams[*stream_index];
+    } else {
+        // find xth audio stream
+        // count possible audio streams
+        int i;
+        int audio_stream_number = 0;
+        AVStream* stream = NULL;
+
+        AVFormatContext* deref_format_context = *format_context;
+        for (i=0; i<deref_format_context->nb_streams; i++) {
+            stream = deref_format_context->streams[i];
+            if (stream->codec->codec_type == AVMEDIA_TYPE_AUDIO) {
+                if (audio_stream_number == *stream_index) {
+                    *stream_index = i;
+                #ifdef DEBUG
+                    fprintf(stderr, "Found desired audio stream at index: %i.\n", i);
+                #endif
+                    break;
+                }
+                audio_stream_number++;
+            }
+            stream = NULL;
+        }
+        if (stream == NULL) {
+            // we didn't find a stream with the given index
+            res = -1;
+            throwIndexOutOfBoundsExceptionIfError(env, res, *stream_index);
+            goto bail;
+        }
+        res = ff_open_stream(env, stream);
+        if (res) {
+            goto bail;
+        }
+        *openedStream = stream;
+    }
+
+#ifdef DEBUG
+    fprintf(stderr, "Opened stream index: %i.\n", *stream_index);
+    fprintf(stderr, "Opened stream: %i.\n", *openedStream);
+#endif
 
 bail:
 

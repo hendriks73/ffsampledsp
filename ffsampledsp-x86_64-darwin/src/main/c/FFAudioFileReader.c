@@ -213,24 +213,8 @@ static jobject create_ffaudiofileformat(JNIEnv *env, jstring url, jint codecId, 
                 channels, frame_size, frame_rate, big_endian, duration, bitRate, vbr);
 }
 
-/**
- * Opens the given URL to determine its AudioFileFormat.
- *
- * @param env JNIEnv
- * @param instance calling FFAudioFileReader instance
- * @param url URL (as jstring)
- */
- JNIEXPORT jobject JNICALL Java_com_tagtraum_ffsampledsp_FFAudioFileReader_getAudioFileFormatFromURL(JNIEnv *env, jobject instance, jstring url) {
-
-#ifdef DEBUG
-    fprintf(stderr, "openFromUrl_1\n");
-#endif
-
+static int create_ffaudiofileformats(JNIEnv *env, AVFormatContext *format_context, jobjectArray *array, jstring url) {
     int res = 0;
-    AVFormatContext *format_context = NULL;
-    AVStream *stream = NULL;
-    int stream_index = 0;
-
     jlong duration_in_microseconds = -1;
     jfloat frame_rate = -1;
     jobject vbr = NULL;
@@ -238,66 +222,139 @@ static jobject create_ffaudiofileformat(JNIEnv *env, jstring url, jint codecId, 
     jobject audio_format = NULL;
     jint frame_size = -1;
     jint sample_size = 0;
+    int audio_stream_count = 0;
+    int audio_stream_number = 0;
+
+    // count possible audio streams
+    int i;
+    for (i=0; i<format_context->nb_streams; i++) {
+        AVStream* stream = format_context->streams[i];
+        if (stream->codec->codec_type == AVMEDIA_TYPE_AUDIO) {
+            audio_stream_count++;
+        }
+    }
+
+#ifdef DEBUG
+    fprintf(stderr, "Found %i audio streams.\n", audio_stream_count);
+#endif
+
+    // create output array
+    *array = (*env)->NewObjectArray(env, audio_stream_count, (*env)->FindClass(env, "javax/sound/sampled/AudioFileFormat"), NULL);
+    if (array == NULL) {
+        goto bail;
+    }
+
+#ifdef DEBUG
+    fprintf(stderr, "Created audio file format array.\n");
+#endif
+
+    // iterate over audio streams
+    for (i=0; i<format_context->nb_streams; i++) {
+        AVStream* stream = format_context->streams[i];
+        if (stream->codec->codec_type == AVMEDIA_TYPE_AUDIO) {
+            res = ff_open_stream(env, stream);
+            if (res) {
+                goto bail;
+            }
+
+            // create object
+            duration_in_microseconds = duration(format_context, stream);
+            frame_rate = get_frame_rate(stream, duration_in_microseconds);
+            big_endian = ff_big_endian(stream->codec->codec_id);
+            if (is_pcm(stream->codec->codec_id)) {
+                frame_size = (stream->codec->bits_per_coded_sample / 8) * stream->codec->channels;
+            }
+            // TODO: Support VBR.
+
+            sample_size = stream->codec->bits_per_coded_sample
+                ? stream->codec->bits_per_coded_sample
+                : stream->codec->bits_per_raw_sample;
+
+            #ifdef DEBUG
+                fprintf(stderr, "stream->codec->bits_per_coded_sample: %i\n", stream->codec->bits_per_coded_sample);
+                fprintf(stderr, "stream->codec->bits_per_raw_sample  : %i\n", stream->codec->bits_per_raw_sample);
+                fprintf(stderr, "stream->codec->bit_rate             : %i\n", stream->codec->bit_rate);
+                fprintf(stderr, "format_context->packet_size         : %i\n", format_context->packet_size);
+                fprintf(stderr, "frames     : %" PRId64 "\n", stream->nb_frames);
+                fprintf(stderr, "sample_rate: %i\n", stream->codec->sample_rate);
+                fprintf(stderr, "sampleSize : %i\n", stream->codec->bits_per_coded_sample);
+                fprintf(stderr, "channels   : %i\n", stream->codec->channels);
+                fprintf(stderr, "frame_size : %i\n", (int)frame_size);
+                fprintf(stderr, "codec_id   : %i\n", stream->codec->codec_id);
+                fprintf(stderr, "duration   : %" PRId64 "\n", (int64_t)duration_in_microseconds);
+                fprintf(stderr, "frame_rate : %f\n", frame_rate);
+                if (big_endian) {
+                    fprintf(stderr, "big_endian  : true\n");
+                } else {
+                    fprintf(stderr, "big_endian  : false\n");
+                }
+            #endif
+            audio_format = create_ffaudiofileformat(env, url,
+                                                           stream->codec->codec_id,
+                                                           (jfloat)stream->codec->sample_rate,
+                                                           sample_size,
+                                                           stream->codec->channels,
+                                                           frame_size,
+                                                           frame_rate,
+                                                           big_endian,
+                                                           duration_in_microseconds,
+                                                           stream->codec->bit_rate,
+                                                           vbr);
+
+            (*env)->SetObjectArrayElement(env, *array, audio_stream_number, audio_format);
+            audio_stream_number++;
+
+            // clean up
+            if (stream && stream->codec) {
+                avcodec_close(stream->codec);
+            }
+        }
+    }
+
+bail:
+    return res;
+}
+
+/**
+ * Opens the given URL to determine its AudioFileFormat.
+ *
+ * @param env JNIEnv
+ * @param instance calling FFAudioFileReader instance
+ * @param url URL (as jstring)
+ * @return AudioFileFormat objects
+ */
+ JNIEXPORT jobjectArray JNICALL Java_com_tagtraum_ffsampledsp_FFAudioFileReader_getAudioFileFormatsFromURL(JNIEnv *env, jobject instance, jstring url) {
+
+#ifdef DEBUG
+    fprintf(stderr, "openFromUrl_1\n");
+#endif
+
+    int res = 0;
+    AVFormatContext *format_context = NULL;
+    jobjectArray array = NULL;
+    //AVStream *stream = NULL;
+    //int stream_index = 0;
 
     init_ids(env);
 
     const char *input_url = (*env)->GetStringUTFChars(env, url, NULL);
-    res = ff_open_file(env, &format_context, &stream, &stream_index, input_url);
+    res = ff_open_format_context(env, &format_context, input_url);
     if (res) {
         goto bail;
     }
-    duration_in_microseconds = duration(format_context, stream);
-    frame_rate = get_frame_rate(stream, duration_in_microseconds);
-    big_endian = ff_big_endian(stream->codec->codec_id);
-    if (is_pcm(stream->codec->codec_id)) {
-        frame_size = (stream->codec->bits_per_coded_sample / 8) * stream->codec->channels;
+
+    res = create_ffaudiofileformats(env, format_context, &array, url);
+    if (res) {
+        goto bail;
     }
-    // TODO: Support VBR.
 
-    sample_size = stream->codec->bits_per_coded_sample
-        ? stream->codec->bits_per_coded_sample
-        : stream->codec->bits_per_raw_sample;
-
-
-#ifdef DEBUG
-    fprintf(stderr, "stream->codec->bits_per_coded_sample: %i\n", stream->codec->bits_per_coded_sample);
-    fprintf(stderr, "stream->codec->bits_per_raw_sample  : %i\n", stream->codec->bits_per_raw_sample);
-    fprintf(stderr, "stream->codec->bit_rate             : %i\n", stream->codec->bit_rate);
-    fprintf(stderr, "format_context->packet_size         : %i\n", format_context->packet_size);
-    fprintf(stderr, "frames     : %" PRId64 "\n", stream->nb_frames);
-    fprintf(stderr, "sample_rate: %i\n", stream->codec->sample_rate);
-    fprintf(stderr, "sampleSize : %i\n", stream->codec->bits_per_coded_sample);
-    fprintf(stderr, "channels   : %i\n", stream->codec->channels);
-    fprintf(stderr, "frame_size : %i\n", frame_size);
-    fprintf(stderr, "codec_id   : %i\n", stream->codec->codec_id);
-    fprintf(stderr, "duration   : %" PRId64 "\n", (int64_t)duration_in_microseconds);
-    fprintf(stderr, "frame_rate : %f\n", frame_rate);
-    if (big_endian) {
-        fprintf(stderr, "big_endian  : true\n");
-    } else {
-        fprintf(stderr, "big_endian  : false\n");
-    }
-#endif
-    audio_format = create_ffaudiofileformat(env, url,
-                                                   stream->codec->codec_id,
-                                                   (jfloat)stream->codec->sample_rate,
-                                                   sample_size,
-                                                   stream->codec->channels,
-                                                   frame_size,
-                                                   frame_rate,
-                                                   big_endian,
-                                                   duration_in_microseconds,
-                                                   stream->codec->bit_rate,
-                                                   vbr);
 bail:
-    if (stream && stream->codec) {
-        avcodec_close(stream->codec);
-    }
     if (format_context) {
         avformat_close_input(&format_context);
     }
     (*env)->ReleaseStringUTFChars(env, url, input_url);
-    return audio_format;
+
+    return array;
 }
 
 /**
@@ -306,20 +363,13 @@ bail:
  * @param env JNIEnv
  * @param instance calling FFAudioFileReader instance
  * @param byte_buffer audio data
- * @return AudioFileFormat object
+ * @return AudioFileFormat objects
  */
- JNIEXPORT jobject JNICALL Java_com_tagtraum_ffsampledsp_FFAudioFileReader_getAudioFileFormatFromBuffer(JNIEnv *env, jobject instance, jobject byte_buffer) {
+ JNIEXPORT jobjectArray JNICALL Java_com_tagtraum_ffsampledsp_FFAudioFileReader_getAudioFileFormatsFromBuffer(JNIEnv *env, jobject instance, jobject byte_buffer) {
     int res = 0;
     AVFormatContext *format_context = NULL;
     AVStream *stream = NULL;
-    int stream_index = -1;
-
-    jfloat frame_rate = -1;
-    jobject vbr = NULL;
-    jboolean big_endian = 1;
-    jobject audio_format = NULL;
-    jint frame_size = -1;
-    jint sample_size = 0;
+    jobjectArray array = NULL;
 
     unsigned char* callbackBuffer = NULL;
     FFCallback *callback = NULL;
@@ -374,50 +424,15 @@ bail:
 
     format_context->pb = io_context;
 
-    res = ff_open_file(env, &format_context, &stream, &stream_index, "MemoryAVIOContext");
+    res = ff_open_format_context(env, &format_context, "MemoryAVIOContext");
     if (res) {
         goto bail;
     }
-    frame_rate = get_frame_rate(stream, -1);
-    big_endian = ff_big_endian(stream->codec->codec_id);
-    if (is_pcm(stream->codec->codec_id)) {
-        frame_size = (stream->codec->bits_per_coded_sample / 8) * stream->codec->channels;
+
+    res = create_ffaudiofileformats(env, format_context, &array, NULL);
+    if (res) {
+        goto bail;
     }
-
-    sample_size = stream->codec->bits_per_coded_sample
-        ? stream->codec->bits_per_coded_sample
-        : stream->codec->bits_per_raw_sample;
-
-#ifdef DEBUG
-    fprintf(stderr, "stream->codec->bits_per_coded_sample: %i\n", stream->codec->bits_per_coded_sample);
-    fprintf(stderr, "stream->codec->bits_per_raw_sample  : %i\n", stream->codec->bits_per_raw_sample);
-    fprintf(stderr, "stream->codec->bit_rate             : %i\n", stream->codec->bit_rate);
-
-    fprintf(stderr, "format_context->packet_size         : %i\n", format_context->packet_size);
-    fprintf(stderr, "frames     : %" PRId64 "\n", stream->nb_frames);
-    fprintf(stderr, "sample_rate: %i\n", stream->codec->sample_rate);
-    fprintf(stderr, "sampleSize : %i\n", stream->codec->bits_per_coded_sample);
-    fprintf(stderr, "channels   : %i\n", stream->codec->channels);
-    fprintf(stderr, "frame_size : %i\n", frame_size);
-    fprintf(stderr, "codec_id   : %i\n", stream->codec->codec_id);
-    fprintf(stderr, "frame_rate : %f\n", frame_rate);
-    if (big_endian) {
-        fprintf(stderr, "big_endian  : true\n");
-    } else {
-        fprintf(stderr, "big_endian  : false\n");
-    }
-#endif
-    audio_format = create_ffaudiofileformat(env, NULL,
-                                                   stream->codec->codec_id,
-                                                   (jfloat)stream->codec->sample_rate,
-                                                   sample_size,
-                                                   stream->codec->channels,
-                                                   frame_size,
-                                                   frame_rate,
-                                                   big_endian,
-                                                   -1,
-                                                   stream->codec->bit_rate,
-                                                   vbr);
 
 bail:
 
@@ -440,7 +455,7 @@ bail:
         free(callback);
     }
 
-    return audio_format;
+    return array;
 }
 
 

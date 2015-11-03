@@ -38,6 +38,10 @@ public class FFURLInputStream extends FFNativePeerInputStream {
     private URL url;
 
     public FFURLInputStream(final URL url) throws IOException, UnsupportedAudioFileException {
+        this(url, 0);
+    }
+
+    public FFURLInputStream(final URL url, final int streamIndex) throws IOException, UnsupportedAudioFileException {
         // FFmpeg does not recognize the DRM protection and produces garbage data.
         // Therefore we avoid decoding altogether.
         if (url.toString().toLowerCase().endsWith(".m4p")) {
@@ -45,7 +49,7 @@ public class FFURLInputStream extends FFNativePeerInputStream {
         }
         this.url = url;
         this.nativeBuffer.limit(0);
-        this.pointer = lockedOpen(FFAudioFileReader.urlToString(url));
+        this.pointer = lockedOpen(FFAudioFileReader.urlToString(url), streamIndex);
         this.seekable = isSeekable(pointer);
     }
 
@@ -79,16 +83,17 @@ public class FFURLInputStream extends FFNativePeerInputStream {
     }
 
     /**
-     * Synchronizes calls to {@link #open(String)}.
+     * Synchronizes calls to {@link #open(String, int)}.
      *
      * @param url url
+     * @param streamIndex index of the stream in the file, typically 0, but may differ for STEMS
      * @return pointer to native peer
      * @throws IOException
      */
-    private long lockedOpen(final String url) throws IOException {
+    private long lockedOpen(final String url, final int streamIndex) throws IOException {
         LOCK.lock();
         try {
-            return open(url);
+            return open(url, streamIndex);
         } finally {
             LOCK.unlock();
         }
@@ -97,7 +102,7 @@ public class FFURLInputStream extends FFNativePeerInputStream {
     private native boolean isSeekable(final long pointer);
     private native void seek(final long pointer, final long microseconds) throws IOException;
     private native void fillNativeBuffer(final long pointer) throws IOException;
-    private native long open(final String url) throws IOException;
+    private native long open(final String url, final int streamIndex) throws IOException;
     protected native void close(final long pointer) throws IOException;
 
 }

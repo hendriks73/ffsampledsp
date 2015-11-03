@@ -23,8 +23,10 @@ package com.tagtraum.ffsampledsp;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.*;
+import java.net.URL;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
@@ -94,6 +96,59 @@ public class TestFFStreamInputStream {
         }
         System.out.println("Read " + bytesRead + " bytes.");
         assertTrue(bytesRead != 0);
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void testBadStreamIndex() throws IOException, UnsupportedAudioFileException {
+        final String filename = "test.stem.mp4";
+        final File file = File.createTempFile("testReadThroughStemMP4File", filename);
+        extractFile(filename, file);
+        try {
+            final URL url = file.toURI().toURL();
+            final AudioFileFormat[] audioFileFormats = new FFAudioFileReader().getAudioFileFormats(url);
+            System.out.println("Found " + audioFileFormats.length + " streams.");
+            new FFStreamInputStream(new FileInputStream(file), audioFileFormats.length);
+        } finally {
+            file.delete();
+        }
+    }
+
+    @Test
+    public void testReadThroughStemMP4File() throws IOException, UnsupportedAudioFileException {
+        final String filename = "test.stem.mp4";
+        final File file = File.createTempFile("testReadThroughStemMP4File", filename);
+        extractFile(filename, file);
+        try {
+            final URL url = file.toURI().toURL();
+            final AudioFileFormat[] audioFileFormats = new FFAudioFileReader().getAudioFileFormats(url);
+
+            System.out.println("Found " + audioFileFormats.length + " streams.");
+            for (int i = 0; i < audioFileFormats.length; i++) {
+                System.out.println("Reading stream " + i + " ...");
+                int bytesRead = 0;
+                FFStreamInputStream in = null;
+                try {
+                    in = new FFStreamInputStream(new FileInputStream(file), i);
+                    int justRead;
+                    final byte[] buf = new byte[1024];
+                    while ((justRead = in.read(buf)) != -1) {
+                        assertTrue(justRead > 0);
+                        bytesRead += justRead;
+                    }
+                } finally {
+                    if (in != null) {
+                        try {
+                            in.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+                System.out.println("Read " + bytesRead + " bytes.");
+            }
+        } finally {
+            file.delete();
+        }
     }
 
     @Test

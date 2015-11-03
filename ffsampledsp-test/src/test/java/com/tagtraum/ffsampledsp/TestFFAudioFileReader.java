@@ -99,6 +99,35 @@ public class TestFFAudioFileReader {
     }
 
     @Test
+    public void testGetAudioFileFormatStemMP4File() throws IOException, UnsupportedAudioFileException {
+        // first copy the file from resources to actual location in temp
+        final String filename = "test.stem.mp4"; // stem
+        final File file = File.createTempFile("testGetAudioFileFormatStemMP4File", filename);
+        extractFile(filename, file);
+        try {
+            final AudioFileFormat[] fileFormats = new FFAudioFileReader().getAudioFileFormats(file);
+            assertEquals(5, fileFormats.length);
+            for (final AudioFileFormat fileFormat : fileFormats) {
+                System.out.println(fileFormat);
+
+                assertEquals("mp4", fileFormat.getType().getExtension());
+                assertEquals(file.length(), fileFormat.getByteLength());
+                assertEquals(133632, fileFormat.getFrameLength());
+
+                final AudioFormat format = fileFormat.getFormat();
+                assertEquals(-1, format.getFrameSize());
+                assertEquals(2, format.getChannels());
+                final Long duration = (Long) fileFormat.getProperty("duration");
+                assertNotNull(duration);
+                assertEquals(3030204, (long) duration);
+                assertEquals(10.890356f, format.getFrameRate(), 0.001f);
+            }
+        } finally {
+            file.delete();
+        }
+    }
+
+    @Test
     @Ignore("Can only work with FFmpeg package that supports mp3.")
     public void testGetAudioFileFormatMP3File() throws IOException, UnsupportedAudioFileException {
         // first copy the file from resources to actual location in temp
@@ -148,6 +177,28 @@ public class TestFFAudioFileReader {
             assertTrue(e.toString().contains("Invalid data found"));
         } finally {
             file.delete();
+        }
+    }
+
+    /**
+     * Try to load a file with a format that is unsupported.
+     * This test does not work properly, if mp3 is actually supported!
+     *
+     * @throws IOException if there is som IO error
+     */
+    @Test
+    public void testGetAudioFileFormatLowProbeScoreFile2() throws IOException {
+        // first copy the file from resources to actual location in temp
+        final File file = new File("/Users/hendrik/downloads/The Early Access App [Questions #4688]/Oh My Love.abc");
+        try {
+            final AudioFileFormat audioFileFormat = new FFAudioFileReader().getAudioFileFormat(file);
+            System.out.println(audioFileFormat);
+        } catch (UnsupportedAudioFileException e) {
+            // we want to test for the specific error message
+            e.printStackTrace();
+            assertTrue(e.toString().contains("Invalid data found"));
+        } finally {
+            //file.delete();
         }
     }
 

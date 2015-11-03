@@ -48,12 +48,12 @@ git clone git@github.com:hendriks73/ffsampledsp.git ffsampledsp
     you installed the Windows JNI headers, MinGW-w64, the OS X SDK, and the OS X JDK:
 
 +-------------------------------+
-mvn -Ddarwin.headers.jni=/Library/Java/JavaVirtualMachines/jdk1.8.0_40.jdk/Contents/Home/include/ \
+mvn -Ddarwin.headers.jni=/Library/Java/JavaVirtualMachines/jdk1.8.0_66.jdk/Contents/Home/include/ \
     -Dmingw.headers.jni=/Users/YOUR_ID/mywindowsjdk/include \
     -Dmingw.i386.path=/Users/YOUR_ID/mingw/mingw-w32-i686/bin \
     -Dmingw.x86_64.path=/Users/YOUR_ID/mingw/mingw-w32-i686/bin \
     -Dmmacosx-version-min=10.7 \
-    -Disysroot=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.7.sdk/ \
+    -Disysroot=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk/ \
     clean install
 +-------------------------------+
 

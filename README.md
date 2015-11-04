@@ -1,4 +1,4 @@
-# README.md
+# FFSampledSP
 
 *FFSampledSP* is an implementation of the
 [javax.sound.sampled](http://docs.oracle.com/javase/8/docs/api/javax/sound/sampled/spi/package-summary.html)
@@ -34,7 +34,7 @@ Windows JNI headers, add
 
     -Dmingw.headers.jni=/mywindowsjdk/include
 
-to your mvn call. If you didn't add the bin folder of your crosscompiler to the
+to your mvn call. If you didn't add the `bin` folder of your crosscompiler to the
 `PATH`, you might also want to set `-Dmingw.i386.path=...` and `-Dmingw.x86_64.path=...`
 You might also need to change `mmacosx-version-min` and `isysroot`, if you
 don't have an OS X 10.11 SDK installed.

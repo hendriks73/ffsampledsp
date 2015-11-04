@@ -406,7 +406,7 @@
 
         <darwin.linker.endoptions />
         <!-- Custom JDK: -->
-        <!-- <darwin.headers.jni>/Library/Java/JavaVirtualMachines/jdk1.8.0_40.jdk/Contents/Home/include/</darwin.headers.jni> -->
+        <!-- <darwin.headers.jni>/Library/Java/JavaVirtualMachines/jdk1.8.0_66.jdk/Contents/Home/include/</darwin.headers.jni> -->
         <!-- Apple JDK: -->
         <darwin.headers.jni>/System/Library/Frameworks/JavaVM.framework/Headers</darwin.headers.jni>
 

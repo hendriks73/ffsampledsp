@@ -37,16 +37,16 @@ Windows JNI headers, add
 to your mvn call. If you didn't add the bin folder of your crosscompiler to the
 `PATH`, you might also want to set `-Dmingw.i386.path=...` and `-Dmingw.x86_64.path=...`
 You might also need to change `mmacosx-version-min` and `isysroot`, if you
-don't have an OS X 10.6 SDK installed.
+don't have an OS X 10.11 SDK installed.
 
 So all in all, something like the following might work for you, depending on where
 you installed the Windows JNI headers, MinGW-w64, and the OS X JDK:
 
-    mvn -Ddarwin.headers.jni=/Library/Java/JavaVirtualMachines/jdk1.8.0_40.jdk/Contents/Home/include/ \
+    mvn -Ddarwin.headers.jni=/Library/Java/JavaVirtualMachines/jdk1.8.0_66.jdk/Contents/Home/include/ \
         -Dmingw.headers.jni=/Users/YOUR_ID/mywindowsjdk/include \
         -Dmingw.i386.path=/Users/YOUR_ID/mingw/mingw-w32-i686/bin \
         -Dmingw.x86_64.path=/Users/YOUR_ID/mingw/mingw-w32-i686/bin \
-        -Dmmacosx-version-min=10.7 \
+        -Dmmacosx-version-min=10.10 \
         -Disysroot=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.7.sdk/ \
         clean install
 

@@ -267,7 +267,7 @@ int ff_open_file(JNIEnv *env, AVFormatContext **format_context, AVStream **opene
     fprintf(stderr, "Desired audio stream index: %i.\n", *stream_index);
 #endif
 
-    if (*stream_index <= 0) {
+    if (*stream_index < 0) {
         // use best audio stream
         res = open_codec_context(stream_index, *format_context, AVMEDIA_TYPE_AUDIO);
         if (res) {
@@ -312,7 +312,7 @@ int ff_open_file(JNIEnv *env, AVFormatContext **format_context, AVStream **opene
 
 #ifdef DEBUG
     fprintf(stderr, "Opened stream index: %i.\n", *stream_index);
-    fprintf(stderr, "Opened stream: %i.\n", *openedStream);
+    fprintf(stderr, "Opened stream: %ld.\n", (long) *openedStream);
 #endif
 
 bail:

@@ -122,7 +122,9 @@ Introduction
     To open a specific stream, you can call for example <<<new FFAudioFileReader().getAudioInputStream(file, streamIndex);>>>
     In this case, <<<file>>> has to be a <<<File>>> object and <<<streamIndex>>> has to be a valid index. For
     a regular <Stem> file this would be a number \>=0 and \<5. The indices in the audio file format array and in the
-    <<<getAudioInputStream(..., index)>>> method correspond to each other.
+    <<<getAudioInputStream(..., streamIndex)>>> method correspond to each other.
+
+    For a code sample please see {{{./stems.html}here}}.
 
 * Alternatives
 

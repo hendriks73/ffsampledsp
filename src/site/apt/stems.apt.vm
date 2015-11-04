@@ -1,0 +1,54 @@
+    ------
+    Developer
+    ------
+    Hendrik Schreiber
+    ------
+    ------
+
+Stems
+
+    <FFSampledSP> allows the splitting of {{{http://www.stems-music.com/}Stems}}
+    (or any other file with multiple audio streams) into their respective parts.
+
+    Here's how you do it:
+
++-------------------------------+
+// Imports and error handling omitted for brevity.
+final File file = new File("your.stem.mp4");
+final String[] stemNames = {"master", "drums", "bass", "synths", "vox"};
+final FFAudioFileReader ffAudioFileReader = new FFAudioFileReader();
+
+// getAudioFileFormats(file) is an additional method that allows querying
+// the file for its streams/stems.
+final int stemCount = ffAudioFileReader.getAudioFileFormats(file).length;
+
+System.out.println("Found " + stemCount + " stems.");
+
+for (int i=0; i<stemCount; i++) {
+    System.out.println("Reading stem " + i + " (" + stemNames[i] + ") ...");
+
+    // Open stream with index i (this is a non-standard FFSampledSP method).
+    final AudioInputStream in = ffAudioFileReader.getAudioInputStream(file, i);
+
+    // Often, Stems are Apple Lossless encoded.
+    // Therefore we have to convert to signed PCM; FFSampledSP is capable of doing just that.
+    // If you need to decode other formats than Apple Lossless, you might need to recompile
+    // FFSampledSP/tagtraum FFmpeg with the appropriate flags.
+    final AudioInputStream pcmIn = AudioSystem.getAudioInputStream(AudioFormat.Encoding.PCM_SIGNED, in);
+    final File stem = new File(file.getParent(), file.getName().replace(".stem.mp4", "." + stemNames[i] + ".wav"));
+
+    // Let the audio system take care of writing the WAV file.
+    AudioSystem.write(pcmIn, AudioFileFormat.Type.WAVE, stem);
+
+    // Free resources.
+    pcmIn.close();
+    in.close();
+}
++-------------------------------+
+
+
+    Don't forget that you must have the <FFSampledSP> jar in your classpath and the <FFSampledSP>
+    native library in your <<<java.library.path>>>. Otherwise, you'll probably get an
+    {{{https://docs.oracle.com/javase/8/docs/api/javax/sound/sampled/UnsupportedAudioFileException.html}UnsupportedAudioFileException}}.
+
+    Naturally, similar code can also be used to play back individual Stems.

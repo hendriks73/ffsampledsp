@@ -155,6 +155,47 @@ public class TestFFURLInputStream {
     }
 
     @Test
+    public void testSplitStemFile() throws IOException, UnsupportedAudioFileException {
+        final String filename = "test.stem.mp4";
+        final File file = File.createTempFile("testSplitStemFile", filename);
+        extractFile(filename, file);
+
+        final String[] stemNames = {"master", "drums", "bass", "synths", "vox"};
+        final File[] stems = new File[stemNames.length];
+        try {
+            final FFAudioFileReader ffAudioFileReader = new FFAudioFileReader();
+            final int stemCount = ffAudioFileReader.getAudioFileFormats(file).length;
+            System.out.println("Found " + stemCount + " stems.");
+            for (int i = 0; i < stemCount; i++) {
+                System.out.println("Reading stem " + i + " (" + stemNames[i] + ").");
+                AudioInputStream in = null;
+                try {
+                    in = ffAudioFileReader.getAudioInputStream(file, i);
+                    System.out.println("encoding = " + in.getFormat().getEncoding());
+                    final AudioInputStream pcmIn = AudioSystem.getAudioInputStream(AudioFormat.Encoding.PCM_SIGNED, in);
+                    stems[i] = File.createTempFile("testSplitStemFile", filename.replace(".stem.mp4", "." + stemNames[i] + ".wav"));
+                    AudioSystem.write(pcmIn, AudioFileFormat.Type.WAVE, stems[i]);
+                } finally {
+                    if (in != null) {
+                        try {
+                            in.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+        } finally {
+            System.out.println("Done.");
+
+            file.delete();
+            for (int i=0; i<stems.length; i++){
+                if (stems[i] != null) stems[i].delete();
+            }
+        }
+    }
+
+    @Test
     public void testReadThroughOggFile() throws IOException, UnsupportedAudioFileException {
         final String filename = "test.ogg";
         final File file = File.createTempFile("testReadThroughOggFile", filename);

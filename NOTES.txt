@@ -1,3 +1,8 @@
+0.9.13
+
+- Fixed library loading issues when the classpath contains a + char.
+
+
 0.9.12
 
 - Fixed low probe score test.

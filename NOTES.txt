@@ -1,3 +1,8 @@
+0.9.14
+
+- Fixed potential ArrayIndexOutOfBoundsException in FFAudioFileReader.getAudioFileFormat().
+
+
 0.9.13
 
 - Fixed library loading issues when the classpath contains a + char.

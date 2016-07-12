@@ -238,6 +238,12 @@ static int create_ffaudiofileformats(JNIEnv *env, AVFormatContext *format_contex
     fprintf(stderr, "Found %i audio streams.\n", audio_stream_count);
 #endif
 
+    // are there any audio streams at all?
+    if (audio_stream_count == 0) {
+        throwUnsupportedAudioFileExceptionIfError(env, -1, "Failed to find audio stream");
+        goto bail;
+    }
+
     // create output array
     *array = (*env)->NewObjectArray(env, audio_stream_count, (*env)->FindClass(env, "javax/sound/sampled/AudioFileFormat"), NULL);
     if (array == NULL) {

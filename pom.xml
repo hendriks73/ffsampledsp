@@ -231,7 +231,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-site-plugin</artifactId>
-                    <version>3.4</version>
+                    <version>3.3</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -316,10 +316,12 @@
             <extension>
                 <groupId>org.apache.maven.wagon</groupId>
                 <artifactId>wagon-ftp</artifactId>
+                <version>2.10</version>
             </extension>
             <extension>
                 <groupId>org.apache.maven.wagon</groupId>
                 <artifactId>wagon-ssh</artifactId>
+                <version>2.10</version>
             </extension>
         </extensions>
     </build>
@@ -334,7 +336,7 @@
         <downloadUrl>https://www.beatunes.com/repo/maven2</downloadUrl>
         <site>
             <id>tagtraum-site</id>
-            <url>sftp://ssh.strato.de/ffsampledsp/</url>
+            <url>ftp://www.tagtraum-industries.de/ffsampledsp/</url>
         </site>
     </distributionManagement>
 

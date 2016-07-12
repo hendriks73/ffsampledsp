@@ -1,3 +1,9 @@
+0.9.15
+
+- Fixed SSL related Maven deployment issue with Wagon.
+- Fixed site deployment issues.
+
+
 0.9.14
 
 - Fixed potential ArrayIndexOutOfBoundsException in FFAudioFileReader.getAudioFileFormat().

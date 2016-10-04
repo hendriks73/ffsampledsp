@@ -60,6 +60,7 @@ public class FFURLInputStream extends FFNativePeerInputStream {
 
     @Override
     public synchronized void seek(final long time, final TimeUnit timeUnit) throws UnsupportedOperationException, IOException {
+        if (!isOpen()) throw new IOException("Stream is already closed: " + url);
         if (!isSeekable()) throw new UnsupportedOperationException("Seeking is not supported for " + url);
         final long microseconds = timeUnit.toMicros(time);
         seek(pointer, microseconds);

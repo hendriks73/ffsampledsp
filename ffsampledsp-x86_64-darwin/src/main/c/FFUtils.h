@@ -62,9 +62,10 @@ typedef struct {
     jint            java_buffer_capacity;   ///< Current capacity of the Java nativeBuffer
 
     // decoding
-    AVFormatContext *format_context;        ///< Curent AVFormatContext
+    AVFormatContext *format_context;        ///< Current AVFormatContext
     AVStream        *stream;                ///< Audio stream we are interested in
     int             stream_index;           ///< Index of the audio stream we are using
+    AVCodecContext  *decode_context;        ///< Codec context for decoding
     AVPacket        decode_packet;          ///< AVPacket for decoding
     AVFrame         *decode_frame;          ///< AVFrame for decoding
     uint8_t         **audio_data;           ///< Audio data (accommodates multiple planes)
@@ -93,11 +94,11 @@ void throwFileNotFoundExceptionIfError(JNIEnv*, int, const char*);
 
 void dumpCodecIds();
 
-int ff_open_stream(JNIEnv*, AVStream*);
+int ff_open_stream(JNIEnv*, AVStream*, AVCodecContext**);
 
 int ff_open_format_context(JNIEnv*, AVFormatContext**, const char*);
 
-int ff_open_file(JNIEnv*, AVFormatContext**, AVStream**, int*, const char*);
+int ff_open_file(JNIEnv*, AVFormatContext**, AVStream**, AVCodecContext**, int*, const char*);
 
 int ff_init_audioio(JNIEnv*, FFAudioIO*);
 

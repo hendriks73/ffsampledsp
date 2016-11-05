@@ -152,8 +152,8 @@ static jlong duration(AVFormatContext *format_context, AVStream *stream) {
         duration_in_microseconds = (jlong)(format_context->duration / micro_seconds_base);
     }
 
-    if (stream->nb_frames != 0 && duration_in_microseconds <=0 && stream->codec->sample_rate > 0) {
-        duration_in_microseconds = stream->nb_frames * 1000000L / stream->codec->sample_rate;
+    if (stream->nb_frames != 0 && duration_in_microseconds <=0 && stream->codecpar->sample_rate > 0) {
+        duration_in_microseconds = stream->nb_frames * 1000000L / stream->codecpar->sample_rate;
     }
     return duration_in_microseconds;
 }
@@ -172,12 +172,12 @@ static jfloat get_frame_rate(AVStream *stream, jlong duration) {
         frame_rate = stream->nb_frames * 1000000LL / (jfloat)duration;
     }
 
-    if (frame_rate <=0 && stream->codec->frame_size > 0 && stream->codec->sample_rate > 0) {
-        frame_rate = (jfloat)stream->codec->sample_rate/(jfloat)stream->codec->frame_size;
+    if (frame_rate <=0 && stream->codecpar->frame_size > 0 && stream->codecpar->sample_rate > 0) {
+        frame_rate = (jfloat)stream->codecpar->sample_rate/(jfloat)stream->codecpar->frame_size;
     }
 
-    if (frame_rate <=0 && stream->codec->frame_size == 0 && stream->codec->sample_rate > 0) {
-        frame_rate = (jfloat)stream->codec->sample_rate;
+    if (frame_rate <=0 && stream->codecpar->frame_size == 0 && stream->codecpar->sample_rate > 0) {
+        frame_rate = (jfloat)stream->codecpar->sample_rate;
     }
 
 
@@ -185,11 +185,11 @@ static jfloat get_frame_rate(AVStream *stream, jlong duration) {
     if (stream->nb_frames > 0 && duration > 0) {
         fprintf(stderr, "1 frame rate : %f\n", stream->nb_frames * 1000000LL / (jfloat)duration);
     }
-    if (stream->codec->frame_size > 0 && stream->codec->sample_rate > 0) {
-        fprintf(stderr, "2 frame rate : %f\n", (jfloat)stream->codec->sample_rate/(jfloat)stream->codec->frame_size);
+    if (stream->codecpar->frame_size > 0 && stream->codecpar->sample_rate > 0) {
+        fprintf(stderr, "2 frame rate : %f\n", (jfloat)stream->codecpar->sample_rate/(jfloat)stream->codecpar->frame_size);
     }
-    if (stream->codec->frame_size == 0 && stream->codec->sample_rate > 0) {
-        fprintf(stderr, "3 frame rate : %f\n", (jfloat)stream->codec->sample_rate);
+    if (stream->codecpar->frame_size == 0 && stream->codecpar->sample_rate > 0) {
+        fprintf(stderr, "3 frame rate : %f\n", (jfloat)stream->codecpar->sample_rate);
     }
 #endif
 
@@ -229,7 +229,7 @@ static int create_ffaudiofileformats(JNIEnv *env, AVFormatContext *format_contex
     int i;
     for (i=0; i<format_context->nb_streams; i++) {
         AVStream* stream = format_context->streams[i];
-        if (stream->codec->codec_type == AVMEDIA_TYPE_AUDIO) {
+        if (stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
             audio_stream_count++;
         }
     }
@@ -257,36 +257,38 @@ static int create_ffaudiofileformats(JNIEnv *env, AVFormatContext *format_contex
     // iterate over audio streams
     for (i=0; i<format_context->nb_streams; i++) {
         AVStream* stream = format_context->streams[i];
-        if (stream->codec->codec_type == AVMEDIA_TYPE_AUDIO) {
+        if (stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
+            /*
             res = ff_open_stream(env, stream);
             if (res) {
                 goto bail;
             }
+            */
 
             // create object
             duration_in_microseconds = duration(format_context, stream);
             frame_rate = get_frame_rate(stream, duration_in_microseconds);
-            big_endian = ff_big_endian(stream->codec->codec_id);
-            if (is_pcm(stream->codec->codec_id)) {
-                frame_size = (stream->codec->bits_per_coded_sample / 8) * stream->codec->channels;
+            big_endian = ff_big_endian(stream->codecpar->codec_id);
+            if (is_pcm(stream->codecpar->codec_id)) {
+                frame_size = (stream->codecpar->bits_per_coded_sample / 8) * stream->codecpar->channels;
             }
             // TODO: Support VBR.
 
-            sample_size = stream->codec->bits_per_coded_sample
-                ? stream->codec->bits_per_coded_sample
-                : stream->codec->bits_per_raw_sample;
+            sample_size = stream->codecpar->bits_per_coded_sample
+                ? stream->codecpar->bits_per_coded_sample
+                : stream->codecpar->bits_per_raw_sample;
 
             #ifdef DEBUG
-                fprintf(stderr, "stream->codec->bits_per_coded_sample: %i\n", stream->codec->bits_per_coded_sample);
-                fprintf(stderr, "stream->codec->bits_per_raw_sample  : %i\n", stream->codec->bits_per_raw_sample);
-                fprintf(stderr, "stream->codec->bit_rate             : %i\n", stream->codec->bit_rate);
+                fprintf(stderr, "stream->codecpar->bits_per_coded_sample: %i\n", stream->codecpar->bits_per_coded_sample);
+                fprintf(stderr, "stream->codecpar->bits_per_raw_sample  : %i\n", stream->codecpar->bits_per_raw_sample);
+                fprintf(stderr, "stream->codecpar->bit_rate             : %i\n", stream->codecpar->bit_rate);
                 fprintf(stderr, "format_context->packet_size         : %i\n", format_context->packet_size);
                 fprintf(stderr, "frames     : %" PRId64 "\n", stream->nb_frames);
-                fprintf(stderr, "sample_rate: %i\n", stream->codec->sample_rate);
-                fprintf(stderr, "sampleSize : %i\n", stream->codec->bits_per_coded_sample);
-                fprintf(stderr, "channels   : %i\n", stream->codec->channels);
+                fprintf(stderr, "sample_rate: %i\n", stream->codecpar->sample_rate);
+                fprintf(stderr, "sampleSize : %i\n", stream->codecpar->bits_per_coded_sample);
+                fprintf(stderr, "channels   : %i\n", stream->codecpar->channels);
                 fprintf(stderr, "frame_size : %i\n", (int)frame_size);
-                fprintf(stderr, "codec_id   : %i\n", stream->codec->codec_id);
+                fprintf(stderr, "codec_id   : %i\n", stream->codecpar->codec_id);
                 fprintf(stderr, "duration   : %" PRId64 "\n", (int64_t)duration_in_microseconds);
                 fprintf(stderr, "frame_rate : %f\n", frame_rate);
                 if (big_endian) {
@@ -296,24 +298,26 @@ static int create_ffaudiofileformats(JNIEnv *env, AVFormatContext *format_contex
                 }
             #endif
             audio_format = create_ffaudiofileformat(env, url,
-                                                           stream->codec->codec_id,
-                                                           (jfloat)stream->codec->sample_rate,
+                                                           stream->codecpar->codec_id,
+                                                           (jfloat)stream->codecpar->sample_rate,
                                                            sample_size,
-                                                           stream->codec->channels,
+                                                           stream->codecpar->channels,
                                                            frame_size,
                                                            frame_rate,
                                                            big_endian,
                                                            duration_in_microseconds,
-                                                           stream->codec->bit_rate,
+                                                           stream->codecpar->bit_rate,
                                                            vbr);
 
             (*env)->SetObjectArrayElement(env, *array, audio_stream_number, audio_format);
             audio_stream_number++;
 
             // clean up
+            /*
             if (stream && stream->codec) {
                 avcodec_close(stream->codec);
             }
+            */
         }
     }
 
@@ -374,7 +378,7 @@ bail:
  JNIEXPORT jobjectArray JNICALL Java_com_tagtraum_ffsampledsp_FFAudioFileReader_getAudioFileFormatsFromBuffer(JNIEnv *env, jobject instance, jobject byte_buffer) {
     int res = 0;
     AVFormatContext *format_context = NULL;
-    AVStream *stream = NULL;
+    //AVStream *stream = NULL;
     jobjectArray array = NULL;
 
     unsigned char* callbackBuffer = NULL;
@@ -401,8 +405,8 @@ bail:
     }
 
     // limit probe to less than what we read in one chunk...
-    format_context->probesize2 = 8*1024; // this corresponds to the Java code!
-    format_context->max_analyze_duration2 = 5*AV_TIME_BASE;
+    format_context->probesize = 8*1024; // this corresponds to the Java code!
+    format_context->max_analyze_duration = 5*AV_TIME_BASE;
 
     callbackBuffer = (unsigned char*)av_malloc(CALLBACK_BUFFERSIZE * sizeof(uint8_t));
     if (!callbackBuffer) {
@@ -442,9 +446,11 @@ bail:
 
 bail:
 
+    /*
     if (stream && stream->codec) {
         avcodec_close(stream->codec);
     }
+    */
     if (format_context) {
         AVFormatContext *s = format_context;
         if ((s->iformat && s->iformat->flags & AVFMT_NOFILE) || (s->flags & AVFMT_FLAG_CUSTOM_IO)) {

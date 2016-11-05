@@ -155,8 +155,8 @@ JNIEXPORT jlong JNICALL Java_com_tagtraum_ffsampledsp_FFStreamInputStream_open(J
     }
 
     // limit probe to less than what we read in one chunk...
-    aio->format_context->probesize2 = 8*1024;
-    aio->format_context->max_analyze_duration2 = 5*AV_TIME_BASE;
+    aio->format_context->probesize = 8*1024;
+    aio->format_context->max_analyze_duration = 5*AV_TIME_BASE;
 
     callback_buffer = (unsigned char*)av_malloc(CALLBACK_BUFFERSIZE * sizeof(uint8_t));
     if (!callback_buffer) {
@@ -186,7 +186,7 @@ JNIEXPORT jlong JNICALL Java_com_tagtraum_ffsampledsp_FFStreamInputStream_open(J
     aio->format_context->pb = io_context;
     aio->stream_index = (int)streamIndex;
 
-    res = ff_open_file(env, &aio->format_context, &aio->stream, &aio->stream_index, "MemoryAVIOContext");
+    res = ff_open_file(env, &aio->format_context, &aio->stream, &aio->decode_context, &aio->stream_index, "MemoryAVIOContext");
     if (res) {
         // exception is already thrown
         goto bail;
@@ -199,14 +199,14 @@ JNIEXPORT jlong JNICALL Java_com_tagtraum_ffsampledsp_FFStreamInputStream_open(J
     }
 
 #ifdef DEBUG
-    fprintf(stderr, "stream->codec->bits_per_coded_sample: %i\n", aio->stream->codec->bits_per_coded_sample);
-    fprintf(stderr, "stream->codec->bits_per_raw_sample  : %i\n", aio->stream->codec->bits_per_raw_sample);
-    fprintf(stderr, "stream->codec->bit_rate             : %i\n", aio->stream->codec->bit_rate);
+    fprintf(stderr, "stream->codecpar->bits_per_coded_sample: %i\n", aio->stream->codecpar->bits_per_coded_sample);
+    fprintf(stderr, "stream->codecpar->bits_per_raw_sample  : %i\n", aio->stream->codecpar->bits_per_raw_sample);
+    fprintf(stderr, "stream->codecpar->bit_rate             : %i\n", aio->stream->codecpar->bit_rate);
     fprintf(stderr, "frames     : %" PRId64 "\n", aio->stream->nb_frames);
-    fprintf(stderr, "sample_rate: %i\n", aio->stream->codec->sample_rate);
-    fprintf(stderr, "channels   : %i\n", aio->stream->codec->channels);
-    fprintf(stderr, "frame_size : %i\n", aio->stream->codec->frame_size);
-    fprintf(stderr, "codec_id   : %i\n", aio->stream->codec->codec_id);
+    fprintf(stderr, "sample_rate: %i\n", aio->stream->codecpar->sample_rate);
+    fprintf(stderr, "channels   : %i\n", aio->stream->codecpar->channels);
+    fprintf(stderr, "frame_size : %i\n", aio->stream->codecpar->frame_size);
+    fprintf(stderr, "codec_id   : %i\n", aio->stream->codecpar->codec_id);
 #endif
 
 bail:

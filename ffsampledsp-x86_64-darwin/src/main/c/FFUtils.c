@@ -58,7 +58,7 @@ static void init_ids(JNIEnv *env, jobject stream) {
  * @param env JNIEnv
  * @param stream AVStream
  */
-int ff_open_stream(JNIEnv *env, AVStream *stream) {
+int ff_open_stream(JNIEnv *env, AVStream *stream, AVCodecContext **context) {
 #ifdef DEBUG
     fprintf(stderr, "Opening stream...\n");
 #endif
@@ -68,20 +68,33 @@ int ff_open_stream(JNIEnv *env, AVStream *stream) {
     AVDictionary *opts = NULL;
     int refcount = 0; // is this correct?
 
-    decoder = avcodec_find_decoder(stream->codec->codec_id);
+    decoder = avcodec_find_decoder(stream->codecpar->codec_id);
     if (!decoder) {
-        fprintf(stderr, "Failed to find %s codec\n",
-        av_get_media_type_string(AVMEDIA_TYPE_AUDIO));
+        fprintf(stderr, "Failed to find %s codec\n", av_get_media_type_string(AVMEDIA_TYPE_AUDIO));
         res = AVERROR(EINVAL);
         throwUnsupportedAudioFileExceptionIfError(env, res, "Failed to find codec.");
         goto bail;
     }
 
+    *context = avcodec_alloc_context3(decoder);
+    if (!context) {
+        fprintf(stderr, "Failed to allocate context\n");
+        res = AVERROR(EINVAL);
+        throwUnsupportedAudioFileExceptionIfError(env, res, "Failed to allocate codec context.");
+        goto bail;
+    }
+
+    /* Copy codec parameters from input stream to output codec context */
+    if ((res = avcodec_parameters_to_context(*context, stream->codecpar)) < 0) {
+        fprintf(stderr, "Failed to copy %s codec parameters to decoder context\n", av_get_media_type_string(AVMEDIA_TYPE_AUDIO));
+        throwUnsupportedAudioFileExceptionIfError(env, res, "Failed to copy codec parameters.");
+        goto bail;
+    }
+
     /* Init the decoders, with or without reference counting */
     av_dict_set(&opts, "refcounted_frames", refcount ? "1" : "0", 0);
-    if ((res = avcodec_open2(stream->codec, decoder, &opts)) < 0) {
-        fprintf(stderr, "Failed to open %s codec\n",
-        av_get_media_type_string(AVMEDIA_TYPE_AUDIO));
+    if ((res = avcodec_open2(*context, decoder, &opts)) < 0) {
+        fprintf(stderr, "Failed to open %s codec\n", av_get_media_type_string(AVMEDIA_TYPE_AUDIO));
         throwUnsupportedAudioFileExceptionIfError(env, res, "Failed to open codec.");
         goto bail;
     }
@@ -89,6 +102,7 @@ int ff_open_stream(JNIEnv *env, AVStream *stream) {
 #ifdef DEBUG
     fprintf(stderr, "Stream was opened.\n");
 #endif
+    return res;
 
 bail:
     return res;
@@ -102,7 +116,9 @@ bail:
  * @param       type        media type - for this library typically audio
  */
 static int open_codec_context(int *stream_index,
-        AVFormatContext *format_context, enum AVMediaType type) {
+        AVFormatContext *format_context,
+        AVCodecContext *context,
+        enum AVMediaType type) {
 
     int res = 0;
     AVStream *stream;
@@ -116,17 +132,22 @@ static int open_codec_context(int *stream_index,
     stream = format_context->streams[*stream_index];
 
     // find decoder for the stream
-    decoder = avcodec_find_decoder(stream->codec->codec_id);
+    decoder = avcodec_find_decoder(stream->codecpar->codec_id);
     if (!decoder) {
         goto bail;
     }
-    res = avcodec_open2(stream->codec, decoder, NULL);
-    if (res < 0) {
+    context = avcodec_alloc_context3(decoder);
+    if (!context) {
         goto bail;
     }
 
-    bail:
+    res = avcodec_open2(context, decoder, NULL);
+    if (res < 0) {
+        goto bail;
+    }
+    return res;
 
+bail:
     return res;
 }
 
@@ -255,7 +276,7 @@ bail:
  * @param url URL to open
  * @return negative value, if something went wrong
  */
-int ff_open_file(JNIEnv *env, AVFormatContext **format_context, AVStream **openedStream, int *stream_index, const char *url) {
+int ff_open_file(JNIEnv *env, AVFormatContext **format_context, AVStream **openedStream, AVCodecContext **context, int *stream_index, const char *url) {
     int res = 0;
     res = ff_open_format_context(env, format_context, url);
     if (res) {
@@ -269,7 +290,7 @@ int ff_open_file(JNIEnv *env, AVFormatContext **format_context, AVStream **opene
 
     if (*stream_index < 0) {
         // use best audio stream
-        res = open_codec_context(stream_index, *format_context, AVMEDIA_TYPE_AUDIO);
+        res = open_codec_context(stream_index, *format_context, *context, AVMEDIA_TYPE_AUDIO);
         if (res) {
             throwUnsupportedAudioFileExceptionIfError(env, res, "Failed to open codec context.");
             goto bail;
@@ -285,7 +306,7 @@ int ff_open_file(JNIEnv *env, AVFormatContext **format_context, AVStream **opene
         AVFormatContext* deref_format_context = *format_context;
         for (i=0; i<deref_format_context->nb_streams; i++) {
             stream = deref_format_context->streams[i];
-            if (stream->codec->codec_type == AVMEDIA_TYPE_AUDIO) {
+            if (stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
                 if (audio_stream_number == *stream_index) {
                     *stream_index = i;
                 #ifdef DEBUG
@@ -303,7 +324,7 @@ int ff_open_file(JNIEnv *env, AVFormatContext **format_context, AVStream **opene
             throwIndexOutOfBoundsExceptionIfError(env, res, *stream_index);
             goto bail;
         }
-        res = ff_open_stream(env, stream);
+        res = ff_open_stream(env, stream, context);
         if (res) {
             goto bail;
         }
@@ -337,17 +358,17 @@ static int init_swr(JNIEnv *env, FFAudioIO *aio) {
         goto bail;
     }
 
-    av_opt_set_sample_fmt(aio->swr_context, "in_sample_fmt",  aio->stream->codec->sample_fmt, 0);
+    av_opt_set_sample_fmt(aio->swr_context, "in_sample_fmt",  aio->stream->codecpar->format, 0);
     // make sure we get interleaved/packed output
-    av_opt_set_sample_fmt(aio->swr_context, "out_sample_fmt", av_get_packed_sample_fmt(aio->stream->codec->sample_fmt), 0);
+    av_opt_set_sample_fmt(aio->swr_context, "out_sample_fmt", av_get_packed_sample_fmt(aio->stream->codecpar->format), 0);
 
     // keep everything else the way it was...
-    av_opt_set_int(aio->swr_context, "in_channel_count",  aio->stream->codec->channels, 0);
-    av_opt_set_int(aio->swr_context, "out_channel_count",  aio->stream->codec->channels, 0);
-    av_opt_set_int(aio->swr_context, "in_channel_layout",  aio->stream->codec->channel_layout, 0);
-    av_opt_set_int(aio->swr_context, "out_channel_layout", aio->stream->codec->channel_layout, 0);
-    av_opt_set_int(aio->swr_context, "in_sample_rate",     aio->stream->codec->sample_rate, 0);
-    av_opt_set_int(aio->swr_context, "out_sample_rate",    aio->stream->codec->sample_rate, 0);
+    av_opt_set_int(aio->swr_context, "in_channel_count",  aio->stream->codecpar->channels, 0);
+    av_opt_set_int(aio->swr_context, "out_channel_count",  aio->stream->codecpar->channels, 0);
+    av_opt_set_int(aio->swr_context, "in_channel_layout",  aio->stream->codecpar->channel_layout, 0);
+    av_opt_set_int(aio->swr_context, "out_channel_layout", aio->stream->codecpar->channel_layout, 0);
+    av_opt_set_int(aio->swr_context, "in_sample_rate",     aio->stream->codecpar->sample_rate, 0);
+    av_opt_set_int(aio->swr_context, "out_sample_rate",    aio->stream->codecpar->sample_rate, 0);
 
     res = swr_init(aio->swr_context);
     if (res < 0) {
@@ -500,8 +521,8 @@ int ff_init_audioio(JNIEnv *env, FFAudioIO *aio) {
     aio->timestamp = 0;
 
     // allocate pointer to the audio buffers, i.e. the multiple planes/channels.
-    nb_planes = av_sample_fmt_is_planar(aio->stream->codec->sample_fmt)
-        ? aio->stream->codec->channels
+    nb_planes = av_sample_fmt_is_planar(aio->stream->codecpar->format)
+        ? aio->stream->codecpar->channels
         : 1;
 
     // always init SWR to keep code simpler
@@ -511,8 +532,8 @@ int ff_init_audioio(JNIEnv *env, FFAudioIO *aio) {
         goto bail;
     }
     // if for some reason the codec delivers 24bit, we need to encode its output to little endian
-    if (aio->stream->codec->bits_per_coded_sample == 24) {
-        codec = ff_find_encoder(aio->stream->codec->sample_fmt, aio->stream->codec->bits_per_coded_sample, ff_big_endian(aio->stream->codec->codec_id), 1);
+    if (aio->stream->codecpar->bits_per_coded_sample == 24) {
+        codec = ff_find_encoder(aio->stream->codecpar->format, aio->stream->codecpar->bits_per_coded_sample, ff_big_endian(aio->stream->codecpar->codec_id), 1);
         if (!codec) {
             res = AVERROR(EINVAL);
             throwIOExceptionIfError(env, res, "Could not find suitable encoder codec.");
@@ -594,7 +615,7 @@ static int encode_buffer(FFAudioIO *aio, const uint8_t *in_buf, int in_size, con
     if (got_output) {
         res = aio->encode_packet.size;
         memcpy((char*)out_buf, aio->encode_packet.data, aio->encode_packet.size);
-        av_free_packet(&aio->encode_packet);
+        av_packet_unref(&aio->encode_packet);
     }
 
     bail:
@@ -682,7 +703,7 @@ static int decode_packet(FFAudioIO *aio, int cached) {
     if (aio->decode_packet.stream_index == aio->stream_index) {
         // decode frame
         // got_frame indicates whether we got a frame
-        bytesConsumed = avcodec_decode_audio4(aio->stream->codec, aio->decode_frame, &aio->got_frame, &aio->decode_packet);
+        bytesConsumed = avcodec_decode_audio4(aio->decode_context, aio->decode_frame, &aio->got_frame, &aio->decode_packet);
         if (bytesConsumed < 0) {
             throwUnsupportedAudioFileExceptionIfError(aio->env, bytesConsumed, "Failed to decode audio frame.");
             return bytesConsumed;
@@ -696,15 +717,15 @@ static int decode_packet(FFAudioIO *aio, int cached) {
             fprintf(stderr, "samples%s n:%" PRIu64 " nb_samples:%d pts:%s\n",
                    cached ? "(cached)" : "",
                    aio->decoded_samples, aio->decode_frame->nb_samples,
-                   av_ts2timestr(aio->decode_frame->pts, &aio->stream->codec->time_base));
+                   av_ts2timestr(aio->decode_frame->pts, &aio->decode_context->time_base));
 #endif
 
             // adjust out sample number for a different sample rate
             // this is an estimate!!
             out_buf_samples = av_rescale_rnd(
-                    swr_get_delay(aio->swr_context, aio->stream->codec->sample_rate) + aio->decode_frame->nb_samples,
+                    swr_get_delay(aio->swr_context, aio->stream->codecpar->sample_rate) + aio->decode_frame->nb_samples,
                     out_sample_rate,
-                    aio->stream->codec->sample_rate,
+                    aio->stream->codecpar->sample_rate,
                     AV_ROUND_UP
             );
 
@@ -723,9 +744,9 @@ static int decode_packet(FFAudioIO *aio, int cached) {
             if (res < 0) goto bail;
             else out_buf_samples = res;
 
-        } else if (flush && swr_get_delay(aio->swr_context, aio->stream->codec->sample_rate)) {
+        } else if (flush && swr_get_delay(aio->swr_context, aio->stream->codecpar->sample_rate)) {
 
-            res = resample(aio, resample_buf, swr_get_delay(aio->swr_context, aio->stream->codec->sample_rate), NULL, 0);
+            res = resample(aio, resample_buf, swr_get_delay(aio->swr_context, aio->stream->codecpar->sample_rate), NULL, 0);
             if (res < 0) goto bail;
             else out_buf_samples = res;
         } else {
@@ -816,13 +837,13 @@ int ff_fill_buffer(FFAudioIO *aio) {
             fprintf(stderr, "pts       : %" PRId64 "\n", aio->decode_packet.pts);
             fprintf(stderr, "dts       : %" PRId64 "\n", aio->decode_packet.dts);
     #endif
-            av_free_packet(&(aio->decode_packet));
+            av_packet_unref(&(aio->decode_packet));
         } else {
     #ifdef DEBUG
             fprintf(stderr, "Reading cached frames: %i\n", aio->got_frame);
     #endif
             // flush cached frames
-            av_free_packet(&(aio->decode_packet));
+            av_packet_unref(&(aio->decode_packet));
             res = decode_packet(aio, 1);
         }
     }
@@ -835,11 +856,18 @@ int ff_fill_buffer(FFAudioIO *aio) {
  * Free all resources held by aio and then itself.
  */
 void ff_audioio_free(FFAudioIO *aio) {
+    #ifdef DEBUG
+        fprintf(stderr, "ff_audioio_free\n");
+    #endif
 
     if (aio) {
 
         if (aio->encode_frame) {
             av_frame_free(&aio->encode_frame);
+        }
+        if (aio->decode_context) {
+            avcodec_close(aio->decode_context);
+            av_free(aio->decode_context);
         }
         if (aio->encode_context) {
             avcodec_close(aio->encode_context);
@@ -847,9 +875,6 @@ void ff_audioio_free(FFAudioIO *aio) {
         }
         if (aio->swr_context) {
             swr_free(&aio->swr_context);
-        }
-        if (aio->stream && aio->stream->codec) {
-            avcodec_close(aio->stream->codec);
         }
         if (aio->format_context) {
             AVFormatContext *s = aio->format_context;
@@ -1043,9 +1068,7 @@ void dumpCodecIds() {
         fprintf(stdout, "private final int AV_CODEC_ID_RALF = %#x;\n", AV_CODEC_ID_RALF);
         fprintf(stdout, "private final int AV_CODEC_ID_IAC = %#x;\n", AV_CODEC_ID_IAC);
         fprintf(stdout, "private final int AV_CODEC_ID_ILBC = %#x;\n", AV_CODEC_ID_ILBC);
-        fprintf(stdout, "private final int AV_CODEC_ID_OPUS_DEPRECATED = %#x;\n", AV_CODEC_ID_OPUS_DEPRECATED);
         fprintf(stdout, "private final int AV_CODEC_ID_COMFORT_NOISE = %#x;\n", AV_CODEC_ID_COMFORT_NOISE);
-        fprintf(stdout, "private final int AV_CODEC_ID_TAK_DEPRECATED = %#x;\n", AV_CODEC_ID_TAK_DEPRECATED);
         fprintf(stdout, "private final int AV_CODEC_ID_FFWAVESYNTH = %#x;\n", AV_CODEC_ID_FFWAVESYNTH);
         // apparently not existent in FFmpeg 2:
         //fprintf(stdout, "private final int AV_CODEC_ID_8SVX_RAW = %#x;\n", AV_CODEC_ID_8SVX_RAW);

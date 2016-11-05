@@ -115,8 +115,8 @@ JNIEXPORT jlong JNICALL Java_com_tagtraum_ffsampledsp_FFCodecInputStream_open(JN
         out_sample_fmt = AV_SAMPLE_FMT_DBL;
     }
 
-    if (aio->stream->codec->channels == channels) {
-        out_channel_layout = aio->stream->codec->channel_layout;
+    if (aio->stream->codecpar->channels == channels) {
+        out_channel_layout = aio->stream->codecpar->channel_layout;
     } else if (channels == 1) {
         out_channel_layout = AV_CH_LAYOUT_MONO;
     } else if (channels == 2) {
@@ -126,7 +126,7 @@ JNIEXPORT jlong JNICALL Java_com_tagtraum_ffsampledsp_FFCodecInputStream_open(JN
         channels = 2;
     }
 
-    if (aio->stream->codec->bits_per_coded_sample > sample_size_in_bits) {
+    if (aio->stream->codecpar->bits_per_coded_sample > sample_size_in_bits) {
         dither_method = SWR_DITHER_TRIANGULAR;
         output_sample_bits = sample_size_in_bits;
     }
@@ -148,10 +148,10 @@ JNIEXPORT jlong JNICALL Java_com_tagtraum_ffsampledsp_FFCodecInputStream_open(JN
     }
 
     // standard stuff from input
-    av_opt_set_sample_fmt(aio->swr_context, "in_sample_fmt",  aio->stream->codec->sample_fmt, 0);
-    av_opt_set_int(aio->swr_context, "in_channel_count",  aio->stream->codec->channels, 0);
-    av_opt_set_int(aio->swr_context, "in_channel_layout",  aio->stream->codec->channel_layout, 0);
-    av_opt_set_int(aio->swr_context, "in_sample_rate",     aio->stream->codec->sample_rate, 0);
+    av_opt_set_sample_fmt(aio->swr_context, "in_sample_fmt",  aio->stream->codecpar->format, 0);
+    av_opt_set_int(aio->swr_context, "in_channel_count",  aio->stream->codecpar->channels, 0);
+    av_opt_set_int(aio->swr_context, "in_channel_layout",  aio->stream->codecpar->channel_layout, 0);
+    av_opt_set_int(aio->swr_context, "in_sample_rate",     aio->stream->codecpar->sample_rate, 0);
     // custom stuff
     av_opt_set_int(aio->swr_context, "out_channel_layout", out_channel_layout, 0);
     av_opt_set_int(aio->swr_context, "out_channel_count", channels, 0);

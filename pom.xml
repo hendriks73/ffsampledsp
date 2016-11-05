@@ -364,16 +364,17 @@
         <!-- For newer XCode versions: -->
         <!-- <isysroot>/Developer/SDKs/MacOSX${mmacosx-version-min}.sdk</isysroot> -->
         <isysroot>/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk/</isysroot>
-        <ffmpeg.version>2.8.1</ffmpeg.version>
-        <avutil.version>54.31.100</avutil.version>
-        <avcodec.version>56.60.100</avcodec.version>
-        <avformat.version>56.40.101</avformat.version>
-        <swresample.version>1.2.101</swresample.version>
+        <ffmpeg.version>3.2</ffmpeg.version>
+        <avutil.version>55.34.100</avutil.version>
+        <avcodec.version>57.64.100</avcodec.version>
+        <avformat.version>57.56.101</avformat.version>
+        <swresample.version>2.3.100</swresample.version>
         <bzip2.version>1.0.6</bzip2.version>
         <zlib.version>1.2.8</zlib.version>
 
         <ccompiler>gcc</ccompiler>
-        <!-- override with -D on commandline to pass additional flags, like -DDEBUG via the cflags property -->
+        <!-- override with -D on commandline to pass additional flags, like -DDEBUG via the cflags property. E.g.: -->
+        <!-- <cflags>-DDEBUG</cflags> -->
         <cflags />
 
         <mingw.i386.path>/Users/hendrik/mingw/mingw-w32-i686/bin</mingw.i386.path>
@@ -384,8 +385,8 @@
 
         <!-- add -DDEBUG to enable standard out debug messages -->
         <mingw.compiler.startoptions>${cflags} -Wall -x c -Wno-multichar -D_JNI_IMPLEMENTATION_</mingw.compiler.startoptions>
-        <mingw.linker.startoptions>-Wl,--kill-at -static-libgcc -shared -Os -s</mingw.linker.startoptions>
-        <mingw.linker.endoptions>-lws2_32</mingw.linker.endoptions>
+        <mingw.linker.startoptions>-Wl,--kill-at -static-libgcc -shared -Os -s </mingw.linker.startoptions>
+        <mingw.linker.endoptions>-lws2_32 -lsecur32</mingw.linker.endoptions>
 
         <!-- add -DDEBUG to enable standard out debug messages -->
         <darwin.compiler.startoptions>${cflags} -Wall -x c -arch ${arch} -fmessage-length=0 -pipe -Wno-trigraphs
@@ -399,6 +400,7 @@
             -framework CoreMedia
             -framework CoreVideo
             -framework VideoToolbox
+            -framework AudioToolbox
             -framework Security
             -single_module
             -compatibility_version 1

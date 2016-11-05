@@ -74,7 +74,7 @@ JNIEXPORT jlong JNICALL Java_com_tagtraum_ffsampledsp_FFURLInputStream_open(JNIE
     }
     aio->stream_index = (int)streamIndex;
 
-    res = ff_open_file(env, &(aio->format_context), &(aio->stream), &(aio->stream_index), input_url);
+    res = ff_open_file(env, &(aio->format_context), &(aio->stream), &(aio->decode_context), &(aio->stream_index), input_url);
     if (res) {
         goto bail;
     }
@@ -84,14 +84,14 @@ JNIEXPORT jlong JNICALL Java_com_tagtraum_ffsampledsp_FFURLInputStream_open(JNIE
     }
 
 #ifdef DEBUG
-    fprintf(stderr, "stream->codec->bits_per_coded_sample: %i\n", aio->stream->codec->bits_per_coded_sample);
-    fprintf(stderr, "stream->codec->bits_per_raw_sample  : %i\n", aio->stream->codec->bits_per_raw_sample);
-    fprintf(stderr, "stream->codec->bit_rate: %i\n", aio->stream->codec->bit_rate);
+    fprintf(stderr, "stream->codecpar->bits_per_coded_sample: %i\n", aio->stream->codecpar->bits_per_coded_sample);
+    fprintf(stderr, "stream->codecpar->bits_per_raw_sample  : %i\n", aio->stream->codecpar->bits_per_raw_sample);
+    fprintf(stderr, "stream->codecpar->bit_rate: %i\n", aio->stream->codecpar->bit_rate);
     fprintf(stderr, "frames     : %" PRId64 "\n", aio->stream->nb_frames);
-    fprintf(stderr, "sample_rate: %i\n", aio->stream->codec->sample_rate);
-    fprintf(stderr, "channels   : %i\n", aio->stream->codec->channels);
-    fprintf(stderr, "frame_size : %i\n", aio->stream->codec->frame_size);
-    fprintf(stderr, "codec_id   : %i\n", aio->stream->codec->codec_id);
+    fprintf(stderr, "sample_rate: %i\n", aio->stream->codecpar->sample_rate);
+    fprintf(stderr, "channels   : %i\n", aio->stream->codecpar->channels);
+    fprintf(stderr, "frame_size : %i\n", aio->stream->codecpar->frame_size);
+    fprintf(stderr, "codec_id   : %i\n", aio->stream->codecpar->codec_id);
 #endif
 
 bail:
@@ -147,7 +147,7 @@ JNIEXPORT void JNICALL Java_com_tagtraum_ffsampledsp_FFURLInputStream_seek(JNIEn
     aio->decode_packet.data = NULL;
     aio->decode_packet.size = 0;
     // flush codec
-    avcodec_flush_buffers(aio->stream->codec);
+    avcodec_flush_buffers(aio->decode_context);
     // set timestamp to seek_target, since that's hopefully now our current timestamp..
     aio->timestamp = seek_target;
 

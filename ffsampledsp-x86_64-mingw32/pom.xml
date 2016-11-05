@@ -16,15 +16,18 @@
             <artifactId>ffsampledsp-java</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <!-- the order of dependencies is relevant during linking! -->
+
         <dependency>
             <groupId>com.tagtraum.ffmpeg</groupId>
-            <artifactId>libavcodec</artifactId>
+            <artifactId>libavformat</artifactId>
             <classifier>${arch}-${host}</classifier>
             <type>a</type>
         </dependency>
         <dependency>
             <groupId>com.tagtraum.ffmpeg</groupId>
-            <artifactId>libavformat</artifactId>
+            <artifactId>libavcodec</artifactId>
             <classifier>${arch}-${host}</classifier>
             <type>a</type>
         </dependency>

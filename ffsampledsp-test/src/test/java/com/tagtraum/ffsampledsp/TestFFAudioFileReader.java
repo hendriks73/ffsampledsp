@@ -88,6 +88,7 @@ public class TestFFAudioFileReader {
 
             final AudioFormat format = fileFormat.getFormat();
             assertEquals(-1, format.getFrameSize());
+            assertEquals(16, format.getSampleSizeInBits());
             assertEquals(2, format.getChannels());
             final Long duration = (Long)fileFormat.getProperty("duration");
             assertNotNull(duration);

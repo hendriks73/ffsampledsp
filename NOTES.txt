@@ -1,3 +1,8 @@
+0.9.17
+
+- Fixed bad sample size in AudioFormat for m4a.
+
+
 0.9.16
 
 - Moved to FFmpeg 3.2

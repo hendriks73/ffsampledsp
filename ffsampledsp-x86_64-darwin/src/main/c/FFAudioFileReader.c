@@ -221,7 +221,7 @@ static int create_ffaudiofileformats(JNIEnv *env, AVFormatContext *format_contex
     jboolean big_endian = 1;
     jobject audio_format = NULL;
     jint frame_size = -1;
-    jint sample_size = 0;
+    jint sample_size = -1;
     int audio_stream_count = 0;
     int audio_stream_number = 0;
 
@@ -274,9 +274,9 @@ static int create_ffaudiofileformats(JNIEnv *env, AVFormatContext *format_contex
             }
             // TODO: Support VBR.
 
-            sample_size = stream->codecpar->bits_per_coded_sample
-                ? stream->codecpar->bits_per_coded_sample
-                : stream->codecpar->bits_per_raw_sample;
+            sample_size = stream->codecpar->bits_per_raw_sample
+                ? stream->codecpar->bits_per_raw_sample
+                : stream->codecpar->bits_per_coded_sample;
 
             #ifdef DEBUG
                 fprintf(stderr, "stream->codecpar->bits_per_coded_sample: %i\n", stream->codecpar->bits_per_coded_sample);

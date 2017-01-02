@@ -1,3 +1,8 @@
+0.9.18
+
+- Added additional plausibility check for detected audio formats.
+
+
 0.9.17
 
 - Fixed bad sample size in AudioFormat for m4a.

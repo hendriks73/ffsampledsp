@@ -21,6 +21,7 @@
 package com.tagtraum.ffsampledsp;
 
 import javax.sound.sampled.AudioFileFormat;
+import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.sound.sampled.spi.AudioFileReader;
@@ -176,6 +177,18 @@ public class FFAudioFileReader extends AudioFileReader {
         return audioFileFormat;
     }
 
+    private static void checkPlausability(final AudioFileFormat[] audioFileFormat) throws UnsupportedAudioFileException {
+        if (audioFileFormat != null && audioFileFormat.length >= 1 && audioFileFormat[0].getFormat() != null) {
+            // verify plausibility of audioFileFormat
+            final AudioFileFormat firstFileFormat = audioFileFormat[0];
+            final AudioFormat firstFormat = audioFileFormat[0].getFormat();
+            if (firstFileFormat.getFrameLength() == 0
+                && firstFormat.getSampleRate() == 0
+                && firstFormat.getSampleSizeInBits() == 0
+                && firstFormat.getChannels() == 0) throw new UnsupportedAudioFileException("Nonplausable audio format: " + firstFileFormat);
+        }
+    }
+
     @Override
     public AudioFileFormat getAudioFileFormat(final URL url) throws UnsupportedAudioFileException, IOException {
         return getAudioFileFormats(url)[0];
@@ -260,11 +273,14 @@ public class FFAudioFileReader extends AudioFileReader {
      * @param url url
      * @return file formats
      * @throws IOException
+     * @throws UnsupportedAudioFileException
      */
-    private AudioFileFormat[] lockedGetAudioFileFormatsFromURL(final String url) throws IOException {
+    private AudioFileFormat[] lockedGetAudioFileFormatsFromURL(final String url) throws IOException, UnsupportedAudioFileException {
         LOCK.lock();
         try {
-            return getAudioFileFormatsFromURL(url);
+            final AudioFileFormat[] audioFileFormat = getAudioFileFormatsFromURL(url);
+            checkPlausability(audioFileFormat);
+            return audioFileFormat;
         } finally {
             LOCK.unlock();
         }
@@ -277,11 +293,14 @@ public class FFAudioFileReader extends AudioFileReader {
      * @param byteBuffer byteBuffer
      * @return file formats
      * @throws IOException
+     * @throws UnsupportedAudioFileException
      */
-    private AudioFileFormat[] lockedGetAudioFileFormatFromBuffer(final ByteBuffer byteBuffer) throws IOException {
+    private AudioFileFormat[] lockedGetAudioFileFormatFromBuffer(final ByteBuffer byteBuffer) throws IOException, UnsupportedAudioFileException {
         LOCK.lock();
         try {
-            return getAudioFileFormatsFromBuffer(byteBuffer);
+            final AudioFileFormat[] audioFileFormat = getAudioFileFormatsFromBuffer(byteBuffer);
+            checkPlausability(audioFileFormat);
+            return audioFileFormat;
         } finally {
             LOCK.unlock();
         }
@@ -294,7 +313,7 @@ public class FFAudioFileReader extends AudioFileReader {
      * @return {@link AudioFileFormat}s
      * @throws IOException
      */
-    private native AudioFileFormat[] getAudioFileFormatsFromURL(final String url) throws IOException;
+    private native AudioFileFormat[] getAudioFileFormatsFromURL(final String url) throws IOException, UnsupportedAudioFileException;
 
     /**
      * Determine {@link AudioFileFormat} from a file containing just the first kbs from a stream.
@@ -303,7 +322,7 @@ public class FFAudioFileReader extends AudioFileReader {
      * @return {@link AudioFileFormat}
      * @throws IOException
      */
-    private native AudioFileFormat[] getAudioFileFormatsFromBuffer(final ByteBuffer byteBuffer) throws IOException;
+    private native AudioFileFormat[] getAudioFileFormatsFromBuffer(final ByteBuffer byteBuffer) throws IOException, UnsupportedAudioFileException;
 
 
 }

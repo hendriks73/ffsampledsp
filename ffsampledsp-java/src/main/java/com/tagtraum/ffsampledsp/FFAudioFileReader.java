@@ -177,7 +177,7 @@ public class FFAudioFileReader extends AudioFileReader {
         return audioFileFormat;
     }
 
-    private static void checkPlausability(final AudioFileFormat[] audioFileFormat) throws UnsupportedAudioFileException {
+    private static void checkPlausibility(final AudioFileFormat[] audioFileFormat) throws UnsupportedAudioFileException {
         if (audioFileFormat != null && audioFileFormat.length >= 1 && audioFileFormat[0].getFormat() != null) {
             // verify plausibility of audioFileFormat
             final AudioFileFormat firstFileFormat = audioFileFormat[0];
@@ -279,7 +279,7 @@ public class FFAudioFileReader extends AudioFileReader {
         LOCK.lock();
         try {
             final AudioFileFormat[] audioFileFormat = getAudioFileFormatsFromURL(url);
-            checkPlausability(audioFileFormat);
+            checkPlausibility(audioFileFormat);
             return audioFileFormat;
         } finally {
             LOCK.unlock();
@@ -299,7 +299,7 @@ public class FFAudioFileReader extends AudioFileReader {
         LOCK.lock();
         try {
             final AudioFileFormat[] audioFileFormat = getAudioFileFormatsFromBuffer(byteBuffer);
-            checkPlausability(audioFileFormat);
+            checkPlausibility(audioFileFormat);
             return audioFileFormat;
         } finally {
             LOCK.unlock();

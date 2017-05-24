@@ -185,7 +185,7 @@ public class TestFFAudioFileReader {
      * Try to load a file with a format that is unsupported.
      * This test does not work properly, if mp3 is actually supported!
      *
-     * @throws IOException if there is som IO error
+     * @throws IOException if there is some IO error
      */
     @Test
     public void testGetAudioFileFormatLowProbeScoreFile2() throws IOException {
@@ -197,9 +197,7 @@ public class TestFFAudioFileReader {
         } catch (UnsupportedAudioFileException e) {
             // we want to test for the specific error message
             e.printStackTrace();
-            assertTrue(e.toString().contains("Invalid data found"));
-        } finally {
-            //file.delete();
+            assertTrue(e.toString().contains("Probe score too low"));
         }
     }
 

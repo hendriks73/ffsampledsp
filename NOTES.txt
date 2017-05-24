@@ -1,3 +1,8 @@
+0.9.19
+
+- Moved to FFmpeg 3.3.1
+
+
 0.9.18
 
 - Added additional plausibility check for detected audio formats.

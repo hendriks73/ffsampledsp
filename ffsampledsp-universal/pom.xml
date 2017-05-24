@@ -3,7 +3,7 @@
     <parent>
         <groupId>com.tagtraum</groupId>
         <artifactId>ffsampledsp</artifactId>
-        <version>0.9.19-SNAPSHOT</version>
+        <version>0.9.19</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>ffsampledsp-universal</artifactId>

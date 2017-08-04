@@ -44,8 +44,7 @@ public final class FFNativeLibraryLoader {
     private static final String JAR_PROTOCOL = "jar";
     private static final String FILE_PROTOCOL = "file";
     private static final String CLASS_FILE_EXTENSION = ".class";
-    private static final String NATIVE_LIBRARY_EXTENSION = System.getProperty("os.name").toLowerCase().contains("mac")
-            ? ".dylib" : ".dll";
+    private static final String NATIVE_LIBRARY_EXTENSION;
     private static final String HOST = System.getProperty("os.name").toLowerCase().contains("mac")
             ? "darwin" : "mingw32";
     private static final String NATIVE_LIBRARY_PREFIX = "lib";
@@ -54,6 +53,25 @@ public final class FFNativeLibraryLoader {
     private static final Set<String> LOADED = new HashSet<String>();
 
     private static Boolean ffSampledSPLibraryLoaded;
+
+    static {
+        final String systemLibraryName = System.mapLibraryName("");
+        String extension = "";
+
+        for(int i = systemLibraryName.length() - 1; i > 0; i--) {
+            final char c = systemLibraryName.charAt(i);
+
+            if(c == File.separatorChar) {
+                break;
+            }
+
+            if(c == '.') {
+                extension = systemLibraryName.substring(i + 1);
+            }
+        }
+
+        NATIVE_LIBRARY_EXTENSION = extension;
+    }
 
     private FFNativeLibraryLoader() {
     }
@@ -138,7 +156,7 @@ public final class FFNativeLibraryLoader {
      * @param baseClass base class
      * @param filter filter that determines whether a file is a match
      * @return file
-     * @throws java.io.FileNotFoundException if a matching file cannot be found
+     * @throws FileNotFoundException if a matching file cannot be found
      */
     public static String findFile(final String name, final Class baseClass, final FileFilter filter)
             throws FileNotFoundException {
@@ -195,6 +213,7 @@ public final class FFNativeLibraryLoader {
         public boolean accept(final File file) {
             final String fileString = file.toString();
             final String fileName = file.getName();
+
             return file.isFile()
                     && (fileName.startsWith(libName + arch) || fileName.startsWith(NATIVE_LIBRARY_PREFIX + libName + arch))
                     && fileString.endsWith(NATIVE_LIBRARY_EXTENSION);

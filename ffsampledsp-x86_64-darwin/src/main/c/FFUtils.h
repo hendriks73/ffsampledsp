@@ -50,8 +50,6 @@
 #include <libavutil/timestamp.h>
 #include <libavutil/opt.h>
 
-#include <libswresample/swresample_internal.h>
-
 /**
  * Central context representing the native peer to the Java FFNativePeerInputStream object.
  */

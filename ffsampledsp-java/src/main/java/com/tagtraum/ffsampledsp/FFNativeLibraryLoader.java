@@ -57,9 +57,8 @@ public final class FFNativeLibraryLoader {
     static {
         final String systemLibraryName = System.mapLibraryName("");
         final int dot = systemLibraryName.lastIndexOf('.');
-        final String extension = systemLibraryName.substring(dot + 1);
 
-        NATIVE_LIBRARY_EXTENSION = extension;
+        NATIVE_LIBRARY_EXTENSION = systemLibraryName.substring(dot + 1);
         NATIVE_LIBRARY_PREFIX = systemLibraryName.substring(0, dot);
     }
 

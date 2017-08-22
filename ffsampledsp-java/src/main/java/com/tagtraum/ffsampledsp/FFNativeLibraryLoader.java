@@ -44,22 +44,23 @@ public final class FFNativeLibraryLoader {
     private static final String JAR_PROTOCOL = "jar";
     private static final String FILE_PROTOCOL = "file";
     private static final String CLASS_FILE_EXTENSION = ".class";
-    private static final String NATIVE_LIBRARY_EXTENSION;
     private static final String HOST = System.getProperty("os.name").toLowerCase().contains("mac")
             ? "darwin" : "mingw32";
-    private static final String NATIVE_LIBRARY_PREFIX = "lib";
     private static final String ARCH = arch();
 
     private static final Set<String> LOADED = new HashSet<String>();
 
     private static Boolean ffSampledSPLibraryLoaded;
 
+    private static final String NATIVE_LIBRARY_PREFIX;
+    private static final String NATIVE_LIBRARY_EXTENSION;
     static {
         final String systemLibraryName = System.mapLibraryName("");
         final int dot = systemLibraryName.lastIndexOf('.');
         final String extension = systemLibraryName.substring(dot + 1);
 
         NATIVE_LIBRARY_EXTENSION = extension;
+        NATIVE_LIBRARY_PREFIX = systemLibraryName.substring(0, dot);
     }
 
     private FFNativeLibraryLoader() {

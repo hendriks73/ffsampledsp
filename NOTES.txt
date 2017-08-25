@@ -1,3 +1,10 @@
+0.9.20
+
+- Removed compile time dependency to libswresample/swresample_internal.h.
+- Updated header paths for macOS 10.12.
+- Set library prefix and suffix automatically, depending on platform (thanks Jonas Hartwig).
+
+
 0.9.19
 
 - Moved to FFmpeg 3.3.1

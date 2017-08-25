@@ -361,9 +361,7 @@
         <!-- For newer XCode versions: -->
         <!-- <mmacosx-version-min>10.7</mmacosx-version-min> -->
         <mmacosx-version-min>10.10</mmacosx-version-min>
-        <!-- For newer XCode versions: -->
-        <!-- <isysroot>/Developer/SDKs/MacOSX${mmacosx-version-min}.sdk</isysroot> -->
-        <isysroot>/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk/</isysroot>
+        <isysroot>/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/</isysroot>
         <ffmpeg.version>3.3.1</ffmpeg.version>
         <avutil.version>55.58.100</avutil.version>
         <avcodec.version>57.89.100</avcodec.version>
@@ -412,7 +410,7 @@
         <!-- Custom JDK: -->
         <!-- <darwin.headers.jni>/Library/Java/JavaVirtualMachines/jdk1.8.0_66.jdk/Contents/Home/include/</darwin.headers.jni> -->
         <!-- Apple JDK: -->
-        <darwin.headers.jni>/System/Library/Frameworks/JavaVM.framework/Headers</darwin.headers.jni>
+        <darwin.headers.jni>${isysroot}System/Library/Frameworks/JavaVM.framework/Headers</darwin.headers.jni>
 
         <!-- aliases, because of http://maven.apache.org/plugins/maven-site-plugin/examples/creating-content.html#Filtering -->
         <projectversion>${project.version}</projectversion>

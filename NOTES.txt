@@ -1,3 +1,8 @@
+0.9.21
+
+- Ensure that we can still read the whole file after seeking.
+
+
 0.9.20
 
 - Removed compile time dependency to libswresample/swresample_internal.h.

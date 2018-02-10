@@ -362,11 +362,11 @@
         <!-- <mmacosx-version-min>10.7</mmacosx-version-min> -->
         <mmacosx-version-min>10.10</mmacosx-version-min>
         <isysroot>/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/</isysroot>
-        <ffmpeg.version>3.3.1</ffmpeg.version>
-        <avutil.version>55.58.100</avutil.version>
-        <avcodec.version>57.89.100</avcodec.version>
-        <avformat.version>57.71.100</avformat.version>
-        <swresample.version>2.7.100</swresample.version>
+        <ffmpeg.version>3.4.1</ffmpeg.version>
+        <avutil.version>55.78.100</avutil.version>
+        <avcodec.version>57.107.100</avcodec.version>
+        <avformat.version>57.83.100</avformat.version>
+        <swresample.version>2.9.100</swresample.version>
         <bzip2.version>1.0.6</bzip2.version>
         <zlib.version>1.2.11</zlib.version>
 

@@ -129,7 +129,6 @@ public class TestFFAudioFileReader {
     }
 
     @Test
-    @Ignore("Can only work with FFmpeg package that supports mp3.")
     public void testGetAudioFileFormatMP3File() throws IOException, UnsupportedAudioFileException {
         // first copy the file from resources to actual location in temp
         final String filename = "test.mp3";
@@ -141,20 +140,20 @@ public class TestFFAudioFileReader {
 
             assertEquals("mp3", fileFormat.getType().getExtension());
             assertEquals(file.length(), fileFormat.getByteLength());
-            assertEquals(143251, fileFormat.getFrameLength());
+            assertEquals(134784, fileFormat.getFrameLength());
 
             final AudioFormat format = fileFormat.getFormat();
             assertEquals(-1, format.getFrameSize());
             assertEquals(2, format.getChannels());
             final Long duration = (Long)fileFormat.getProperty("duration");
             assertNotNull(duration);
-            assertEquals(3248333, (long)duration);
+            assertEquals(3056333, (long)duration);
             assertEquals(38.28125f, format.getFrameRate(), 0.001f);
             final Integer bitrate = (Integer)format.getProperty("bitrate");
             assertNotNull(bitrate);
             assertEquals(192000, (int)bitrate);
         } finally {
-            //file.delete();
+            file.delete();
         }
     }
 
@@ -165,10 +164,11 @@ public class TestFFAudioFileReader {
      * @throws IOException if there is som IO error
      */
     @Test
+    @Ignore("We are supporting mp3 now")
     public void testGetAudioFileFormatLowProbeScoreFile() throws IOException {
         // first copy the file from resources to actual location in temp
         final String filename = "test.mp3";
-        final File file = File.createTempFile("testGetAudioFileFormatMP3File", filename);
+        final File file = File.createTempFile("testGetAudioFileFormatLowProbeScoreFile", filename);
         extractFile(filename, file);
         try {
             new FFAudioFileReader().getAudioFileFormat(file);
@@ -370,6 +370,7 @@ public class TestFFAudioFileReader {
             assertTrue(e.toString().endsWith("(Operation not permitted)")
                     || e.toString().endsWith("(Invalid data found when processing input)")
                     || e.toString().endsWith("(End of file)")
+                    || e.toString().endsWith("(Invalid argument)")
                     || e.toString().endsWith("(Invalid data found when processing input)")
                     || e.toString().contains("Probe score too low")
             );

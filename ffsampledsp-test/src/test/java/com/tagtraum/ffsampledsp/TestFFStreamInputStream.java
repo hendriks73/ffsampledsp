@@ -20,7 +20,6 @@
  */
 package com.tagtraum.ffsampledsp;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.sound.sampled.AudioFileFormat;
@@ -40,7 +39,6 @@ import static org.junit.Assert.*;
 public class TestFFStreamInputStream {
 
     @Test
-    @Ignore("Can only work with FFmpeg package that supports mp3.")
     public void testReadThroughMP3File() throws IOException, UnsupportedAudioFileException {
         final String filename = "test.mp3";
         final File file = File.createTempFile("testReadThroughMP3File", filename);
@@ -267,6 +265,7 @@ public class TestFFStreamInputStream {
             assertTrue(e.toString().endsWith("(Operation not permitted)")
                     || e.toString().endsWith("(Invalid data found when processing input)")
                     || e.toString().endsWith("(End of file)")
+                    || e.toString().endsWith("(Invalid argument)")
                     || e.toString().endsWith("(Invalid data found when processing input)")
                     || e.toString().contains("Probe score too low")
             );

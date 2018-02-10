@@ -1,3 +1,9 @@
+0.9.23
+
+- Moved to FFmpeg 3.4.1.
+- Added support for mp3.
+
+
 0.9.22
 
 - Ensure that we can still read the whole file after seeking.

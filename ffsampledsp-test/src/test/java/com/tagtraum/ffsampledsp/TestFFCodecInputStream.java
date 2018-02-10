@@ -20,15 +20,14 @@
  */
 package com.tagtraum.ffsampledsp;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
-import javax.sound.sampled.*;
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * TestFFCodecInputStream.
@@ -80,7 +79,6 @@ public class TestFFCodecInputStream {
     }
 
     @Test
-    @Ignore("Can only work with FFmpeg package that supports mp3.")
     public void testReadConvertMP3FileToPCM() throws IOException, UnsupportedAudioFileException {
         final String filename = "test.mp3";
         final File file = File.createTempFile("testReadConvertMP3FileToPCM", filename);
@@ -261,7 +259,6 @@ public class TestFFCodecInputStream {
     }
 
     @Test
-    @Ignore("Can only work with FFmpeg package that supports mp3.")
     public void testDownsampleMP3File() throws IOException, UnsupportedAudioFileException {
         final String filename = "test.mp3";
         final File file = File.createTempFile("testDownsampleMP3File", filename);
@@ -352,7 +349,6 @@ public class TestFFCodecInputStream {
     }
 
     @Test
-    @Ignore("Can only work with FFmpeg package that supports mp3.")
     public void testDownsampleMP3File2() throws IOException, UnsupportedAudioFileException {
         final String filename = "test.mp3";
         final File file = File.createTempFile("testDownsampleMP3File", filename);
@@ -395,7 +391,7 @@ public class TestFFCodecInputStream {
             file.delete();
         }
         System.out.println("Read " + bytesRead + " bytes.");
-        assertEquals(402240, bytesRead);
+        assertEquals(404352, bytesRead);
     }
 
     @Test
@@ -445,7 +441,6 @@ public class TestFFCodecInputStream {
     }
 
     @Test
-    @Ignore("Can only work with FFmpeg package that supports mp3.")
     public void testReadConvertMP3StreamToPCM() throws IOException, UnsupportedAudioFileException {
         final String filename = "test.mp3";
         final File file = File.createTempFile("testReadConvertMP3FileToPCM", filename);

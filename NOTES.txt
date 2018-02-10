@@ -1,3 +1,8 @@
+0.9.24
+
+- Updated docs a little.
+
+
 0.9.23
 
 - Moved to FFmpeg 3.4.1.

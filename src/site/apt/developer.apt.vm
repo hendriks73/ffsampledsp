@@ -7,7 +7,7 @@
 
 Developer
 
-    Currently you can only build this library on OS X.
+    Currently you can only build this library on macOS.
 
     To do so, you also need:
 
@@ -42,10 +42,10 @@ git clone git@github.com:hendriks73/ffsampledsp.git ffsampledsp
     to your mvn call. If you didn't add the <<<bin>>> folder of your crosscompiler to the
     <<<PATH>>>, you might also want to set <<<-Dmingw.i386.path=...>>> and <<<-Dmingw.x86_64.path=...>>>
     You might also need to change <<<mmacosx-version-min>>> and <<<isysroot>>>, if you
-    don't have an OS X 10.6 SDK installed.
+    don't have an macOS 10.6 SDK installed.
 
     So all in all, something like the following might work for you, depending on where
-    you installed the Windows JNI headers, MinGW-w64, the OS X SDK, and the OS X JDK:
+    you installed the Windows JNI headers, MinGW-w64, the macOS SDK, and the macOS JDK:
 
 +-------------------------------+
 mvn -Ddarwin.headers.jni=/Library/Java/JavaVirtualMachines/jdk1.8.0_66.jdk/Contents/Home/include/ \

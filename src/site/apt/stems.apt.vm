@@ -49,6 +49,6 @@ for (int i=0; i<stemCount; i++) {
 
     Don't forget that you must have the <FFSampledSP> jar in your classpath and the <FFSampledSP>
     native library in your <<<java.library.path>>>. Otherwise, you'll probably get an
-    {{{https://docs.oracle.com/javase/8/docs/api/javax/sound/sampled/UnsupportedAudioFileException.html}UnsupportedAudioFileException}}.
+    {{{https://docs.oracle.com/javase/9/docs/api/javax/sound/sampled/UnsupportedAudioFileException.html}UnsupportedAudioFileException}}.
 
     Naturally, similar code can also be used to play back individual Stems.

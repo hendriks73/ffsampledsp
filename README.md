@@ -1,7 +1,7 @@
 # FFSampledSP
 
 *FFSampledSP* is an implementation of the
-[javax.sound.sampled](http://docs.oracle.com/javase/8/docs/api/javax/sound/sampled/spi/package-summary.html)
+[javax.sound.sampled](http://docs.oracle.com/javase/9/docs/api/javax/sound/sampled/spi/package-summary.html)
 service provider interfaces based on [FFmpeg](http://www.ffmpeg.org), a complete, cross-platform solution to record,
 convert and stream audio and video.
 FFSampledSP is part of the [SampledSP](http://www.tagtraum.com/sampledsp.html) collection of `javax.sound.sampled`
@@ -16,7 +16,7 @@ Binaries and more info can be found at its [tagtraum home](http://www.tagtraum.c
 
 ## Build
 
-Currently you can only build this library on OS X.
+Currently you can only build this library on macOS.
 
 To do so, you also need:
 
@@ -40,7 +40,7 @@ You might also need to change `mmacosx-version-min` and `isysroot`, if you
 don't have an OS X 10.11 SDK installed.
 
 So all in all, something like the following might work for you, depending on where
-you installed the Windows JNI headers, MinGW-w64, and the OS X JDK:
+you installed the Windows JNI headers, MinGW-w64, and the macOS JDK:
 
     mvn -Ddarwin.headers.jni=/Library/Java/JavaVirtualMachines/jdk1.8.0_66.jdk/Contents/Home/include/ \
         -Dmingw.headers.jni=/Users/YOUR_ID/mywindowsjdk/include \

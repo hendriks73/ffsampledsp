@@ -57,6 +57,7 @@ public class FFAudioFileReader extends AudioFileReader {
     private static Map<URL, AudioFileFormat[]> cache = Collections.synchronizedMap(new LinkedHashMap<URL, AudioFileFormat[]>() {
         private static final int MAX_ENTRIES = 20;
 
+        @Override
         protected boolean removeEldestEntry(final Map.Entry eldest) {
             return size() > MAX_ENTRIES;
         }

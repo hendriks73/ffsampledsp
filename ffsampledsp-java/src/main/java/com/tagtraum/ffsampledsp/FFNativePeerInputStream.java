@@ -52,6 +52,13 @@ public abstract class FFNativePeerInputStream extends InputStream {
      */
     protected ByteBuffer nativeBuffer;
 
+    /**
+     * Subclasses will open a native stream in this constructor.
+     * Do not remove the checked exceptions.
+     *
+     * @throws IOException if we cannot open the stream because of IO issues (e.g. not found).
+     * @throws UnsupportedAudioFileException if we cannot open the stream, because the format is unsupported
+     */
     protected FFNativePeerInputStream() throws IOException, UnsupportedAudioFileException {
         setNativeBufferCapacity(DEFAULT_NATIVE_BUFFER_SIZE);
     }

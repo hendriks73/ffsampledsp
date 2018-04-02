@@ -149,9 +149,7 @@ public class FFAudioFileFormat extends AudioFileFormat {
         return fileType;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public Map<String, Object> properties() {
         Map<java.lang.String,java.lang.Object> obj;
         if (properties == null) {
@@ -162,9 +160,7 @@ public class FFAudioFileFormat extends AudioFileFormat {
         return Collections.unmodifiableMap(obj);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public Object getProperty(final String s) {
         if (properties == null) {
             return null;

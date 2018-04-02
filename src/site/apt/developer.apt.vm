@@ -23,7 +23,7 @@ Developer
 
         * a JDK (to run Maven and get the macOS JNI headers)
 
-        * Doxygen, e.g. available via {{{http://www.macports.org}MacPorts}}
+        * Doxygen, e.g. available via {{{http://www.macports.org}MacPorts}} or {{{https://brew.sh}}HomeBrew}
 
     Once you have all this set up, clone the repository like this:
 

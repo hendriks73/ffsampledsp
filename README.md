@@ -26,7 +26,7 @@ To do so, you also need:
   or XCode, https://developer.apple.com/xcode/
 - the Windows JNI header files
 - a JDK (to run Maven and get the macOS JNI headers)
-- [Doxygen](http://www.doxygen.org), available via [MacPorts](https://www.macports.org)
+- [Doxygen](http://www.doxygen.org), available via [MacPorts](https://www.macports.org) or [HomeBrew](https://brew.sh)
 
 Once you have all this, you need to adjust some properties in the parent `pom.xml`.
 Or.. simply override them using `-Dname=value` notation. E.g. to point to your

@@ -20,6 +20,8 @@
         <name>FFSampledSP</name>
         <href>http://www.tagtraum.com/ffsampledsp</href>
         <src>./images/ffsampledsp-banner.png</src>
+        <width>400</width>
+        <height>120</height>
     </bannerLeft>
     <bannerRight>
         <href>http://www.tagtraum.com/</href>

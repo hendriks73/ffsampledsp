@@ -532,11 +532,11 @@ public class TestFFURLInputStream {
         }
     }
 
-    private void extractFile(final String filename, final File file) throws IOException {
+    static void extractFile(final String filename, final File file) throws IOException {
         InputStream in = null;
         OutputStream out = null;
         try {
-            in = getClass().getResourceAsStream(filename);
+            in = TestFFURLInputStream.class.getResourceAsStream(filename);
             out = new FileOutputStream(file);
             final byte[] buf = new byte[1024*64];
             int justRead;

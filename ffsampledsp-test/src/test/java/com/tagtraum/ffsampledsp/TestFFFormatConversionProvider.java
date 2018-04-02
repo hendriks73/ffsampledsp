@@ -23,7 +23,11 @@ package com.tagtraum.ffsampledsp;
 import org.junit.Test;
 
 import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.UnsupportedAudioFileException;
+import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -104,7 +108,7 @@ public class TestFFFormatConversionProvider {
     /**
      * AudioFormat uses {@link AudioFormat#matches(javax.sound.sampled.AudioFormat)} instead of
      * {@link Object#equals(Object)} for comparison - therefore we need a special <code>contains()</code>
-     * method. This is ineffecient, but good enough for tests.
+     * method. This is inefficient, but good enough for tests.
      *
      * @param set audioformats
      * @param audioFormat potential member
@@ -115,5 +119,54 @@ public class TestFFFormatConversionProvider {
             if (af.matches(audioFormat)) return true;
         }
         return false;
+    }
+
+    @Test
+    public void testConvertTo16Bit() throws IOException, UnsupportedAudioFileException {
+        final String filename = "test_long24bit.wav";
+        final File file = File.createTempFile("testConvertTo16Bit", filename);
+        TestFFURLInputStream.extractFile(filename, file);
+        int bytesRead = 0;
+        AudioInputStream in = null;
+        AudioInputStream convertedIn = null;
+        try {
+            in = new FFAudioFileReader().getAudioInputStream(file);
+            final AudioFormat streamFormat = in.getFormat();
+            final AudioFormat targetFormat = new AudioFormat(
+                streamFormat.getEncoding(),
+                streamFormat.getSampleRate(),
+                16,
+                streamFormat.getChannels(),
+                2 * streamFormat.getChannels(),
+                streamFormat.getFrameRate(),
+                streamFormat.isBigEndian(),
+                streamFormat.properties()
+            );
+            convertedIn = new FFFormatConversionProvider().getAudioInputStream(targetFormat, in);
+            int justRead;
+            final byte[] buf = new byte[1024];
+            while ((justRead = in.read(buf)) != -1) {
+                assertTrue(justRead > 0);
+                bytesRead += justRead;
+            }
+        } finally {
+            if (convertedIn != null) {
+                try {
+                    convertedIn.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            file.delete();
+        }
+        System.out.println("Read " + bytesRead + " bytes.");
+        assertEquals(10723068, bytesRead);
     }
 }

@@ -1,7 +1,7 @@
 # FFSampledSP
 
 *FFSampledSP* is an implementation of the
-[javax.sound.sampled](http://docs.oracle.com/javase/9/docs/api/javax/sound/sampled/spi/package-summary.html)
+[javax.sound.sampled](http://docs.oracle.com/javase/10/docs/api/javax/sound/sampled/spi/package-summary.html)
 service provider interfaces based on [FFmpeg](http://www.ffmpeg.org), a complete, cross-platform solution to record,
 convert and stream audio and video.
 FFSampledSP is part of the [SampledSP](http://www.tagtraum.com/sampledsp.html) collection of `javax.sound.sampled`
@@ -25,7 +25,7 @@ To do so, you also need:
 - Apple Command Line Tools, available via https://developer.apple.com/,
   or XCode, https://developer.apple.com/xcode/
 - the Windows JNI header files
-- a JDK (to run Maven and get the OSX JNI headers)
+- a JDK (to run Maven and get the macOS JNI headers)
 - [Doxygen](http://www.doxygen.org), available via [MacPorts](https://www.macports.org)
 
 Once you have all this, you need to adjust some properties in the parent `pom.xml`.

@@ -319,6 +319,34 @@ public class TestFFURLInputStream {
         assertEquals(801792, bytesRead);
     }
 
+    @Test
+    public void testReadThroughLong24bitWave() throws IOException, UnsupportedAudioFileException {
+        final String filename = "test_long24bit.wav";
+        final File file = File.createTempFile("testReadThroughLong24bitWave", filename);
+        extractFile(filename, file);
+        int bytesRead = 0;
+        FFURLInputStream in = null;
+        try {
+            in = new FFURLInputStream(file.toURI().toURL());
+            int justRead;
+            final byte[] buf = new byte[1024];
+            while ((justRead = in.read(buf)) != -1) {
+                assertTrue(justRead > 0);
+                bytesRead += justRead;
+            }
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            file.delete();
+        }
+        System.out.println("Read " + bytesRead + " bytes.");
+        assertEquals(16084608, bytesRead);
+    }
 
     @Test
     public void testReadThroughWaveFile() throws IOException, UnsupportedAudioFileException {

@@ -8,7 +8,7 @@
 Introduction
 
     <FFSampledSP> is a free service provider implementation of the
-    {{{http://docs.oracle.com/javase/9/docs/api/javax/sound/sampled/spi/package-summary.html}javax.sound.sampled.spi}}
+    {{{http://docs.oracle.com/javase/10/docs/api/javax/sound/sampled/spi/package-summary.html}javax.sound.sampled.spi}}
     interfaces. It is part of the {{{http://www.tagtraum.com/sampledsp.html}SampledSP}} collection of
     <<<javax.sound.sampled>>> libraries.
 
@@ -106,7 +106,7 @@ Introduction
 +-------------------------------+
 
     To use the library, simply use the
-    {{{http://docs.oracle.com/javase/9/docs/api/javax/sound/sampled/package-summary.html}javax.sound.sampled}}
+    {{{http://docs.oracle.com/javase/10/docs/api/javax/sound/sampled/package-summary.html}javax.sound.sampled}}
     classes like you normally would.
 
 * Requirements
@@ -118,7 +118,7 @@ Introduction
 
     <FFSampledSP> supports {{{http://www.stems-music.com/}Stems}} via a non-standard extension to the original
     Java API. Via {{{./apidocs/com/tagtraum/ffsampledsp/FFAudioFileReader.html#getAudioFileFormats-java.net.URL-}getAudioFileFormats(URL)}}
-    you can obtain an array of {{{http://docs.oracle.com/javase/8/docs/api/javax/sound/sampled/AudioFileFormat.html}AudioFileFormats}}.
+    you can obtain an array of {{{http://docs.oracle.com/javase/10/docs/api/javax/sound/sampled/AudioFileFormat.html}AudioFileFormats}}.
     To open a specific stream, you can call for example <<<new FFAudioFileReader().getAudioInputStream(file, streamIndex);>>>
     In this case, <<<file>>> has to be a <<<File>>> object and <<<streamIndex>>> has to be a valid index. For
     a regular <Stem> file this would be a number \>=0 and \<5. The indices in the audio file format array and in the

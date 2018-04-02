@@ -178,7 +178,7 @@
                     <doctitle>FFSampledSP ${project.version} API</doctitle>
                     <windowtitle>FFSampledSP ${project.version} API</windowtitle>
                     <links>
-                        <link>http://docs.oracle.com/javase/8/docs/api/</link>
+                        <link>http://docs.oracle.com/javase/10/docs/api/</link>
                     </links>
                 </configuration>
             </plugin>

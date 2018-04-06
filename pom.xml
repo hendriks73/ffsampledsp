@@ -366,7 +366,7 @@
         <avutil.version>55.78.100</avutil.version>
         <avcodec.version>57.107.100</avcodec.version>
         <avformat.version>57.83.100</avformat.version>
-        <swresample.version>2.9.100</swresample.version>
+        <swresample.version>2.9.100-PATCHED</swresample.version>
         <bzip2.version>1.0.6</bzip2.version>
         <zlib.version>1.2.11</zlib.version>
 

@@ -1,3 +1,8 @@
+0.9.25
+
+- Moved to tagtraum FFmpeg package 1.13.1 (fix for dither bug).
+
+
 0.9.24
 
 - Moved to FFmpeg 3.4.2.

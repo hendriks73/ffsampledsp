@@ -91,6 +91,16 @@
                                     <outputDirectory>${project.build.directory}/native/include</outputDirectory>
                                     <includes>**/*.h</includes>
                                 </artifactItem>
+                                <artifactItem>
+                                    <groupId>com.tagtraum</groupId>
+                                    <artifactId>ffsampledsp-java</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>jar</type>
+                                    <classifier>sources</classifier>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${project.build.directory}/native</outputDirectory>
+                                    <includes>**/*.h</includes>
+                                </artifactItem>
                             </artifactItems>
                         </configuration>
                     </execution>
@@ -103,17 +113,6 @@
                 <artifactId>native-maven-plugin</artifactId>
                 <extensions>true</extensions>
                 <configuration>
-
-                    <!-- Generate JNI header files based on a list of class name on the classpath -->
-                    <!-- The generated include directory is automatically added to include path at compile phase -->
-                    <!-- Ensure to have appropriate dependency jar file(s) in your pom -->
-
-                    <javahClassNames>
-                        <javahClassName>com.tagtraum.ffsampledsp.FFAudioFileReader</javahClassName>
-                        <javahClassName>com.tagtraum.ffsampledsp.FFCodecInputStream</javahClassName>
-                        <javahClassName>com.tagtraum.ffsampledsp.FFURLInputStream</javahClassName>
-                        <javahClassName>com.tagtraum.ffsampledsp.FFStreamInputStream</javahClassName>
-                    </javahClassNames>
 
                     <compilerProvider>generic</compilerProvider>
                     <compilerExecutable>${mingw.i386.path}/${mingw.i386.crossprefix}${ccompiler}</compilerExecutable>

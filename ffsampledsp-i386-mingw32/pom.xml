@@ -17,53 +17,14 @@
         </dependency>
         <dependency>
             <groupId>com.tagtraum.ffmpeg</groupId>
-            <artifactId>ffmpeg</artifactId>
-            <classifier>sources-${arch}-${host}</classifier>
-        </dependency>
-
-        <!-- the order of dependencies is relevant during linking! -->
-
-        <dependency>
-            <groupId>com.tagtraum.ffmpeg</groupId>
-            <artifactId>libavformat</artifactId>
-            <classifier>${arch}-${host}</classifier>
-            <type>a</type>
-        </dependency>
-        <dependency>
-            <groupId>com.tagtraum.ffmpeg</groupId>
-            <artifactId>libavcodec</artifactId>
-            <classifier>${arch}-${host}</classifier>
-            <type>a</type>
-        </dependency>
-        <dependency>
-            <groupId>com.tagtraum.ffmpeg</groupId>
-            <artifactId>libavutil</artifactId>
-            <classifier>${arch}-${host}</classifier>
-            <type>a</type>
-        </dependency>
-        <dependency>
-            <groupId>com.tagtraum.ffmpeg</groupId>
-            <artifactId>libswresample</artifactId>
-            <classifier>${arch}-${host}</classifier>
-            <type>a</type>
-        </dependency>
-        <dependency>
-            <groupId>com.tagtraum.ffmpeg</groupId>
-            <artifactId>libz</artifactId>
-            <classifier>${arch}-${host}</classifier>
-            <type>a</type>
-        </dependency>
-        <dependency>
-            <groupId>com.tagtraum.ffmpeg</groupId>
-            <artifactId>libbz2</artifactId>
-            <classifier>${arch}-${host}</classifier>
-            <type>a</type>
+            <artifactId>ffmpeg-${arch}-${host}</artifactId>
+            <type>pom</type>
         </dependency>
     </dependencies>
 
     <properties>
         <arch>i386</arch>
-        <host>mingw32</host>
+        <host>win</host>
     </properties>
 
     <build>

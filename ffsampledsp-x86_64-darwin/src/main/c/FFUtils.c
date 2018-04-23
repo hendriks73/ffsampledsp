@@ -241,7 +241,7 @@ int ff_open_format_context(JNIEnv *env, AVFormatContext **format_context, const 
         }
         goto bail;
     }
-    probe_score = av_format_get_probe_score(*format_context);
+    probe_score = (*format_context)->probe_score;
 
     #ifdef DEBUG
         fprintf(stderr, "ff_open_format_context(): probe score=%i\n", probe_score);
@@ -730,7 +730,7 @@ static int decode_packet(FFAudioIO *aio, int cached) {
             );
 
             // allocate new aio->audio_data buffers
-            res = av_samples_alloc(aio->audio_data, NULL, av_frame_get_channels(aio->decode_frame),
+            res = av_samples_alloc(aio->audio_data, NULL, aio->decode_frame->channels,
                                    aio->decode_frame->nb_samples, aio->decode_frame->format, 1);
             if (res < 0) {
                 throwIOExceptionIfError(aio->env, res, "Could not allocate audio buffer.");
@@ -738,7 +738,7 @@ static int decode_packet(FFAudioIO *aio, int cached) {
             }
             // copy audio data to aio->audio_data
             av_samples_copy(aio->audio_data, aio->decode_frame->data, 0, 0,
-                            aio->decode_frame->nb_samples, av_frame_get_channels(aio->decode_frame), aio->decode_frame->format);
+                            aio->decode_frame->nb_samples, aio->decode_frame->channels, aio->decode_frame->format);
 
             res = resample(aio, resample_buf, out_buf_samples, (const uint8_t **)aio->audio_data, aio->decode_frame->nb_samples);
             if (res < 0) goto bail;
@@ -988,7 +988,7 @@ void dumpCodecIds() {
         fprintf(stdout, "private final int AV_CODEC_ID_ADPCM_IMA_ISS = %#x;\n", AV_CODEC_ID_ADPCM_IMA_ISS);
         fprintf(stdout, "private final int AV_CODEC_ID_ADPCM_G722 = %#x;\n", AV_CODEC_ID_ADPCM_G722);
         fprintf(stdout, "private final int AV_CODEC_ID_ADPCM_IMA_APC = %#x;\n", AV_CODEC_ID_ADPCM_IMA_APC);
-        fprintf(stdout, "private final int AV_CODEC_ID_VIMA = %#x;\n", AV_CODEC_ID_VIMA);
+        fprintf(stdout, "private final int AV_CODEC_ID_ADPCM_VIMA = %#x;\n", AV_CODEC_ID_ADPCM_VIMA);
         fprintf(stdout, "private final int AV_CODEC_ID_ADPCM_AFC = %#x;\n", AV_CODEC_ID_ADPCM_AFC);
         fprintf(stdout, "private final int AV_CODEC_ID_ADPCM_IMA_OKI = %#x;\n", AV_CODEC_ID_ADPCM_IMA_OKI);
 
@@ -1039,7 +1039,7 @@ void dumpCodecIds() {
         fprintf(stdout, "private final int AV_CODEC_ID_MLP = %#x;\n", AV_CODEC_ID_MLP);
         fprintf(stdout, "private final int AV_CODEC_ID_GSM_MS = %#x;\n", AV_CODEC_ID_GSM_MS); /* as found in WAV */
         fprintf(stdout, "private final int AV_CODEC_ID_ATRAC3 = %#x;\n", AV_CODEC_ID_ATRAC3);
-        fprintf(stdout, "private final int AV_CODEC_ID_VOXWARE = %#x;\n", AV_CODEC_ID_VOXWARE);
+        //fprintf(stdout, "private final int AV_CODEC_ID_VOXWARE = %#x;\n", AV_CODEC_ID_VOXWARE);
         fprintf(stdout, "private final int AV_CODEC_ID_APE = %#x;\n", AV_CODEC_ID_APE);
         fprintf(stdout, "private final int AV_CODEC_ID_NELLYMOSER = %#x;\n", AV_CODEC_ID_NELLYMOSER);
         fprintf(stdout, "private final int AV_CODEC_ID_MUSEPACK8 = %#x;\n", AV_CODEC_ID_MUSEPACK8);
@@ -1086,8 +1086,8 @@ void dumpCodecIds() {
  * Make sure FFmpeg is initialized all the way.
  */
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
-    av_register_all();
+    //av_register_all();
     avformat_network_init();
-    avcodec_register_all();
+    //avcodec_register_all();
     return JNI_VERSION_1_6;
 }

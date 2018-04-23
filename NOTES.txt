@@ -1,6 +1,7 @@
 0.9.26
 
 - Switch to JNI header generation via javac -h instead of javah.
+- Moved to FFmpeg 4.0.
 
 
 0.9.25

@@ -67,52 +67,9 @@
             </dependency>
             <dependency>
                 <groupId>com.tagtraum.ffmpeg</groupId>
-                <artifactId>ffmpeg</artifactId>
+                <artifactId>ffmpeg-${arch}-${host}</artifactId>
                 <version>${ffmpeg.version}</version>
-                <classifier>sources-${arch}-${host}</classifier>
-                <type>jar</type>
-            </dependency>
-            <dependency>
-                <groupId>com.tagtraum.ffmpeg</groupId>
-                <artifactId>libavcodec</artifactId>
-                <version>${avcodec.version}</version>
-                <classifier>${arch}-${host}</classifier>
-                <type>a</type>
-            </dependency>
-            <dependency>
-                <groupId>com.tagtraum.ffmpeg</groupId>
-                <artifactId>libavformat</artifactId>
-                <version>${avformat.version}</version>
-                <classifier>${arch}-${host}</classifier>
-                <type>a</type>
-            </dependency>
-            <dependency>
-                <groupId>com.tagtraum.ffmpeg</groupId>
-                <artifactId>libavutil</artifactId>
-                <version>${avutil.version}</version>
-                <classifier>${arch}-${host}</classifier>
-                <type>a</type>
-            </dependency>
-            <dependency>
-                <groupId>com.tagtraum.ffmpeg</groupId>
-                <artifactId>libswresample</artifactId>
-                <version>${swresample.version}</version>
-                <classifier>${arch}-${host}</classifier>
-                <type>a</type>
-            </dependency>
-            <dependency>
-                <groupId>com.tagtraum.ffmpeg</groupId>
-                <artifactId>libz</artifactId>
-                <version>${zlib.version}</version>
-                <classifier>${arch}-${host}</classifier>
-                <type>a</type>
-            </dependency>
-            <dependency>
-                <groupId>com.tagtraum.ffmpeg</groupId>
-                <artifactId>libbz2</artifactId>
-                <version>${bzip2.version}</version>
-                <classifier>${arch}-${host}</classifier>
-                <type>a</type>
+                <type>pom</type>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -121,7 +78,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.10</version>
+            <version>4.12</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -366,22 +323,16 @@
         <!-- <mmacosx-version-min>10.7</mmacosx-version-min> -->
         <mmacosx-version-min>10.10</mmacosx-version-min>
         <isysroot>/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/</isysroot>
-        <ffmpeg.version>3.4.2</ffmpeg.version>
-        <avutil.version>55.78.100</avutil.version>
-        <avcodec.version>57.107.100</avcodec.version>
-        <avformat.version>57.83.100</avformat.version>
-        <swresample.version>2.9.100-PATCHED</swresample.version>
-        <bzip2.version>1.0.6</bzip2.version>
-        <zlib.version>1.2.11</zlib.version>
+        <ffmpeg.version>4.0.0-SNAPSHOT</ffmpeg.version>
 
         <ccompiler>gcc</ccompiler>
         <!-- override with -D on commandline to pass additional flags, like -DDEBUG via the cflags property. E.g.: -->
         <!-- <cflags>-DDEBUG</cflags> -->
         <cflags />
 
-        <mingw.i386.path>/Users/hendrik/mingw/mingw-w32-i686/bin</mingw.i386.path>
+        <mingw.i386.path>/opt/local/bin</mingw.i386.path>
         <mingw.i386.crossprefix>i686-w64-mingw32-</mingw.i386.crossprefix>
-        <mingw.x86_64.path>/Users/hendrik/mingw/mingw-w64-i686/bin</mingw.x86_64.path>
+        <mingw.x86_64.path>/opt/local/bin</mingw.x86_64.path>
         <mingw.x86_64.crossprefix>x86_64-w64-mingw32-</mingw.x86_64.crossprefix>
         <mingw.headers.jni>/Users/hendrik/windows-jdk/include</mingw.headers.jni>
 

@@ -2,6 +2,9 @@
 
 - Switch to JNI header generation via javac -h instead of javah.
 - Moved to FFmpeg 4.0.
+- Changed naming scheme.
+- Now requires Java 7.
+- Embedded dylibs/dlls into ffsampledsp-complete artifact.
 
 
 0.9.25

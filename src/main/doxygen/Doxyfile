@@ -629,7 +629,7 @@ WARN_LOGFILE           =
 # directories like "/usr/src/myproject". Separate the files or directories
 # with spaces.
 
-INPUT                  = ffsampledsp-x86_64-darwin/src/main/c ffsampledsp-x86_64-darwin/target/native/javah
+INPUT                  = ffsampledsp-x86_64-macos/src/main/c ffsampledsp-x86_64-macos/target/native/javah
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding, which is

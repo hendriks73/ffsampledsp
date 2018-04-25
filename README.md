@@ -21,12 +21,13 @@ Currently you can only build this library on macOS.
 To do so, you also need:
 
 - Maven 3.0.5, http://maven.apache.org/
-- a MinGW-w64 crosscompiler, http://mingw-w64.sourceforge.net
+- a MinGW-w64 crosscompiler, http://mingw-w64.sourceforge.net, e.g. via [MacPorts](http://mingw-w64.org/doku.php/download/macports)
 - Apple Command Line Tools, available via https://developer.apple.com/,
   or XCode, https://developer.apple.com/xcode/
 - the Windows JNI header files
 - a JDK (to run Maven and get the macOS JNI headers)
 - [Doxygen](http://www.doxygen.org), available via [MacPorts](https://www.macports.org) or [HomeBrew](https://brew.sh)
+- build and install version 1.0-alpha-9-SNAPSHOT of https://github.com/mojohaus/maven-native
 
 Once you have all this, you need to adjust some properties in the parent `pom.xml`.
 Or.. simply override them using `-Dname=value` notation. E.g. to point to your
@@ -50,7 +51,7 @@ you installed the Windows JNI headers, MinGW-w64, and the macOS JDK:
         -Disysroot=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.7.sdk/ \
         clean install
 
-Note, that the C sources in the ffsampledsp-x86_64-darwin module are expected to compile
+Note, that the C sources in the ffsampledsp-x86_64-macos module are expected to compile
 on all supported platforms. In fact, the very same sources *are* compiled in the modules
 for other platforms.
 

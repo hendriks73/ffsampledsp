@@ -42,12 +42,12 @@
 
     <modules>
         <module>ffsampledsp-java</module>
-        <module>ffsampledsp-i386-darwin</module>
-        <module>ffsampledsp-i386-mingw32</module>
-        <module>ffsampledsp-x86_64-darwin</module>
-        <module>ffsampledsp-x86_64-mingw32</module>
-        <module>ffsampledsp-test</module>
+        <module>ffsampledsp-i386-macos</module>
+        <module>ffsampledsp-i386-win</module>
+        <module>ffsampledsp-x86_64-macos</module>
+        <module>ffsampledsp-x86_64-win</module>
         <module>ffsampledsp-universal</module>
+        <module>ffsampledsp-complete</module>
     </modules>
 
     <repositories>
@@ -66,10 +66,17 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.tagtraum.ffmpeg</groupId>
+                <groupId>com.tagtraum</groupId>
                 <artifactId>ffmpeg-${arch}-${host}</artifactId>
                 <version>${ffmpeg.version}</version>
                 <type>pom</type>
+            </dependency>
+            <dependency>
+                <groupId>com.tagtraum</groupId>
+                <artifactId>ffmpeg</artifactId>
+                <version>${ffmpeg.version}</version>
+                <type>tar.bz2</type>
+                <classifier>sources-${arch}-${host}</classifier>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -158,7 +165,9 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>native-maven-plugin</artifactId>
-                    <version>1.0-alpha-8</version>
+                    <!--<version>1.0-alpha-8</version>-->
+                    <!-- this may not be available from a public repo  -->
+                    <version>1.0-alpha-9-SNAPSHOT</version>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
@@ -251,8 +260,8 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
+                    <source>1.7</source>
+                    <target>1.7</target>
                     <compilerArgs>
                         <arg>-h</arg>
                         <arg>${project.build.directory}/native/include</arg>
@@ -318,12 +327,12 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <arch>x86_64</arch>
-        <host>darwin</host>
+        <host>macos</host>
         <!-- For newer XCode versions: -->
         <!-- <mmacosx-version-min>10.7</mmacosx-version-min> -->
         <mmacosx-version-min>10.10</mmacosx-version-min>
         <isysroot>/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/</isysroot>
-        <ffmpeg.version>4.0.0-SNAPSHOT</ffmpeg.version>
+        <ffmpeg.version>4.0.0</ffmpeg.version>
 
         <ccompiler>gcc</ccompiler>
         <!-- override with -D on commandline to pass additional flags, like -DDEBUG via the cflags property. E.g.: -->
@@ -339,7 +348,7 @@
         <!-- add -DDEBUG to enable standard out debug messages -->
         <mingw.compiler.startoptions>${cflags} -Wall -x c -Wno-multichar -D_JNI_IMPLEMENTATION_</mingw.compiler.startoptions>
         <mingw.linker.startoptions>-Wl,--kill-at -static-libgcc -shared -Os -s </mingw.linker.startoptions>
-        <mingw.linker.endoptions>-lws2_32 -lsecur32</mingw.linker.endoptions>
+        <mingw.linker.endoptions>-lws2_32 -lsecur32 -lbcrypt</mingw.linker.endoptions>
 
         <!-- add -DDEBUG to enable standard out debug messages -->
         <darwin.compiler.startoptions>${cflags} -Wall -x c -arch ${arch} -fmessage-length=0 -pipe -Wno-trigraphs

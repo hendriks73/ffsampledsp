@@ -17,14 +17,14 @@
         </dependency>
         <dependency>
             <groupId>com.tagtraum</groupId>
-            <artifactId>ffsampledsp-i386-darwin</artifactId>
+            <artifactId>ffsampledsp-i386-macos</artifactId>
             <version>${project.version}</version>
             <type>dylib</type>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.tagtraum</groupId>
-            <artifactId>ffsampledsp-x86_64-darwin</artifactId>
+            <artifactId>ffsampledsp-x86_64-macos</artifactId>
             <version>${project.version}</version>
             <type>dylib</type>
             <scope>provided</scope>
@@ -44,12 +44,12 @@
                                 <!-- hack to work around limitations of maven-dependency-plugin - basically not working with javadoc aggregate reports -->
                                 <!-- related to http://jira.codehaus.org/browse/MDEP-187 -->
                                 <mkdir dir="${project.build.directory}/lib" />
-                                <copy file="../ffsampledsp-i386-darwin/target/ffsampledsp-i386-darwin.dylib" toDir="${project.build.directory}/lib" />
-                                <copy file="../ffsampledsp-x86_64-darwin/target/ffsampledsp-x86_64-darwin.dylib" toDir="${project.build.directory}/lib" />
+                                <copy file="../ffsampledsp-i386-macos/target/ffsampledsp-i386-macos.dylib" toDir="${project.build.directory}/lib" />
+                                <copy file="../ffsampledsp-x86_64-macos/target/ffsampledsp-x86_64-macos.dylib" toDir="${project.build.directory}/lib" />
 
                                 <exec dir="${project.build.directory}" executable="/usr/bin/lipo" failonerror="true">
 
-                                    <arg line="-create lib/ffsampledsp-x86_64-darwin.dylib lib/ffsampledsp-i386-darwin.dylib -output ${project.artifactId}.dylib" />
+                                    <arg line="-create lib/ffsampledsp-x86_64-macos.dylib lib/ffsampledsp-i386-macos.dylib -output ${project.artifactId}.dylib" />
                                 </exec>
                             </target>
                         </configuration>

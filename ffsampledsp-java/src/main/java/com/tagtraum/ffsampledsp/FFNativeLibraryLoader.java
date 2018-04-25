@@ -20,13 +20,11 @@
  */
 package com.tagtraum.ffsampledsp;
 
-import java.io.File;
-import java.io.FileFilter;
-import java.io.FileNotFoundException;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashSet;
+import java.util.Properties;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -45,10 +43,11 @@ public final class FFNativeLibraryLoader {
     private static final String FILE_PROTOCOL = "file";
     private static final String CLASS_FILE_EXTENSION = ".class";
     private static final String HOST = System.getProperty("os.name").toLowerCase().contains("mac")
-            ? "darwin" : "mingw32";
+            ? "macos" : "win";
     private static final String ARCH = arch();
+    private static final String VERSION = readProjectVersion();
 
-    private static final Set<String> LOADED = new HashSet<String>();
+    private static final Set<String> LOADED = new HashSet<>();
 
     private static Boolean ffSampledSPLibraryLoaded;
 
@@ -108,6 +107,20 @@ public final class FFNativeLibraryLoader {
     public static synchronized void loadLibrary(final String libName, final Class baseClass) {
         final String key = libName + "|" + baseClass.getName();
         if (LOADED.contains(key)) return;
+        final String packagedNativeLib = libName + "-" + ARCH + "-" + HOST + "-" + VERSION + "." + NATIVE_LIBRARY_EXTENSION;
+        final File extractedNativeLib = new File(System.getProperty("java.io.tmpdir") + "/" + packagedNativeLib);
+        if (!extractedNativeLib.exists()) {
+            extractResourceToFile(baseClass, "/" + packagedNativeLib, extractedNativeLib);
+        }
+        if (extractedNativeLib.exists()) {
+            try {
+                Runtime.getRuntime().load(extractedNativeLib.toString());
+                LOADED.add(key);
+            } catch (Error e) {
+                // failed to extract and load, will try other ways
+            }
+        }
+
         try {
             Logger.getLogger(FFNativeLibraryLoader.class.getName()).fine("Trying System.loadLibrary(\"" + libName + "-" + ARCH + "-" + HOST + "\")");
             System.loadLibrary(libName + "-" + ARCH + "-" + HOST);
@@ -136,6 +149,30 @@ public final class FFNativeLibraryLoader {
             }
         }
         Logger.getLogger(FFNativeLibraryLoader.class.getName()).fine("Successfully loaded " + libName);
+    }
+
+    /**
+     * Extracts the given resource and writes it to the specified file.
+     * Note that this method fails silently.
+     *
+     * @param baseClass class to use as base class for the resource lookup
+     * @param sourceResource resource name
+     * @param targetFile target file
+     */
+    private static void extractResourceToFile(final Class baseClass, final String sourceResource, final File targetFile) {
+        try (final InputStream in = baseClass.getResourceAsStream(sourceResource)) {
+            if (in != null) {
+                try (final OutputStream out = new FileOutputStream(targetFile)) {
+                    final byte[] buf = new byte[1024 * 8];
+                    int justRead;
+                    while ((justRead = in.read(buf)) != -1) {
+                        out.write(buf, 0, justRead);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -175,11 +212,7 @@ public final class FFNativeLibraryLoader {
                 filename = libs[0].toString();
             }
             return filename;
-        } catch (UnsupportedEncodingException e) {
-            final FileNotFoundException fnfe = new FileNotFoundException(name + ": " + e.toString());
-            fnfe.initCause(e);
-            throw fnfe;
-        } catch (MalformedURLException e) {
+        } catch (UnsupportedEncodingException | MalformedURLException e) {
             final FileNotFoundException fnfe = new FileNotFoundException(name + ": " + e.toString());
             fnfe.initCause(e);
             throw fnfe;
@@ -293,4 +326,20 @@ public final class FFNativeLibraryLoader {
         }
         return needToChange ? sb.toString() : s;
     }
+
+    /**
+     * Read project version, injected by Maven.
+     *
+     * @return project version or <code>unknown</code>, if not found.
+     */
+    private static String readProjectVersion() {
+        try {
+            final Properties properties = new Properties();
+            properties.load(FFNativeLibraryLoader.class.getResourceAsStream("project.properties"));
+            return properties.getProperty("version", "unknown");
+        } catch (Exception e) {
+            return "unknown";
+        }
+    }
+
 }

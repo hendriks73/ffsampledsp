@@ -6,29 +6,39 @@
         <version>0.9.26-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <artifactId>ffsampledsp-x86_64-mingw32</artifactId>
-    <packaging>dll</packaging>
-    <name>FFSampledSP Native Library Windows (64bit)</name>
-    <description>Windows 64bit binary library for FFSampledSP compiled via MinGW.</description>
+    <artifactId>ffsampledsp-i386-macos</artifactId>
+    <packaging>dylib</packaging>
+    <name>FFSampledSP Native Library macOS (32bit)</name>
+    <description>Darwin 32bit binary library for FFSampledSP.</description>
+
     <dependencies>
         <dependency>
             <groupId>com.tagtraum</groupId>
             <artifactId>ffsampledsp-java</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.tagtraum.ffmpeg</groupId>
+            <groupId>com.tagtraum</groupId>
             <artifactId>ffmpeg-${arch}-${host}</artifactId>
             <type>pom</type>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.tagtraum</groupId>
+            <artifactId>ffmpeg</artifactId>
+            <type>tar.bz2</type>
+            <classifier>sources-${arch}-${host}</classifier>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
     <properties>
-        <arch>x86_64</arch>
-        <host>win</host>
+        <arch>i386</arch>
+        <host>macos</host>
     </properties>
 
     <build>
         <plugins>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
@@ -42,10 +52,10 @@
                         <configuration>
                             <artifactItems>
                                 <artifactItem>
-                                    <groupId>com.tagtraum.ffmpeg</groupId>
+                                    <groupId>com.tagtraum</groupId>
                                     <artifactId>ffmpeg</artifactId>
                                     <version>${ffmpeg.version}</version>
-                                    <type>jar</type>
+                                    <type>tar.bz2</type>
                                     <classifier>sources-${arch}-${host}</classifier>
                                     <overWrite>true</overWrite>
                                     <outputDirectory>${project.build.directory}/native/include</outputDirectory>
@@ -64,7 +74,6 @@
                             </artifactItems>
                         </configuration>
                     </execution>
-
                 </executions>
             </plugin>
 
@@ -75,19 +84,17 @@
                 <configuration>
 
                     <compilerProvider>generic</compilerProvider>
-                    <compilerExecutable>${mingw.x86_64.path}/${mingw.x86_64.crossprefix}${ccompiler}</compilerExecutable>
-                    <linkerExecutable>${mingw.x86_64.path}/${mingw.x86_64.crossprefix}${ccompiler}</linkerExecutable>
+
                     <compilerStartOptions>
-                        <compilerStartOption>${mingw.compiler.startoptions}</compilerStartOption>
+                        <compilerStartOption>${darwin.compiler.startoptions}</compilerStartOption>
                     </compilerStartOptions>
 
-                    <javahOS>win32</javahOS>
-                    <!-- point to windows JNI.h headers -->
-                    <jdkIncludePath>${mingw.headers.jni}</jdkIncludePath>
+                    <javahOS>darwin</javahOS>
+                    <jdkIncludePath>${darwin.headers.jni}</jdkIncludePath>
 
                     <sources>
                         <source>
-                            <directory>../ffsampledsp-x86_64-darwin/src/main/c</directory>
+                            <directory>../ffsampledsp-x86_64-macos/src/main/c</directory>
                             <includes>
                                 <include>*.c</include>
                             </includes>
@@ -100,13 +107,12 @@
                     </sources>
 
                     <linkerStartOptions>
-                        <linkerStartOption>${mingw.linker.startoptions}</linkerStartOption>
+                        <linkerStartOption>${darwin.linker.startoptions}</linkerStartOption>
                     </linkerStartOptions>
 
                     <linkerEndOptions>
-                        <linkerEndOption>${mingw.linker.endoptions}</linkerEndOption>
+                        <linkerEndOption>${darwin.linker.endoptions}</linkerEndOption>
                     </linkerEndOptions>
-
                 </configuration>
 
             </plugin>

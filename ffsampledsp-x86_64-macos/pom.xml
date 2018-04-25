@@ -6,9 +6,9 @@
         <version>0.9.26-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <artifactId>ffsampledsp-x86_64-darwin</artifactId>
+    <artifactId>ffsampledsp-x86_64-macos</artifactId>
     <packaging>dylib</packaging>
-    <name>FFSampledSP Native Library Darwin (64bit)</name>
+    <name>FFSampledSP Native Library macOS (64bit)</name>
     <description>Darwin 64bit binary library for FFSampledSP.</description>
 
     <dependencies>
@@ -17,9 +17,17 @@
             <artifactId>ffsampledsp-java</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.tagtraum.ffmpeg</groupId>
+            <groupId>com.tagtraum</groupId>
             <artifactId>ffmpeg-${arch}-${host}</artifactId>
+            <scope>provided</scope>
             <type>pom</type>
+        </dependency>
+        <dependency>
+            <groupId>com.tagtraum</groupId>
+            <artifactId>ffmpeg</artifactId>
+            <type>tar.bz2</type>
+            <classifier>sources-${arch}-${host}</classifier>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
@@ -61,10 +69,10 @@
                         <configuration>
                             <artifactItems>
                                 <artifactItem>
-                                    <groupId>com.tagtraum.ffmpeg</groupId>
+                                    <groupId>com.tagtraum</groupId>
                                     <artifactId>ffmpeg</artifactId>
                                     <version>${ffmpeg.version}</version>
-                                    <type>jar</type>
+                                    <type>tar.bz2</type>
                                     <classifier>sources-${arch}-${host}</classifier>
                                     <overWrite>true</overWrite>
                                     <outputDirectory>${project.build.directory}/native/include</outputDirectory>

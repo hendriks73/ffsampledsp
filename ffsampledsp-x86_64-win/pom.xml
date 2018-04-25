@@ -6,30 +6,37 @@
         <version>0.9.26-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <artifactId>ffsampledsp-i386-mingw32</artifactId>
+    <artifactId>ffsampledsp-x86_64-win</artifactId>
     <packaging>dll</packaging>
-    <name>FFSampledSP Native Library Windows (32bit)</name>
-    <description>Windows 32bit binary library for FFSampledSP compiled via MinGW.</description>
+    <name>FFSampledSP Native Library Windows (64bit)</name>
+    <description>Windows 64bit binary library for FFSampledSP compiled via MinGW.</description>
     <dependencies>
         <dependency>
             <groupId>com.tagtraum</groupId>
             <artifactId>ffsampledsp-java</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.tagtraum.ffmpeg</groupId>
+            <groupId>com.tagtraum</groupId>
             <artifactId>ffmpeg-${arch}-${host}</artifactId>
             <type>pom</type>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.tagtraum</groupId>
+            <artifactId>ffmpeg</artifactId>
+            <type>tar.bz2</type>
+            <classifier>sources-${arch}-${host}</classifier>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
     <properties>
-        <arch>i386</arch>
+        <arch>x86_64</arch>
         <host>win</host>
     </properties>
 
     <build>
         <plugins>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
@@ -43,10 +50,10 @@
                         <configuration>
                             <artifactItems>
                                 <artifactItem>
-                                    <groupId>com.tagtraum.ffmpeg</groupId>
+                                    <groupId>com.tagtraum</groupId>
                                     <artifactId>ffmpeg</artifactId>
                                     <version>${ffmpeg.version}</version>
-                                    <type>jar</type>
+                                    <type>tar.bz2</type>
                                     <classifier>sources-${arch}-${host}</classifier>
                                     <overWrite>true</overWrite>
                                     <outputDirectory>${project.build.directory}/native/include</outputDirectory>
@@ -76,9 +83,8 @@
                 <configuration>
 
                     <compilerProvider>generic</compilerProvider>
-                    <compilerExecutable>${mingw.i386.path}/${mingw.i386.crossprefix}${ccompiler}</compilerExecutable>
-                    <linkerExecutable>${mingw.i386.path}/${mingw.i386.crossprefix}${ccompiler}</linkerExecutable>
-
+                    <compilerExecutable>${mingw.x86_64.path}/${mingw.x86_64.crossprefix}${ccompiler}</compilerExecutable>
+                    <linkerExecutable>${mingw.x86_64.path}/${mingw.x86_64.crossprefix}${ccompiler}</linkerExecutable>
                     <compilerStartOptions>
                         <compilerStartOption>${mingw.compiler.startoptions}</compilerStartOption>
                     </compilerStartOptions>
@@ -89,7 +95,7 @@
 
                     <sources>
                         <source>
-                            <directory>../ffsampledsp-x86_64-darwin/src/main/c</directory>
+                            <directory>../ffsampledsp-x86_64-macos/src/main/c</directory>
                             <includes>
                                 <include>*.c</include>
                             </includes>
@@ -108,6 +114,7 @@
                     <linkerEndOptions>
                         <linkerEndOption>${mingw.linker.endoptions}</linkerEndOption>
                     </linkerEndOptions>
+
                 </configuration>
 
             </plugin>

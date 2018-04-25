@@ -15,7 +15,7 @@ Developer
 
         * Maven 3.0.5, {{http://maven.apache.org/}}
 
-        * a MinGW-w64 crosscompiler, {{http://mingw-w64.sourceforge.net/}}
+        * a MinGW-w64 crosscompiler, {{http://mingw-w64.sourceforge.net/}}, e.g. via {{{http://mingw-w64.org/doku.php/download/macports}MacPorts}}
 
         * Apple Command Line Tools, available via {{https://developer.apple.com/}}, or XCode, {{https://developer.apple.com/xcode/}}
 
@@ -24,6 +24,8 @@ Developer
         * a JDK (to run Maven and get the macOS JNI headers)
 
         * Doxygen, e.g. available via {{{http://www.macports.org}MacPorts}} or {{{https://brew.sh}HomeBrew}}
+
+        * build and install version 1.0-alpha-9-SNAPSHOT of https://github.com/mojohaus/maven-native
 
     Once you have all this set up, clone the repository like this:
 
@@ -57,7 +59,7 @@ mvn -Ddarwin.headers.jni=/Library/Java/JavaVirtualMachines/jdk1.8.0_66.jdk/Conte
     clean install
 +-------------------------------+
 
-    Note, that the C sources in the module <<<ffsampledsp-x86_64-darwin>>> are expected to compile on
+    Note, that the C sources in the module <<<ffsampledsp-x86_64-macos>>> are expected to compile on
     all supported platforms. In fact, the very same sources <are> compiled in the modules
     for other platforms.
 

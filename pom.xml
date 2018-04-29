@@ -165,9 +165,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>native-maven-plugin</artifactId>
-                    <!--<version>1.0-alpha-8</version>-->
-                    <!-- this may not be available from a public repo  -->
-                    <version>1.0-alpha-9-SNAPSHOT</version>
+                    <version>1.0-alpha-9</version>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>

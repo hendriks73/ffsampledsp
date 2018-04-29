@@ -1,5 +1,7 @@
 # FFSampledSP
 
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.tagtraum/ffsampledsp/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.tagtraum/ffsampledsp)
+
 *FFSampledSP* is an implementation of the
 [javax.sound.sampled](http://docs.oracle.com/javase/10/docs/api/javax/sound/sampled/spi/package-summary.html)
 service provider interfaces based on [FFmpeg](http://www.ffmpeg.org), a complete, cross-platform solution to record,
@@ -27,7 +29,6 @@ To do so, you also need:
 - the Windows JNI header files
 - a JDK (to run Maven and get the macOS JNI headers)
 - [Doxygen](http://www.doxygen.org), available via [MacPorts](https://www.macports.org) or [HomeBrew](https://brew.sh)
-- build and install version 1.0-alpha-9-SNAPSHOT of https://github.com/mojohaus/maven-native
 
 Once you have all this, you need to adjust some properties in the parent `pom.xml`.
 Or.. simply override them using `-Dname=value` notation. E.g. to point to your

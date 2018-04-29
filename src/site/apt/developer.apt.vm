@@ -25,8 +25,6 @@ Developer
 
         * Doxygen, e.g. available via {{{http://www.macports.org}MacPorts}} or {{{https://brew.sh}HomeBrew}}
 
-        * build and install version 1.0-alpha-9-SNAPSHOT of https://github.com/mojohaus/maven-native
-
     Once you have all this set up, clone the repository like this:
 
 +-------------------------------+

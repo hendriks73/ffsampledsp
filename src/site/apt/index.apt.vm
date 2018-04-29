@@ -23,7 +23,7 @@ Introduction
 * Getting Started
 
     The easiest way to use <FFSampledSP> (other than simply using the
-    {{{https://www.beatunes.com/repo/maven2/com/tagtraum/ffsampledsp-java/${projectversion}/ffsampledsp-complete-${projectversion}.jar}jar}}
+    {{{https://www.beatunes.com/repo/maven2/com/tagtraum/ffsampledsp-complete/${projectversion}/ffsampledsp-complete-${projectversion}.jar}jar}}
     is to start a
     {{{http://maven.apache.org/}Maven}} project and introduce a <FFSampledSP> dependency.
 
@@ -36,17 +36,6 @@ Introduction
     <version>${projectversion}</version>
     <type>jar</type>
 </dependency>
-+-------------------------------+
-
-   If Maven can't resolve a dependency, you might also want to add the following
-   repository to the repositories section of your pom:
-
-+-------------------------------+
-<repository>
-    <id>beatunes</id>
-    <name>beaTunes Repository</name>
-    <url>https://www.beatunes.com/repo/maven2</url>
-</repository>
 +-------------------------------+
 
     To use the library, simply use the

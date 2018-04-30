@@ -2,6 +2,8 @@
 
 - Deployment to maven central.
 - Fixed path to project.properties.
+- Fixed embedded library loading.
+- Removed unnecessary dependency on -java module.
 
 
 0.9.26

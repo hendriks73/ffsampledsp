@@ -43,6 +43,7 @@
         <dependency>
             <groupId>com.tagtraum</groupId>
             <artifactId>ffsampledsp-java</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.tagtraum</groupId>

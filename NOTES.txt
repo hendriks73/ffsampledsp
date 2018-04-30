@@ -1,6 +1,7 @@
 0.9.27
 
 - Deployment to maven central.
+- Fixed path to project.properties.
 
 
 0.9.26

@@ -346,8 +346,8 @@
 
         <!-- add -DDEBUG to enable standard out debug messages -->
         <mingw.compiler.startoptions>${cflags} -Wall -x c -Wno-multichar -D_JNI_IMPLEMENTATION_</mingw.compiler.startoptions>
-        <mingw.linker.startoptions>-Wl,--kill-at -static-libgcc -shared -Os -s </mingw.linker.startoptions>
-        <mingw.linker.endoptions>-lws2_32 -lsecur32 -lbcrypt</mingw.linker.endoptions>
+        <mingw.linker.startoptions>-Wl,--kill-at -v -static-libgcc -shared -Os -s</mingw.linker.startoptions>
+        <mingw.linker.endoptions>-Wl,-Bstatic -lws2_32 -lsecur32 -lbcrypt</mingw.linker.endoptions>
 
         <!-- add -DDEBUG to enable standard out debug messages -->
         <darwin.compiler.startoptions>${cflags} -Wall -x c -arch ${arch} -fmessage-length=0 -pipe -Wno-trigraphs

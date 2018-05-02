@@ -34,7 +34,6 @@ Introduction
     <groupId>com.tagtraum</groupId>
     <artifactId>ffsampledsp-complete</artifactId>
     <version>${projectversion}</version>
-    <type>jar</type>
 </dependency>
 +-------------------------------+
 

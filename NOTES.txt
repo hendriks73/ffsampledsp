@@ -1,3 +1,8 @@
+0.9.28
+
+- Attached sources and javadocs to complete module.
+
+
 0.9.27
 
 - Deployment to maven central.

@@ -269,6 +269,29 @@
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <configuration>
+                    <minmemory>250m</minmemory>
+                    <maxmemory>1g</maxmemory>
+                    <verbose>true</verbose>
+                    <doctitle>FFSampledSP ${project.version} API</doctitle>
+                    <windowtitle>FFSampledSP ${project.version} API</windowtitle>
+                    <links>
+                        <link>http://docs.oracle.com/javase/10/docs/api/</link>
+                    </links>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
                 <executions>
                     <execution>

@@ -57,6 +57,34 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-artifacts</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>attach-artifact</goal>
+                        </goals>
+                        <configuration>
+                            <artifacts>
+                                <artifact>
+                                    <file>${project.build.directory}/ffsampledsp-java-${project.version}-javadoc.jar</file>
+                                    <classifier>javadoc</classifier>
+                                    <type>jar</type>
+                                </artifact>
+                                <artifact>
+                                    <file>${project.build.directory}/ffsampledsp-java-${project.version}-sources.jar</file>
+                                    <type>jar</type>
+                                    <classifier>sources</classifier>
+                                </artifact>
+                            </artifacts>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
@@ -88,6 +116,7 @@
                         </goals>
                         <configuration>
                             <artifactItems>
+                                
                                 <artifactItem>
                                     <groupId>com.tagtraum</groupId>
                                     <artifactId>ffsampledsp-i386-macos</artifactId>
@@ -119,6 +148,25 @@
                                     <type>dll</type>
                                     <overWrite>true</overWrite>
                                     <outputDirectory>${project.build.directory}/classes</outputDirectory>
+                                </artifactItem>
+
+                                <artifactItem>
+                                    <groupId>com.tagtraum</groupId>
+                                    <artifactId>ffsampledsp-java</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>jar</type>
+                                    <classifier>sources</classifier>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${project.build.directory}</outputDirectory>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>com.tagtraum</groupId>
+                                    <artifactId>ffsampledsp-java</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>jar</type>
+                                    <classifier>javadoc</classifier>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${project.build.directory}</outputDirectory>
                                 </artifactItem>
                             </artifactItems>
                         </configuration>

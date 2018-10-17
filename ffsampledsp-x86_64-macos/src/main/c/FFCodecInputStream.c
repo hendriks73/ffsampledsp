@@ -169,7 +169,6 @@ JNIEXPORT jlong JNICALL Java_com_tagtraum_ffsampledsp_FFCodecInputStream_open(JN
 
 #ifdef DEBUG
     fprintf(stderr, "open codec: dither method     : %d\n", dither_method);
-    fprintf(stderr, "open codec: output sample bits: %d\n", aio->swr_context->dither.output_sample_bits);
 #endif
 
     // re-adjust encoder

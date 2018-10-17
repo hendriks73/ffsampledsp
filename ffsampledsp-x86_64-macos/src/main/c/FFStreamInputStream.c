@@ -201,7 +201,7 @@ JNIEXPORT jlong JNICALL Java_com_tagtraum_ffsampledsp_FFStreamInputStream_open(J
 #ifdef DEBUG
     fprintf(stderr, "stream->codecpar->bits_per_coded_sample: %i\n", aio->stream->codecpar->bits_per_coded_sample);
     fprintf(stderr, "stream->codecpar->bits_per_raw_sample  : %i\n", aio->stream->codecpar->bits_per_raw_sample);
-    fprintf(stderr, "stream->codecpar->bit_rate             : %i\n", aio->stream->codecpar->bit_rate);
+    fprintf(stderr, "stream->codecpar->bit_rate             : %lli\n", aio->stream->codecpar->bit_rate);
     fprintf(stderr, "frames     : %" PRId64 "\n", aio->stream->nb_frames);
     fprintf(stderr, "sample_rate: %i\n", aio->stream->codecpar->sample_rate);
     fprintf(stderr, "channels   : %i\n", aio->stream->codecpar->channels);

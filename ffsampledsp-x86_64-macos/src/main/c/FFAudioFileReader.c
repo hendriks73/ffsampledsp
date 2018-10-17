@@ -281,7 +281,7 @@ static int create_ffaudiofileformats(JNIEnv *env, AVFormatContext *format_contex
             #ifdef DEBUG
                 fprintf(stderr, "stream->codecpar->bits_per_coded_sample: %i\n", stream->codecpar->bits_per_coded_sample);
                 fprintf(stderr, "stream->codecpar->bits_per_raw_sample  : %i\n", stream->codecpar->bits_per_raw_sample);
-                fprintf(stderr, "stream->codecpar->bit_rate             : %i\n", stream->codecpar->bit_rate);
+                fprintf(stderr, "stream->codecpar->bit_rate             : %lli\n", stream->codecpar->bit_rate);
                 fprintf(stderr, "format_context->packet_size         : %i\n", format_context->packet_size);
                 fprintf(stderr, "frames     : %" PRId64 "\n", stream->nb_frames);
                 fprintf(stderr, "sample_rate: %i\n", stream->codecpar->sample_rate);

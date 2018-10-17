@@ -832,7 +832,7 @@ int ff_fill_buffer(FFAudioIO *aio) {
     #ifdef DEBUG
             fprintf(stderr, "res       : %i\n", res);
             fprintf(stderr, "read_frame: %i\n", read_frame);
-            fprintf(stderr, "duration  : %i\n", aio->decode_packet.duration);
+            fprintf(stderr, "duration  : %lli\n", aio->decode_packet.duration);
             fprintf(stderr, "timestamp : %" PRId64 "\n", aio->timestamp);
             fprintf(stderr, "pts       : %" PRId64 "\n", aio->decode_packet.pts);
             fprintf(stderr, "dts       : %" PRId64 "\n", aio->decode_packet.dts);

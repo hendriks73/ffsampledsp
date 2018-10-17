@@ -67,8 +67,8 @@ public class FFStreamInputStream extends FFNativePeerInputStream {
      *
      * @param time time
      * @param timeUnit time unit
-     * @throws UnsupportedOperationException
-     * @throws IOException
+     * @throws UnsupportedOperationException always throws UnsupportedOperationException
+     * @throws IOException if an IO error occurs
      */
     @Override
     public void seek(final long time, final TimeUnit timeUnit) throws UnsupportedOperationException, IOException {
@@ -78,7 +78,7 @@ public class FFStreamInputStream extends FFNativePeerInputStream {
     /**
      * Calls {@link #fillNativeBuffer(long)}.
      *
-     * @throws IOException
+     * @throws IOException if an IO error occurs
      */
      @Override
     protected void fillNativeBuffer() throws IOException {
@@ -96,7 +96,7 @@ public class FFStreamInputStream extends FFNativePeerInputStream {
     /**
      * Is called by native code to fill the {@link #readBuffer} with data from the stream.
      *
-     * @throws IOException
+     * @throws IOException if an IO error occurs
      */
     private int fillReadBuffer() throws IOException {
         readBuffer.clear();
@@ -109,7 +109,7 @@ public class FFStreamInputStream extends FFNativePeerInputStream {
      * Synchronizes calls to {@link #open(int)}.
      *
      * @return pointer to native peer
-     * @throws IOException
+     * @throws IOException if an IO error occurs
      */
     private long lockedOpen(final int streamIndex) throws IOException {
         LOCK.lock();
@@ -126,7 +126,7 @@ public class FFStreamInputStream extends FFNativePeerInputStream {
      * and then places the decoded data into {@link #nativeBuffer}.
      *
      * @param pointer pointer to native peer
-     * @throws IOException
+     * @throws IOException if an IO error occurs
      */
     private native void fillNativeBuffer(final long pointer) throws IOException;
 
@@ -135,7 +135,7 @@ public class FFStreamInputStream extends FFNativePeerInputStream {
      *
      * @param streamIndex index of the desired audio stream (if there are multiple ones)
      * @return pointer to native peer
-     * @throws IOException
+     * @throws IOException if an IO error occurs
      */
     private native long open(final int streamIndex) throws IOException;
 

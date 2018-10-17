@@ -107,8 +107,8 @@ public class FFAudioFileReader extends AudioFileReader {
      *
      * @param file file
      * @return one or more {@link AudioFileFormat}s for the given URL
-     * @throws UnsupportedAudioFileException
-     * @throws IOException
+     * @throws UnsupportedAudioFileException if the audio is not supported
+     * @throws IOException if an IO error occurs
      * @see <a href="http://www.stems-music.com">www.stems-music.com</a>
      * @see #getAudioFileFormat(File)
      */
@@ -123,7 +123,7 @@ public class FFAudioFileReader extends AudioFileReader {
      *
      * @param file file
      * @return correctly encoded URL
-     * @throws MalformedURLException
+     * @throws MalformedURLException if the URL is malformed
      */
     static URL fileToURL(final File file) throws MalformedURLException {
         try {
@@ -160,8 +160,8 @@ public class FFAudioFileReader extends AudioFileReader {
      *
      * @param url url
      * @return one or more {@link AudioFileFormat}s for the given URL
-     * @throws UnsupportedAudioFileException
-     * @throws IOException
+     * @throws UnsupportedAudioFileException if the audio is not supported
+     * @throws IOException if an IO error occurs
      * @see <a href="http://www.stems-music.com">www.stems-music.com</a>
      * @see #getAudioFileFormat(URL)
      */
@@ -217,8 +217,8 @@ public class FFAudioFileReader extends AudioFileReader {
      * @param stream stream
      * @param streamIndex audio stream index
      * @return audio stream
-     * @throws UnsupportedAudioFileException
-     * @throws IOException
+     * @throws UnsupportedAudioFileException if the audio is not supported
+     * @throws IOException if an IO error occurs
      * @throws IndexOutOfBoundsException if the index is not valid.
      * @see #getAudioInputStream(URL)
      * @see #getAudioInputStream(File, int)
@@ -236,8 +236,8 @@ public class FFAudioFileReader extends AudioFileReader {
      * @param url url
      * @param streamIndex audio stream index
      * @return audio stream
-     * @throws UnsupportedAudioFileException
-     * @throws IOException
+     * @throws UnsupportedAudioFileException if the audio is not supported
+     * @throws IOException if an IO error occurs
      * @throws IndexOutOfBoundsException if the index is not valid.
      * @see #getAudioInputStream(URL)
      * @see #getAudioInputStream(File, int)
@@ -255,8 +255,8 @@ public class FFAudioFileReader extends AudioFileReader {
      * @param file file
      * @param streamIndex audio stream index
      * @return audio stream
-     * @throws UnsupportedAudioFileException
-     * @throws IOException
+     * @throws UnsupportedAudioFileException if the audio is not supported
+     * @throws IOException if an IO error occurs
      * @throws IndexOutOfBoundsException if the index is not valid.
      * @see #getAudioInputStream(URL, int)
      * @see #getAudioInputStream(File)
@@ -273,8 +273,8 @@ public class FFAudioFileReader extends AudioFileReader {
      *
      * @param url url
      * @return file formats
-     * @throws IOException
-     * @throws UnsupportedAudioFileException
+     * @throws IOException if an IO error occurs
+     * @throws UnsupportedAudioFileException if the audio is not supported
      */
     private AudioFileFormat[] lockedGetAudioFileFormatsFromURL(final String url) throws IOException, UnsupportedAudioFileException {
         LOCK.lock();
@@ -293,8 +293,8 @@ public class FFAudioFileReader extends AudioFileReader {
      *
      * @param byteBuffer byteBuffer
      * @return file formats
-     * @throws IOException
-     * @throws UnsupportedAudioFileException
+     * @throws IOException if an IO error occurs
+     * @throws UnsupportedAudioFileException if the audio is not supported
      */
     private AudioFileFormat[] lockedGetAudioFileFormatFromBuffer(final ByteBuffer byteBuffer) throws IOException, UnsupportedAudioFileException {
         LOCK.lock();
@@ -312,7 +312,7 @@ public class FFAudioFileReader extends AudioFileReader {
      *
      * @param url url
      * @return {@link AudioFileFormat}s
-     * @throws IOException
+     * @throws IOException if an IO error occurs
      */
     private native AudioFileFormat[] getAudioFileFormatsFromURL(final String url) throws IOException, UnsupportedAudioFileException;
 
@@ -321,7 +321,7 @@ public class FFAudioFileReader extends AudioFileReader {
      *
      * @param byteBuffer buffer with the beginning from an audio stream
      * @return {@link AudioFileFormat}
-     * @throws IOException
+     * @throws IOException if an IO error occurs
      */
     private native AudioFileFormat[] getAudioFileFormatsFromBuffer(final ByteBuffer byteBuffer) throws IOException, UnsupportedAudioFileException;
 

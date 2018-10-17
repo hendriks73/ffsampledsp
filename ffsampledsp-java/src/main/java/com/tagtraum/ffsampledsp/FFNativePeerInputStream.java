@@ -128,6 +128,7 @@ public abstract class FFNativePeerInputStream extends InputStream {
      * @param time time
      * @param timeUnit time unit
      * @see com.tagtraum.ffsampledsp.FFAudioInputStream#seek(long, java.util.concurrent.TimeUnit)
+     * @throws IOException if an IO error occurs
      */
     public abstract void seek(final long time, final TimeUnit timeUnit) throws UnsupportedOperationException, IOException;
 
@@ -155,7 +156,7 @@ public abstract class FFNativePeerInputStream extends InputStream {
      * Synchronizes call to {@link #close(long)} via {@link FFGlobalLock#LOCK}.
      *
      * @param pointer pointer
-     * @throws IOException
+     * @throws IOException if an IO error occurs
      */
     private void lockedClose(final long pointer) throws IOException {
         LOCK.lock();
@@ -169,7 +170,7 @@ public abstract class FFNativePeerInputStream extends InputStream {
     /**
      * Fills {@link #nativeBuffer} with new data.
      *
-     * @throws IOException
+     * @throws IOException if an IO error occurs
      */
     protected abstract void fillNativeBuffer() throws IOException;
 
@@ -177,7 +178,7 @@ public abstract class FFNativePeerInputStream extends InputStream {
      * Closes the native peer and releases all resources held by it.
      *
      * @param pointer pointer
-     * @throws IOException
+     * @throws IOException if an IO error occurs
      */
     protected abstract void close(final long pointer) throws IOException;
 

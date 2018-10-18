@@ -44,7 +44,6 @@
             <item name="Introduction" href="index.html"/>
             <item name="Developer" href="developer.html"/>
             <item name="Stems" href="stems.html"/>
-            <item name="Release" href="https://www.beatunes.com/repo/maven2/com/tagtraum/ffsampledsp/"/>
             <item name="JavaDocs" href="apidocs/index.html"/>
             <item name="C-Docs" href="doxygen/index.html"/>
             <item name="FFmpeg" href="http://www.ffmpeg.org/"/>

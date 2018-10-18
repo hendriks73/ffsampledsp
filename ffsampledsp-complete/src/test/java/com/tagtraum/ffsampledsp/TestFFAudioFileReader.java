@@ -188,6 +188,7 @@ public class TestFFAudioFileReader {
      * @throws IOException if there is some IO error
      */
     @Test
+    @Ignore
     public void testGetAudioFileFormatLowProbeScoreFile2() throws IOException {
         // first copy the file from resources to actual location in temp
         final File file = new File("/Users/hendrik/downloads/The Early Access App [Questions #4688]/Oh My Love.abc");

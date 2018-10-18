@@ -33,6 +33,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static com.tagtraum.ffsampledsp.FFFormatConversionProvider.*;
+import static com.tagtraum.ffsampledsp.TestFFURLInputStream.extractFile;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -125,7 +126,7 @@ public class TestFFFormatConversionProvider {
     public void testConvertTo16Bit() throws IOException, UnsupportedAudioFileException {
         final String filename = "test_long24bit.wav";
         final File file = File.createTempFile("testConvertTo16Bit", filename);
-        TestFFURLInputStream.extractFile(filename, file);
+        extractFile(filename, file);
         int bytesRead = 0;
         AudioInputStream in = null;
         AudioInputStream convertedIn = null;
@@ -168,5 +169,48 @@ public class TestFFFormatConversionProvider {
         }
         System.out.println("Read " + bytesRead + " bytes.");
         assertEquals(10723068, bytesRead);
+    }
+
+
+    @Test
+    public void testConvertADPCMWaveTo8Bit() throws IOException, UnsupportedAudioFileException {
+        final String filename = "test_adpcm.wav";
+        final File file = File.createTempFile("testConvertADPCMWaveTo8Bit", filename);
+        extractFile(filename, file);
+        int bytesRead = 0;
+        AudioInputStream in = null;
+        AudioInputStream convertedIn = null;
+        try {
+            in = new FFAudioFileReader().getAudioInputStream(file);
+            final AudioFormat streamFormat = in.getFormat();
+            final AudioFormat targetFormat = new AudioFormat(
+                AudioFormat.Encoding.PCM_SIGNED,
+                streamFormat.getSampleRate(),
+                8,
+                streamFormat.getChannels(),
+                streamFormat.getChannels(),
+                streamFormat.getSampleRate(),
+                streamFormat.isBigEndian(),
+                streamFormat.properties()
+            );
+            convertedIn = new FFFormatConversionProvider().getAudioInputStream(targetFormat, in);
+            int justRead;
+            final byte[] buf = new byte[1024];
+            while ((justRead = convertedIn.read(buf)) != -1) {
+                assertTrue(justRead > 0);
+                bytesRead += justRead;
+            }
+        } finally {
+            if (convertedIn != null) {
+                try {
+                    convertedIn.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            file.delete();
+        }
+        System.out.println("Read " + bytesRead + " bytes.");
+        assertEquals(1328864, bytesRead);
     }
 }

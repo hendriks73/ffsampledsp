@@ -388,6 +388,35 @@ public class TestFFURLInputStream {
     }
 
     @Test
+    public void testReadThroughADPCMWave() throws IOException, UnsupportedAudioFileException {
+        final String filename = "test_adpcm.wav";
+        final File file = File.createTempFile("testReadThroughADPCMWave", filename);
+        extractFile(filename, file);
+        int bytesRead = 0;
+        FFURLInputStream in = null;
+        try {
+            in = new FFURLInputStream(file.toURI().toURL());
+            int justRead;
+            final byte[] buf = new byte[1024];
+            while ((justRead = in.read(buf)) != -1) {
+                assertTrue(justRead > 0);
+                bytesRead += justRead;
+            }
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            file.delete();
+        }
+        System.out.println("Read " + bytesRead + " bytes.");
+        assertEquals(2657728, bytesRead);
+    }
+
+    @Test
     public void testBogusFile() throws IOException {
         final String filename = "test.wav";
         final File file = File.createTempFile("testBogusFile", filename);

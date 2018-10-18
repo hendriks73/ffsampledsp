@@ -883,7 +883,7 @@ public class TestFFCodecInputStream {
         FFCodecInputStream targetStream = null;
         try {
             sourceStream = new FFAudioFileReader().getAudioInputStream(new BufferedInputStream(new FileInputStream(file)));
-            final AudioFormat targetFormat = new AudioFormat(FFAudioFormat.FFEncoding.PCM_SIGNED, 48000, 16, 2, 4, 48000, false);
+            final AudioFormat targetFormat = new AudioFormat(FFAudioFormat.FFEncoding.PCM_SIGNED, 48000f, 16, 2, 4, 48000, false);
             System.err.println("44.100: " + sourceStream.getFormat());
             System.err.println("48.000: " + targetFormat);
             targetStream = new FFCodecInputStream(targetFormat, (FFAudioInputStream) sourceStream);
@@ -915,7 +915,7 @@ public class TestFFCodecInputStream {
             file.delete();
         }
         System.out.println("Read " + bytesRead + " bytes.");
-        assertEquals(581792, bytesRead);
+        assertEquals(581800, bytesRead);
     }
 
     private void extractFile(final String filename, final File file) throws IOException {

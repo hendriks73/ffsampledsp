@@ -669,6 +669,64 @@ static int resample(FFAudioIO *aio,  uint8_t **out_buf, int out_samples, const u
     return res;
 }
 
+static int copy_to_java_buffer(FFAudioIO *aio, uint32_t offset, int samples, uint8_t **resample_buf) {
+    int res = 0;
+    uint32_t buffer_size = 0;
+    jobject byte_buffer = NULL;
+    uint8_t *java_buffer = NULL;
+    int64_t channel_count;
+    enum AVSampleFormat format;
+
+    av_opt_get_sample_fmt(aio->swr_context, "out_sample_fmt", 0, &format);
+    av_opt_get_int(aio->swr_context, "out_channel_count", 0, &channel_count);
+
+    res = av_samples_get_buffer_size(NULL, (int)channel_count, samples, format, 1);
+    if (res < 0) goto bail;
+    else buffer_size = res;
+
+    // ensure native buffer capacity
+    if (aio->java_buffer_capacity < buffer_size + offset) {
+        aio->java_buffer_capacity = (*aio->env)->CallIntMethod(aio->env, aio->java_instance, setNativeBufferCapacity_MID, (jint)(buffer_size + offset));
+    }
+    // get java-managed byte buffer reference
+    byte_buffer = (*aio->env)->GetObjectField(aio->env, aio->java_instance, nativeBuffer_FID);
+    if (!byte_buffer) {
+        res = -1;
+        throwIOExceptionIfError(aio->env, 1, "Failed to get native buffer.");
+        goto bail;
+    }
+
+    // we have some samples, let's copy them to the java buffer, using the desired encoding at the desired offset
+    java_buffer = (uint8_t *)(*aio->env)->GetDirectBufferAddress(aio->env, byte_buffer) + offset;
+    if (!java_buffer) {
+        throwIOExceptionIfError(aio->env, 1, "Failed to get address for native buffer.");
+        goto bail;
+    }
+    if (aio->encode_context) {
+        aio->encode_frame->nb_samples = samples;
+        res = encode_buffer(aio, resample_buf[0], buffer_size, java_buffer);
+        if (res < 0) {
+            buffer_size = 0;
+            goto bail;
+        }
+        buffer_size = res;
+    } else {
+        memcpy(java_buffer, resample_buf[0], buffer_size);
+    }
+    // we already wrote to the buffer, now we still need to
+    // set new bytebuffer limit and position to 0.
+    if (offset == 0) {
+        // only rewind, if this is the first call for this packet
+        (*aio->env)->CallObjectMethod(aio->env, byte_buffer, rewind_MID);
+    }
+    (*aio->env)->CallObjectMethod(aio->env, byte_buffer, limit_MID, offset + buffer_size);
+
+    aio->resampled_samples += buffer_size;
+
+    bail:
+
+    return res;
+}
 
 /**
  * Decode a frame to a packet, run the result through SwrContext, if desired, encode it via an appropriate
@@ -681,123 +739,103 @@ static int resample(FFAudioIO *aio,  uint8_t **out_buf, int out_samples, const u
 static int decode_packet(FFAudioIO *aio, int cached) {
     int res = 0;
     uint8_t **resample_buf = NULL;
-    jobject byte_buffer = NULL;
-    uint8_t *javaBuffer = NULL;
+    uint32_t java_buffer_offset = 0;
     uint32_t out_buf_size = 0;
     int out_buf_samples = 0;
-    int64_t out_channel_count;
     int64_t out_sample_rate;
-    int flush = aio->got_frame;
-    enum AVSampleFormat out;
+    int flush = aio->got_frame
+        && aio->decode_packet.size == 0
+        && swr_get_delay(aio->swr_context, aio->stream->codecpar->sample_rate);
     int bytesConsumed = 0;
 
     init_ids(aio->env, aio->java_instance);
 
-    av_opt_get_int(aio->swr_context, "out_channel_count", 0, &out_channel_count);
     av_opt_get_int(aio->swr_context, "out_sample_rate", 0, &out_sample_rate);
-    av_opt_get_sample_fmt(aio->swr_context, "out_sample_fmt", 0, &out);
 
     resample_buf = av_mallocz(sizeof(uint8_t *) * 1); // one plane!
 
-    // make sure we really have an audio packet
-    if (aio->decode_packet.stream_index == aio->stream_index) {
-        // decode frame
-        // got_frame indicates whether we got a frame
-        bytesConsumed = avcodec_decode_audio4(aio->decode_context, aio->decode_frame, &aio->got_frame, &aio->decode_packet);
-        if (bytesConsumed < 0) {
-            throwUnsupportedAudioFileExceptionIfError(aio->env, bytesConsumed, "Failed to decode audio frame.");
-            return bytesConsumed;
-        }
-
-        if (aio->got_frame) {
-
-            aio->decoded_samples += aio->decode_frame->nb_samples;
-            out_buf_samples = aio->decode_frame->nb_samples;
+    // decode packet, as long as there is still something in there
+    while ((aio->decode_packet.size > 0 && aio->decode_packet.stream_index == aio->stream_index) || flush) {
+        if (flush) {
 #ifdef DEBUG
-            fprintf(stderr, "samples%s n:%" PRIu64 " nb_samples:%d pts:%s\n",
-                   cached ? "(cached)" : "",
-                   aio->decoded_samples, aio->decode_frame->nb_samples,
-                   av_ts2timestr(aio->decode_frame->pts, &aio->decode_context->time_base));
+            fprintf(stderr, "Flushing.\n");
 #endif
-
-            // adjust out sample number for a different sample rate
-            // this is an estimate!!
-            out_buf_samples = av_rescale_rnd(
-                    swr_get_delay(aio->swr_context, aio->stream->codecpar->sample_rate) + aio->decode_frame->nb_samples,
-                    out_sample_rate,
-                    aio->stream->codecpar->sample_rate,
-                    AV_ROUND_UP
-            );
-
-            // allocate new aio->audio_data buffers
-            res = av_samples_alloc(aio->audio_data, NULL, aio->decode_frame->channels,
-                                   aio->decode_frame->nb_samples, aio->decode_frame->format, 1);
-            if (res < 0) {
-                throwIOExceptionIfError(aio->env, res, "Could not allocate audio buffer.");
-                return AVERROR(ENOMEM);
-            }
-            // copy audio data to aio->audio_data
-            av_samples_copy(aio->audio_data, aio->decode_frame->data, 0, 0,
-                            aio->decode_frame->nb_samples, aio->decode_frame->channels, aio->decode_frame->format);
-
-            res = resample(aio, resample_buf, out_buf_samples, (const uint8_t **)aio->audio_data, aio->decode_frame->nb_samples);
-            if (res < 0) goto bail;
-            else out_buf_samples = res;
-
-        } else if (flush && swr_get_delay(aio->swr_context, aio->stream->codecpar->sample_rate)) {
-
             res = resample(aio, resample_buf, swr_get_delay(aio->swr_context, aio->stream->codecpar->sample_rate), NULL, 0);
             if (res < 0) goto bail;
             else out_buf_samples = res;
+            flush = 0; // break while loop
         } else {
+
 #ifdef DEBUG
-            fprintf(stderr, "Got no frame.\n");
+            fprintf(stderr, "aio->decode_packet.size: %i\n", aio->decode_packet.size);
 #endif
+            // decode frame
+            // got_frame indicates whether we got a frame
+            bytesConsumed = avcodec_decode_audio4(aio->decode_context, aio->decode_frame, &aio->got_frame, &aio->decode_packet);
+            if (bytesConsumed < 0) {
+                throwUnsupportedAudioFileExceptionIfError(aio->env, bytesConsumed, "Failed to decode audio frame.");
+                return bytesConsumed;
+            }
+#ifdef DEBUG
+            fprintf(stderr, "bytesConsumed: %i\n", bytesConsumed);
+#endif
+            // adjust packet size and offset for next avcodec_decode_audio4 call
+            aio->decode_packet.size -= bytesConsumed;
+            aio->decode_packet.data += bytesConsumed;
+
+            if (aio->got_frame) {
+
+                aio->decoded_samples += aio->decode_frame->nb_samples;
+                out_buf_samples = aio->decode_frame->nb_samples;
+#ifdef DEBUG
+                fprintf(stderr, "samples%s n:%" PRIu64 " nb_samples:%d pts:%s\n",
+                       cached ? "(cached)" : "",
+                       aio->decoded_samples, aio->decode_frame->nb_samples,
+                       av_ts2timestr(aio->decode_frame->pts, &aio->decode_context->time_base));
+#endif
+
+                // adjust out sample number for a different sample rate
+                // this is an estimate!!
+                out_buf_samples = av_rescale_rnd(
+                        swr_get_delay(aio->swr_context, aio->stream->codecpar->sample_rate) + aio->decode_frame->nb_samples,
+                        out_sample_rate,
+                        aio->stream->codecpar->sample_rate,
+                        AV_ROUND_UP
+                );
+
+                // allocate new aio->audio_data buffers
+                res = av_samples_alloc(aio->audio_data, NULL, aio->decode_frame->channels,
+                                       aio->decode_frame->nb_samples, aio->decode_frame->format, 1);
+                if (res < 0) {
+                    throwIOExceptionIfError(aio->env, res, "Could not allocate audio buffer.");
+                    return AVERROR(ENOMEM);
+                }
+                // copy audio data to aio->audio_data
+                av_samples_copy(aio->audio_data, aio->decode_frame->data, 0, 0,
+                                aio->decode_frame->nb_samples, aio->decode_frame->channels, aio->decode_frame->format);
+
+                res = resample(aio, resample_buf, out_buf_samples, (const uint8_t **)aio->audio_data, aio->decode_frame->nb_samples);
+                if (res < 0) goto bail;
+                else out_buf_samples = res;
+
+            } else {
+#ifdef DEBUG
+                fprintf(stderr, "Got no frame.\n");
+#endif
+            }
         }
 
         if (out_buf_samples > 0) {
-
-            res =  av_samples_get_buffer_size(NULL, (int)out_channel_count, out_buf_samples, out, 1);
+            // copy what we have decoded to the java buffer
+            java_buffer_offset += out_buf_size;
+            res = copy_to_java_buffer(aio, java_buffer_offset, out_buf_samples, resample_buf);
             if (res < 0) goto bail;
-            else out_buf_size = res;
-
-            // ensure native buffer capacity
-            if (aio->java_buffer_capacity < out_buf_size) {
-                aio->java_buffer_capacity = (*aio->env)->CallIntMethod(aio->env, aio->java_instance, setNativeBufferCapacity_MID, (jint)out_buf_size);
-            }
-            // get java-managed byte buffer reference
-            byte_buffer = (*aio->env)->GetObjectField(aio->env, aio->java_instance, nativeBuffer_FID);
-            if (!byte_buffer) {
-                res = -1;
-                throwIOExceptionIfError(aio->env, 1, "Failed to get native buffer.");
-                goto bail;
-            }
-
-            // we have some samples, let's copy them to the java buffer, using the desired encoding
-            javaBuffer = (uint8_t *)(*aio->env)->GetDirectBufferAddress(aio->env, byte_buffer);
-            if (!javaBuffer) {
-                throwIOExceptionIfError(aio->env, 1, "Failed to get address for native buffer.");
-                goto bail;
-            }
-            if (aio->encode_context) {
-                aio->encode_frame->nb_samples = out_buf_samples;
-                res = encode_buffer(aio, resample_buf[0], out_buf_size, javaBuffer);
-                if (res < 0) {
-                    out_buf_size = 0;
-                    goto bail;
-                }
-                out_buf_size = res;
-            } else {
-                memcpy(javaBuffer, resample_buf[0], out_buf_size);
-            }
-            // we already wrote to the buffer, now we still need to
-            // set new bytebuffer limit and position to 0.
-            (*aio->env)->CallObjectMethod(aio->env, byte_buffer, rewind_MID);
-            (*aio->env)->CallObjectMethod(aio->env, byte_buffer, limit_MID, out_buf_size);
+            out_buf_size = res;
         }
+        if (resample_buf[0]) av_freep(&resample_buf[0]);
+        if (aio->audio_data[0]) av_freep(&aio->audio_data[0]);
     }
 
-    aio->resampled_samples += out_buf_size;
 
 bail:
 
@@ -829,14 +867,14 @@ int ff_fill_buffer(FFAudioIO *aio) {
         read_frame = av_read_frame(aio->format_context, &aio->decode_packet);
         if (read_frame >= 0) {
             res = decode_packet(aio, 0);
-    #ifdef DEBUG
+#ifdef DEBUG
             fprintf(stderr, "res       : %i\n", res);
             fprintf(stderr, "read_frame: %i\n", read_frame);
             fprintf(stderr, "duration  : %lli\n", aio->decode_packet.duration);
             fprintf(stderr, "timestamp : %" PRId64 "\n", aio->timestamp);
             fprintf(stderr, "pts       : %" PRId64 "\n", aio->decode_packet.pts);
             fprintf(stderr, "dts       : %" PRId64 "\n", aio->decode_packet.dts);
-    #endif
+#endif
             av_packet_unref(&(aio->decode_packet));
         } else {
     #ifdef DEBUG

@@ -42,11 +42,9 @@
 
     <modules>
         <module>ffsampledsp-java</module>
-        <module>ffsampledsp-i386-macos</module>
         <module>ffsampledsp-i386-win</module>
         <module>ffsampledsp-x86_64-macos</module>
         <module>ffsampledsp-x86_64-win</module>
-        <module>ffsampledsp-universal</module>
         <module>ffsampledsp-complete</module>
     </modules>
 

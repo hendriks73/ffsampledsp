@@ -14,13 +14,6 @@
     <dependencies>
         <dependency>
             <groupId>com.tagtraum</groupId>
-            <artifactId>ffsampledsp-i386-macos</artifactId>
-            <version>${project.version}</version>
-            <type>dylib</type>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.tagtraum</groupId>
             <artifactId>ffsampledsp-i386-win</artifactId>
             <version>${project.version}</version>
             <type>dll</type>
@@ -117,14 +110,6 @@
                         <configuration>
                             <artifactItems>
                                 
-                                <artifactItem>
-                                    <groupId>com.tagtraum</groupId>
-                                    <artifactId>ffsampledsp-i386-macos</artifactId>
-                                    <version>${project.version}</version>
-                                    <type>dylib</type>
-                                    <overWrite>true</overWrite>
-                                    <outputDirectory>${project.build.directory}/classes</outputDirectory>
-                                </artifactItem>
                                 <artifactItem>
                                     <groupId>com.tagtraum</groupId>
                                     <artifactId>ffsampledsp-i386-win</artifactId>

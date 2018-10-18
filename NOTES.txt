@@ -2,6 +2,7 @@
 
 - Fixed some javadocs.
 - Exclude snapshot releases from tmp dir caching.
+- Dropped support for 32 bit on macOS.
 
 
 0.9.28

@@ -1,6 +1,7 @@
 0.9.28
 
 - Fixed some javadocs.
+- Exclude snapshot releases from tmp dir caching.
 
 
 0.9.28

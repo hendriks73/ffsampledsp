@@ -109,7 +109,7 @@ public final class FFNativeLibraryLoader {
         if (LOADED.contains(key)) return;
         final String packagedNativeLib = libName + "-" + ARCH + "-" + HOST + "-" + VERSION + "." + NATIVE_LIBRARY_EXTENSION;
         final File extractedNativeLib = new File(System.getProperty("java.io.tmpdir") + "/" + packagedNativeLib);
-        if (!extractedNativeLib.exists()) {
+        if (!extractedNativeLib.exists() || extractedNativeLib.toString().contains("SNAPSHOT")) {
             extractResourceToFile(baseClass, "/" + packagedNativeLib, extractedNativeLib);
         }
         if (extractedNativeLib.exists()) {

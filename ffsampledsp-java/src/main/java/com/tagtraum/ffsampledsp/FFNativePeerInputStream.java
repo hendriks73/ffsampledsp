@@ -25,6 +25,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static com.tagtraum.ffsampledsp.FFGlobalLock.LOCK;
 
@@ -79,6 +81,24 @@ public abstract class FFNativePeerInputStream extends InputStream {
             nativeBuffer = ByteBuffer.allocateDirect(minimumCapacity);
         }
         return nativeBuffer.capacity();
+    }
+
+    /**
+     * Log a "fine" message using java.util logging.
+     *
+     * @param message message
+     */
+    private void logFine(final String message) {
+        Logger.getLogger(this.getClass().getName()).log(Level.FINE, message);
+    }
+
+    /**
+     * Log a "warning" message using java.util logging.
+     *
+     * @param message message
+     */
+    private void logWarning(final String message) {
+        Logger.getLogger(this.getClass().getName()).log(Level.WARNING, message);
     }
 
     @Override

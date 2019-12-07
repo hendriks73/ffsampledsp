@@ -82,6 +82,10 @@ typedef struct {
 
 } FFAudioIO;
 
+void logWarning(FFAudioIO*, int, const char*);
+
+void logFine(FFAudioIO*, int, const char*);
+
 void throwUnsupportedAudioFileExceptionIfError(JNIEnv*, int, const char*);
 
 void throwIOExceptionIfError(JNIEnv*, int, const char*);

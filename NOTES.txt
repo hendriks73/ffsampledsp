@@ -1,6 +1,7 @@
 0.9.30
 
 - Fixed some docs and links.
+- Log individual packet decode errors.
 
 
 0.9.29

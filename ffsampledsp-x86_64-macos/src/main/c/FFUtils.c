@@ -28,6 +28,8 @@ static jmethodID rewind_MID = NULL;
 static jmethodID limit_MID = NULL;
 static jmethodID capacity_MID = NULL;
 static jmethodID setNativeBufferCapacity_MID = NULL;
+static jmethodID logFine_MID = NULL;
+static jmethodID logWarning_MID = NULL;
 static int MIN_PROBE_SCORE = 5; // this is fairly arbitrary, but we need to give other javax.sound.sampled impls a chance
 
 /**
@@ -49,6 +51,8 @@ static void init_ids(JNIEnv *env, jobject stream) {
         limit_MID = (*env)->GetMethodID(env, bufferClass, "limit", "(I)Ljava/nio/Buffer;");
         capacity_MID = (*env)->GetMethodID(env, bufferClass, "capacity", "()I");
         setNativeBufferCapacity_MID = (*env)->GetMethodID(env, streamClass, "setNativeBufferCapacity", "(I)I");
+        logFine_MID = (*env)->GetMethodID(env, streamClass, "logFine", "(Ljava/lang/String;)V");
+        logWarning_MID = (*env)->GetMethodID(env, streamClass, "logWarning", "(Ljava/lang/String;)V");
     }
 }
 
@@ -210,6 +214,35 @@ void throwFileNotFoundExceptionIfError(JNIEnv *env, int err, const char *message
     }
 }
 
+/**
+ * Log a warning.
+ */
+void logWarning(FFAudioIO *aio, int err, const char *message) {
+    if (err) {
+        char formattedMessage [strlen(message)+20+AV_ERROR_MAX_STRING_SIZE];
+        snprintf(formattedMessage, strlen(message)+20+AV_ERROR_MAX_STRING_SIZE, "%s %i (%.64s)", message, err, av_err2str(err));
+        jstring s = (*aio->env)->NewStringUTF(aio->env, formattedMessage);
+        (*aio->env)->CallVoidMethod(aio->env, aio->java_instance, logWarning_MID, s);
+    } else {
+        jstring s = (*aio->env)->NewStringUTF(aio->env, message);
+        (*aio->env)->CallVoidMethod(aio->env, aio->java_instance, logWarning_MID, s);
+    }
+}
+
+/**
+ * Log a debug message.
+ */
+void logFine(FFAudioIO *aio, int err, const char *message) {
+    if (err) {
+        char formattedMessage [strlen(message)+20+AV_ERROR_MAX_STRING_SIZE];
+        snprintf(formattedMessage, strlen(message)+20+AV_ERROR_MAX_STRING_SIZE, "%s %i (%.64s)", message, err, av_err2str(err));
+        jstring s = (*aio->env)->NewStringUTF(aio->env, formattedMessage);
+        (*aio->env)->CallVoidMethod(aio->env, aio->java_instance, logFine_MID, s);
+    } else {
+        jstring s = (*aio->env)->NewStringUTF(aio->env, message);
+        (*aio->env)->CallVoidMethod(aio->env, aio->java_instance, logFine_MID, s);
+    }
+}
 
 /**
  * Opens the input file/url and allocates a AVFormatContext for it, but does not open the audio stream with an
@@ -773,8 +806,12 @@ static int decode_packet(FFAudioIO *aio, int cached) {
             // got_frame indicates whether we got a frame
             bytesConsumed = avcodec_decode_audio4(aio->decode_context, aio->decode_frame, &aio->got_frame, &aio->decode_packet);
             if (bytesConsumed < 0) {
-                throwUnsupportedAudioFileExceptionIfError(aio->env, bytesConsumed, "Failed to decode audio frame.");
-                return bytesConsumed;
+                logWarning(aio, bytesConsumed, "Skipping packet. avcodec_decode_audio4 failed:");
+                aio->decode_packet.size = 0;
+                aio->decode_packet.data = NULL;
+                // pretend we didn't read anything, so we can try our luck with the next packet
+                res = 0;
+                goto bail;
             }
 #ifdef DEBUG
             fprintf(stderr, "bytesConsumed: %i\n", bytesConsumed);

@@ -42,7 +42,7 @@ public abstract class FFNativePeerInputStream extends InputStream {
         FFNativeLibraryLoader.loadLibrary();
     }
 
-    private static final int DEFAULT_NATIVE_BUFFER_SIZE = 32 * 1024;
+    private static final int DEFAULT_NATIVE_BUFFER_SIZE = 1024 * 1024;
 
     /**
      * Pointer to the native peer struct.

@@ -719,7 +719,14 @@ static int copy_to_java_buffer(FFAudioIO *aio, uint32_t offset, int samples, uin
 
     // ensure native buffer capacity
     if (aio->java_buffer_capacity < buffer_size + offset) {
-        aio->java_buffer_capacity = (*aio->env)->CallIntMethod(aio->env, aio->java_instance, setNativeBufferCapacity_MID, (jint)(buffer_size + offset));
+        jint new_capacity = (*aio->env)->CallIntMethod(aio->env, aio->java_instance, setNativeBufferCapacity_MID, (jint)(buffer_size + offset));
+        if ((*aio->env)->ExceptionCheck(aio->env)) {
+            logWarning(aio, -1, "Failed to resize native Java buffer.");
+            (*aio->env)->CallObjectMethod(aio->env, byte_buffer, rewind_MID);
+            res = -1;
+            goto bail;
+        }
+        aio->java_buffer_capacity = new_capacity;
     }
     // get java-managed byte buffer reference
     byte_buffer = (*aio->env)->GetObjectField(aio->env, aio->java_instance, nativeBuffer_FID);
@@ -862,7 +869,7 @@ static int decode_packet(FFAudioIO *aio, int cached) {
             }
         }
 
-        if (out_buf_samples > 0) {
+        if (out_buf_samples > 0 && resample_buf[0]) {
             // copy what we have decoded to the java buffer
             java_buffer_offset += out_buf_size;
             res = copy_to_java_buffer(aio, java_buffer_offset, out_buf_samples, resample_buf);

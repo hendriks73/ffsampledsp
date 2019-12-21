@@ -1,3 +1,8 @@
+0.9.31
+
+- Fix for crash on copying from empty buffer (e.g. for WMA).
+
+
 0.9.30
 
 - Fixed some docs and links.

@@ -244,6 +244,37 @@ public class TestFFStreamInputStream {
         assertEquals(133632, (bytesRead / 4));
     }
 
+
+    @Test
+    public void testReadThroughWMAFile() throws IOException, UnsupportedAudioFileException {
+        final String filename = "test.wma";
+        final File file = File.createTempFile("testReadThroughWMAFile", filename);
+        extractFile(filename, file);
+
+        int bytesRead = 0;
+        FFStreamInputStream in = null;
+        try {
+            in = new FFStreamInputStream(new FileInputStream(file));
+            int justRead;
+            final byte[] buf = new byte[1024];
+            while ((justRead = in.read(buf)) != -1) {
+                assertTrue(justRead > 0);
+                bytesRead += justRead;
+            }
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            file.delete();
+        }
+        assertEquals(14585856, (bytesRead / 4));
+    }
+
+
     @Test
     public void testBogusStream() throws IOException {
         final String filename = "test.wav";

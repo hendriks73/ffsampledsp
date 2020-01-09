@@ -178,6 +178,25 @@ public class TestFFStreamInputStream {
         assertTrue(bytesRead != 0);
     }
 
+    @Test(expected = UnsupportedAudioFileException.class)
+    public void testReadThroughDRMM4AFile() throws IOException, UnsupportedAudioFileException {
+        final String filename = "test_drms.m4a";
+        final File file = File.createTempFile("testReadThroughDRMM4AFile", filename);
+        extractFile(filename, file);
+        FFStreamInputStream in = null;
+        try {
+            in = new FFStreamInputStream(new FileInputStream(file));
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            file.delete();
+        }
+    }
     @Test
     public void testReadThroughFLACFile() throws IOException, UnsupportedAudioFileException {
         final String filename = "test.flac";

@@ -356,8 +356,8 @@
 
         <ccompiler>gcc</ccompiler>
         <!-- override with -D on commandline to pass additional flags, like -DDEBUG via the cflags property. E.g.: -->
-        <!-- <cflags>-DDEBUG</cflags> -->
-        <cflags />
+        <cflags>-DDEBUG</cflags>
+        <!-- <cflags /> -->
 
         <mingw.i386.path>/opt/local/bin</mingw.i386.path>
         <mingw.i386.crossprefix>i686-w64-mingw32-</mingw.i386.crossprefix>

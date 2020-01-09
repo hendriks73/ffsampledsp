@@ -23,6 +23,7 @@
 
 #include "FFUtils.h"
 
+static const uint32_t CODEC_TAG_DRMS = 'smrd'; // 'drms'
 static jfieldID nativeBuffer_FID = NULL;
 static jmethodID rewind_MID = NULL;
 static jmethodID limit_MID = NULL;
@@ -79,7 +80,6 @@ int ff_open_stream(JNIEnv *env, AVStream *stream, AVCodecContext **context) {
         throwUnsupportedAudioFileExceptionIfError(env, res, "Failed to find codec.");
         goto bail;
     }
-
     *context = avcodec_alloc_context3(decoder);
     if (!context) {
         fprintf(stderr, "Failed to allocate context\n");
@@ -362,6 +362,13 @@ int ff_open_file(JNIEnv *env, AVFormatContext **format_context, AVStream **opene
             goto bail;
         }
         *openedStream = stream;
+    }
+
+    if ((*openedStream)->codecpar->codec_tag == CODEC_TAG_DRMS) {
+        fprintf(stderr, "File is DRM-crippled.\n");
+        res = -1;
+        throwUnsupportedAudioFileExceptionIfError(env, res, "File is DRM-crippled.");
+        goto bail;
     }
 
 #ifdef DEBUG

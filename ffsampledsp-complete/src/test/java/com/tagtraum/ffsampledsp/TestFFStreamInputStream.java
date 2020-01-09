@@ -197,6 +197,7 @@ public class TestFFStreamInputStream {
             file.delete();
         }
     }
+
     @Test
     public void testReadThroughFLACFile() throws IOException, UnsupportedAudioFileException {
         final String filename = "test.flac";

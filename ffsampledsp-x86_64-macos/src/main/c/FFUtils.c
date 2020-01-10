@@ -835,6 +835,14 @@ static int decode_packet(FFAudioIO *aio, int cached) {
             aio->decode_packet.data += bytesConsumed;
 
             if (aio->got_frame) {
+                if (aio->stream->codecpar->channels != aio->decode_frame->channels) {
+                    logWarning(aio, bytesConsumed, "Skipping packet. Expected channels and decoded channels do not match:");
+                    aio->decode_packet.size = 0;
+                    aio->decode_packet.data = NULL;
+                    // pretend we didn't read anything, so we can try our luck with the next packet
+                    res = 0;
+                    goto bail;
+                }
 
                 aio->decoded_samples += aio->decode_frame->nb_samples;
                 out_buf_samples = aio->decode_frame->nb_samples;

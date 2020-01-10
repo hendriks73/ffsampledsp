@@ -1,6 +1,7 @@
 0.9.32
 
 - Detect and report 'drms'-files.
+- Added channel count sanity check.
 
 
 0.9.31

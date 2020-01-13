@@ -66,12 +66,12 @@ public class FFAudioFileFormat extends AudioFileFormat {
     public FFAudioFileFormat(final String url, final int codecId,
                              final float sampleRate, final int sampleSize, final int channels, final int packetSize,
                              final float frameRate, final boolean bigEndian, final long durationInMicroSeconds,
-                             final int bitRate, final Boolean vbr)
+                             final int bitRate, final Boolean vbr, final boolean encrypted)
             throws UnsupportedAudioFileException {
 
         super(getAudioFileFormatType(url, codecId), getLength(url),
                 new FFAudioFormat(codecId, sampleRate, sampleSize, channels, packetSize,
-                        determineFrameRate(codecId, sampleRate, frameRate), bigEndian, bitRate, vbr),
+                        determineFrameRate(codecId, sampleRate, frameRate), bigEndian, bitRate, vbr, encrypted),
                         determineFrameLength(sampleRate, durationInMicroSeconds)
         );
         this.properties = new HashMap<java.lang.String,java.lang.Object>();

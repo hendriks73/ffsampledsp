@@ -82,6 +82,8 @@ typedef struct {
 
 } FFAudioIO;
 
+extern const uint32_t CODEC_TAG_DRMS;
+
 void logWarning(FFAudioIO*, int, const char*);
 
 void logFine(FFAudioIO*, int, const char*);

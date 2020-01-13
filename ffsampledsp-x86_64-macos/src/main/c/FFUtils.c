@@ -23,7 +23,8 @@
 
 #include "FFUtils.h"
 
-static const uint32_t CODEC_TAG_DRMS = 'smrd'; // 'drms'
+const uint32_t CODEC_TAG_DRMS = 'smrd'; // 'drms'
+
 static jfieldID nativeBuffer_FID = NULL;
 static jmethodID rewind_MID = NULL;
 static jmethodID limit_MID = NULL;
@@ -819,7 +820,12 @@ static int decode_packet(FFAudioIO *aio, int cached) {
             // decode frame
             // got_frame indicates whether we got a frame
             bytesConsumed = avcodec_decode_audio4(aio->decode_context, aio->decode_frame, &aio->got_frame, &aio->decode_packet);
-            if (bytesConsumed < 0) {
+            if (bytesConsumed == AVERROR(EINVAL)) {
+                throwUnsupportedAudioFileExceptionIfError(aio->env, bytesConsumed, "Invalid argument for decoder (avcodec_decode_audio4).");
+                res = 0;
+                goto bail;
+            }
+            else if (bytesConsumed < 0) {
                 logWarning(aio, bytesConsumed, "Skipping packet. avcodec_decode_audio4 failed:");
                 aio->decode_packet.size = 0;
                 aio->decode_packet.data = NULL;

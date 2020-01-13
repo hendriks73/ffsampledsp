@@ -52,7 +52,7 @@ static void init_ids(JNIEnv *env) {
 #endif
 
         limit_MID = (*env)->GetMethodID(env, bufferClass, "limit", "()I");
-        ffAudioFileFormat_MID = (*env)->GetMethodID(env, ffAudioFileFormat_class, "<init>", "(Ljava/lang/String;IFIIIFZJILjava/lang/Boolean;)V");
+        ffAudioFileFormat_MID = (*env)->GetMethodID(env, ffAudioFileFormat_class, "<init>", "(Ljava/lang/String;IFIIIFZJILjava/lang/Boolean;Z)V");
 #ifdef DEBUG
         if (!limit_MID) fprintf(stderr, "Failed to find limit method\n");
         if (!ffAudioFileFormat_MID) fprintf(stderr, "Failed to find constructor of AudioFileFormat\n");
@@ -203,14 +203,14 @@ static jfloat get_frame_rate(AVStream *stream, jlong duration) {
  */
 static jobject create_ffaudiofileformat(JNIEnv *env, jstring url, jint codecId, jfloat sampleRate, jint sampleSize,
                                          jint channels, jint frame_size, jfloat frame_rate, jboolean big_endian, jlong duration,
-                                         jint bitRate, jobject vbr) {
+                                         jint bitRate, jobject vbr, jboolean encrypted) {
     jclass ffAudioFileFormat_class = NULL;
 
     ffAudioFileFormat_class = (*env)->FindClass(env, "com/tagtraum/ffsampledsp/FFAudioFileFormat");
 
     /* Construct an FFAudioFileFormat object */
     return (*env)->NewObject(env, ffAudioFileFormat_class, ffAudioFileFormat_MID, url, codecId, sampleRate, sampleSize,
-                channels, frame_size, frame_rate, big_endian, duration, bitRate, vbr);
+                channels, frame_size, frame_rate, big_endian, duration, bitRate, vbr, encrypted);
 }
 
 static int create_ffaudiofileformats(JNIEnv *env, AVFormatContext *format_context, jobjectArray *array, jstring url) {
@@ -224,6 +224,7 @@ static int create_ffaudiofileformats(JNIEnv *env, AVFormatContext *format_contex
     jint sample_size = -1;
     int audio_stream_count = 0;
     int audio_stream_number = 0;
+    jboolean encrypted = 0;
 
     // count possible audio streams
     int i;
@@ -278,10 +279,13 @@ static int create_ffaudiofileformats(JNIEnv *env, AVFormatContext *format_contex
                 ? stream->codecpar->bits_per_raw_sample
                 : stream->codecpar->bits_per_coded_sample;
 
+            encrypted = stream->codecpar->codec_tag == CODEC_TAG_DRMS;
+
             #ifdef DEBUG
                 fprintf(stderr, "stream->codecpar->bits_per_coded_sample: %i\n", stream->codecpar->bits_per_coded_sample);
                 fprintf(stderr, "stream->codecpar->bits_per_raw_sample  : %i\n", stream->codecpar->bits_per_raw_sample);
                 fprintf(stderr, "stream->codecpar->bit_rate             : %lli\n", stream->codecpar->bit_rate);
+                fprintf(stderr, "stream->codecpar->codec_tag=drms       : %i\n", encrypted);
                 fprintf(stderr, "format_context->packet_size         : %i\n", format_context->packet_size);
                 fprintf(stderr, "frames     : %" PRId64 "\n", stream->nb_frames);
                 fprintf(stderr, "sample_rate: %i\n", stream->codecpar->sample_rate);
@@ -307,7 +311,8 @@ static int create_ffaudiofileformats(JNIEnv *env, AVFormatContext *format_contex
                                                            big_endian,
                                                            duration_in_microseconds,
                                                            stream->codecpar->bit_rate,
-                                                           vbr);
+                                                           vbr,
+                                                           encrypted);
 
             (*env)->SetObjectArrayElement(env, *array, audio_stream_number, audio_format);
             audio_stream_number++;

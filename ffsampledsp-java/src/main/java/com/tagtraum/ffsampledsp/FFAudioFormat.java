@@ -46,14 +46,16 @@ public class FFAudioFormat extends AudioFormat {
     public static final String FFSAMPLEDSP = "ffsampledsp";
 
     public FFAudioFormat(final int codecId, final float sampleRate, final int sampleSize, final int channels,
-                         final int packetSize, final float frameRate, final boolean bigEndian, final int bitRate, final Boolean vbr) {
-        super(FFEncoding.getInstance(codecId), sampleRate, sampleSize, channels, packetSize, frameRate, bigEndian, createProperties(bitRate, vbr));
+                         final int packetSize, final float frameRate, final boolean bigEndian, final int bitRate,
+                         final Boolean vbr, final boolean encrypted) {
+        super(FFEncoding.getInstance(codecId), sampleRate, sampleSize, channels, packetSize, frameRate, bigEndian, createProperties(bitRate, vbr, encrypted));
     }
 
-    private static Map<String, Object> createProperties(final int bitRate, final Boolean vbr) {
+    private static Map<String, Object> createProperties(final int bitRate, final Boolean vbr, final boolean encrypted) {
         final Map<String, Object> properties = new HashMap<String, Object>();
         if (bitRate > 0) properties.put("bitrate", bitRate);
         if (vbr != null) properties.put("vbr", vbr);
+        if (encrypted) properties.put("encrypted", encrypted);
         properties.put(PROVIDER, FFSAMPLEDSP);
         return properties;
     }

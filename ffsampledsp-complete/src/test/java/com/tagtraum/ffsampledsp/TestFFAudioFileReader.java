@@ -513,4 +513,20 @@ public class TestFFAudioFileReader {
             file.delete();
         }
     }
+
+    @Test
+    public void testDRMM4AFile() throws IOException, UnsupportedAudioFileException {
+        final String filename = "test_drms.m4a";
+        final File file = File.createTempFile("testDRMM4AFile", filename);
+        extractFile(filename, file);
+        try {
+            final AudioFileFormat fileFormat = new FFAudioFileReader().getAudioFileFormat(file);
+            System.out.println(fileFormat);
+            System.out.println(fileFormat.getFormat());
+            assertTrue((Boolean)fileFormat.getFormat().getProperty("encrypted"));
+        } finally {
+            file.delete();
+        }
+    }
+
 }

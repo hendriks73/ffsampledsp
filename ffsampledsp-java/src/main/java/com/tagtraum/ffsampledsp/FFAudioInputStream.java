@@ -98,4 +98,8 @@ public class FFAudioInputStream extends AudioInputStream {
         final long microSeconds = timeUnit.toMicros(time);
         framePos = (long)((getFormat().getFrameRate() * microSeconds) / 1000000L);
     }
+    
+    public long getCurrentFramePosition() {
+        return framePos;
+    }
 }

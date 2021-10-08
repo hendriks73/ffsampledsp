@@ -72,7 +72,7 @@ public class FFAudioFileFormat extends AudioFileFormat {
         super(getAudioFileFormatType(url, codecId), getLength(url),
                 new FFAudioFormat(codecId, sampleRate, sampleSize, channels, packetSize,
                         determineFrameRate(codecId, sampleRate, frameRate), bigEndian, bitRate, vbr, encrypted),
-                        determineFrameLength(sampleRate, durationInMicroSeconds)
+                        determineFrameLength(determineFrameRate(codecId, sampleRate, frameRate), durationInMicroSeconds)
         );
         this.properties = new HashMap<java.lang.String,java.lang.Object>();
         if (durationInMicroSeconds > 0) this.properties.put("duration", durationInMicroSeconds);
@@ -90,12 +90,11 @@ public class FFAudioFileFormat extends AudioFileFormat {
         return -1;
     }
 
-    private static int determineFrameLength(final float sampleRate, final long durationInMicroSeconds) {
-        if (sampleRate * durationInMicroSeconds < 0) {
+    private static int determineFrameLength(final float frameRate, final long durationInMicroSeconds) {
+        if (frameRate * durationInMicroSeconds <= 0) {
             return AudioSystem.NOT_SPECIFIED;
-        }
-        else {
-            return (int) Math.round((sampleRate * (double)durationInMicroSeconds) / 1000000.0);
+        } else {
+            return (int) Math.round((frameRate * (double)durationInMicroSeconds) / 1000000.0);
         }
     }
 

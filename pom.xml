@@ -4,7 +4,7 @@
         <maven>3.0.5</maven>
     </prerequisites>
     <groupId>com.tagtraum</groupId>
-    <version>0.9.32</version>
+    <version>0.9.33-SNAPSHOT</version>
     <artifactId>ffsampledsp</artifactId>
     <packaging>pom</packaging>
     <name>FFSampledSP</name>
@@ -356,8 +356,8 @@
 
         <ccompiler>gcc</ccompiler>
         <!-- override with -D on commandline to pass additional flags, like -DDEBUG via the cflags property. E.g.: -->
-        <!-- <cflags>-DDEBUG</cflags> -->
-        <cflags />
+        <cflags>-DDEBUG</cflags>
+        <!-- <cflags /> -->
 
         <mingw.i386.path>/opt/local/bin</mingw.i386.path>
         <mingw.i386.crossprefix>i686-w64-mingw32-</mingw.i386.crossprefix>
@@ -394,7 +394,9 @@
         <!-- Custom JDK: -->
         <!-- <darwin.headers.jni>/Library/Java/JavaVirtualMachines/jdk1.8.0_66.jdk/Contents/Home/include/</darwin.headers.jni> -->
         <!-- Apple JDK: -->
-        <darwin.headers.jni>${isysroot}System/Library/Frameworks/JavaVM.framework/Headers</darwin.headers.jni>
+        <!-- <darwin.headers.jni>${isysroot}System/Library/Frameworks/JavaVM.framework/Headers</darwin.headers.jni> -->
+        <!-- Custom JDK: -->
+        <darwin.headers.jni>${env.JAVA_HOME}/include/</darwin.headers.jni>
 
         <!-- aliases, because of http://maven.apache.org/plugins/maven-site-plugin/examples/creating-content.html#Filtering -->
         <projectversion>${project.version}</projectversion>

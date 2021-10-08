@@ -1,3 +1,8 @@
+0.9.33
+
+- Change AudioFileFormat.getFrameLength() so that it reflects the correct number
+  of frames even for compressed formats.
+
 0.9.32
 
 - Detect and report 'drms'-files.

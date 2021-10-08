@@ -187,6 +187,7 @@ static jfloat get_frame_rate(AVStream *stream, jlong duration) {
     }
     if (stream->codecpar->frame_size > 0 && stream->codecpar->sample_rate > 0) {
         fprintf(stderr, "2 frame rate : %f\n", (jfloat)stream->codecpar->sample_rate/(jfloat)stream->codecpar->frame_size);
+        fprintf(stderr, "frame_size : %f, sample_rate : %f\n", (jfloat)stream->codecpar->frame_size, (jfloat)stream->codecpar->sample_rate);
     }
     if (stream->codecpar->frame_size == 0 && stream->codecpar->sample_rate > 0) {
         fprintf(stderr, "3 frame rate : %f\n", (jfloat)stream->codecpar->sample_rate);
@@ -278,6 +279,9 @@ static int create_ffaudiofileformats(JNIEnv *env, AVFormatContext *format_contex
             sample_size = stream->codecpar->bits_per_raw_sample
                 ? stream->codecpar->bits_per_raw_sample
                 : stream->codecpar->bits_per_coded_sample;
+            sample_size = sample_size <= 0
+                ? -1
+                : sample_size;
 
             encrypted = stream->codecpar->codec_tag == CODEC_TAG_DRMS;
 
@@ -289,7 +293,7 @@ static int create_ffaudiofileformats(JNIEnv *env, AVFormatContext *format_contex
                 fprintf(stderr, "format_context->packet_size         : %i\n", format_context->packet_size);
                 fprintf(stderr, "frames     : %" PRId64 "\n", stream->nb_frames);
                 fprintf(stderr, "sample_rate: %i\n", stream->codecpar->sample_rate);
-                fprintf(stderr, "sampleSize : %i\n", stream->codecpar->bits_per_coded_sample);
+                fprintf(stderr, "sampleSize : %i\n", sample_size);
                 fprintf(stderr, "channels   : %i\n", stream->codecpar->channels);
                 fprintf(stderr, "frame_size : %i\n", (int)frame_size);
                 fprintf(stderr, "codec_id   : %i\n", stream->codecpar->codec_id);

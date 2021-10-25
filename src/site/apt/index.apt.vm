@@ -9,12 +9,12 @@ Introduction
 
     <FFSampledSP> is a free service provider implementation of the
     {{{http://docs.oracle.com/javase/10/docs/api/javax/sound/sampled/spi/package-summary.html}javax.sound.sampled.spi}}
-    interfaces. It is part of the {{{http://www.tagtraum.com/sampledsp.html}SampledSP}} collection of
+    interfaces. It is part of the {{{https://www.tagtraum.com/sampledsp.html}SampledSP}} collection of
     <<<javax.sound.sampled>>> libraries.
 
     Its main purpose is to decode audio from various formats at high speed using
-    {{{http://www.ffmpeg.org}FFmpeg ${ffmpegversion}}.
-    To do so, it uses the {{{http://www.tagtraum.com/ffmpeg/}tagtraum FFmpeg package}}, which offers
+    {{{https://www.ffmpeg.org}FFmpeg ${ffmpegversion}}.
+    To do so, it uses the {{{https://www.tagtraum.com/ffmpeg/}tagtraum FFmpeg package}}, which offers
     FFmpeg binaries configured to decode audio while avoiding codecs with patent problems. In other words,
     it supports formats like OGG, FLAC, GSM, MP3... well, while leaving MPEG-4 unsupported.
     In order to decode those, please see {{{#Alternatives}alternatives}} below.
@@ -61,14 +61,14 @@ Introduction
 * Alternatives
 
     For a 32/64 bit service provider implementation for Windows 7 or later, based on Microsoft's Media Foundation,
-    check out {{{http://www.tagtraum.com/mfsampledsp/}MFSampledSP}}. This provider also supports a number of
+    check out {{{https://www.tagtraum.com/mfsampledsp/}MFSampledSP}}. This provider also supports a number of
     MPEG-4 formats (MP4, M4A, MOV, etc.) as well as MP3.
 
-    For a service provider based on Apple's CoreAudio, check out {{{http://www.tagtraum.com/casampledsp/}CASampledSP}}.
+    For a service provider based on Apple's CoreAudio, check out {{{https://www.tagtraum.com/casampledsp/}CASampledSP}}.
     This provider also supports many codecs with patent problems.
 
     For a cross platform (OS X/Windows) 32 bit service provider based on QuickTime, check out
-    {{{http://www.tagtraum.com/qtsampledsp/}QTSampledSP}}. Note that QuickTime has been deprecated.
+    {{{https://www.tagtraum.com/qtsampledsp/}QTSampledSP}}. Note that QuickTime has been deprecated.
     So it's probably not a good idea to start a project with it.
 
 
@@ -91,7 +91,7 @@ Introduction
     As far as I am aware, except for the abandoned <Jffmpeg>, all these wrappers require you to learn either
     the FFmpeg API or some other proprietary API.
     Contrary to this, you can use the familiar Java APIs when using <FFSampledSP> or other
-    {{{http://www.tagtraum.com/sampledsp.html}SampledSP}} libraries for decoding audio.
+    {{{https://www.tagtraum.com/sampledsp.html}SampledSP}} libraries for decoding audio.
 
 * FFmpeg Sources
 

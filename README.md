@@ -4,16 +4,16 @@
 
 *FFSampledSP* is an implementation of the
 [javax.sound.sampled](http://docs.oracle.com/javase/10/docs/api/javax/sound/sampled/spi/package-summary.html)
-service provider interfaces based on [FFmpeg](http://www.ffmpeg.org), a complete, cross-platform solution to record,
+service provider interfaces based on [FFmpeg](https://www.ffmpeg.org), a complete, cross-platform solution to record,
 convert and stream audio and video.
-FFSampledSP is part of the [SampledSP](http://www.tagtraum.com/sampledsp.html) collection of `javax.sound.sampled`
+FFSampledSP is part of the [SampledSP](https://www.tagtraum.com/sampledsp.html) collection of `javax.sound.sampled`
 libraries.
 
 Its main purpose is to decode audio files or streams to signed linear pcm.
 
-FFSampledSP makes use of the ["tagtraum FFmpeg package"](http://www.tagtraum.com/ffmpeg).
+FFSampledSP makes use of the ["tagtraum FFmpeg package"](https://www.tagtraum.com/ffmpeg).
 
-Binaries and more info can be found at its [tagtraum home](http://www.tagtraum.com/ffsampledsp/).
+Binaries and more info can be found at its [tagtraum home](https://www.tagtraum.com/ffsampledsp/).
 
 
 ## Build

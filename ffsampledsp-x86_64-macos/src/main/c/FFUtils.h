@@ -31,7 +31,7 @@
  * interfaces.
  * <br/>
  * Its main purpose is to decode audio from various formats at high speed.
- * FFSampledSP can support pretty much all formats supported by <a href="http://www.ffmpeg.org">FFmpeg</a>
+ * FFSampledSP can support pretty much all formats supported by <a href="https://www.ffmpeg.org">FFmpeg</a>
  * as support for them has been compiled into the used FFmpeg libs.
  * <br/>
  * This is the source documentation for the native part of the library. You can find the

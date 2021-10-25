@@ -476,7 +476,7 @@ public class TestFFURLInputStream {
     public void testNonExistingURL() throws UnsupportedAudioFileException, IOException {
         FFURLInputStream in = null;
         try {
-            in = new FFURLInputStream(new URL("http://www.tagtraum.com/hendrik/bcisdbvigfeir.wav"));
+            in = new FFURLInputStream(new URL("https://www.tagtraum.com/hendrik/bcisdbvigfeir.wav"));
             in.read(new byte[1024]);
         } finally {
             if (in != null) {

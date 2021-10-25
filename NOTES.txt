@@ -2,6 +2,8 @@
 
 - Change AudioFileFormat.getFrameLength() so that it reflects the correct number
   of frames even for compressed formats.
+- Updated some doc links to use HTTPS rather than HTTP
+
 
 0.9.32
 

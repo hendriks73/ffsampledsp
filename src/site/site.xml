@@ -18,13 +18,13 @@
     <googleAnalyticsAccountId>UA-7561371-2</googleAnalyticsAccountId>
     <bannerLeft>
         <name>FFSampledSP</name>
-        <href>http://www.tagtraum.com/ffsampledsp</href>
+        <href>https://www.tagtraum.com/ffsampledsp</href>
         <src>./images/ffsampledsp-banner.png</src>
         <width>400</width>
         <height>120</height>
     </bannerLeft>
     <bannerRight>
-        <href>http://www.tagtraum.com/</href>
+        <href>https://www.tagtraum.com/</href>
         <src>./images/tagtraum-banner.png</src>
         <width>90</width>
         <height>60</height>
@@ -35,9 +35,9 @@
             <link rel="icon" type="image/x-icon" href="../favicon.ico" />
         </head>
         <links>
-            <item name="tagtraum" href="http://www.tagtraum.com/"/>
+            <item name="tagtraum" href="https://www.tagtraum.com/"/>
             <item name="beaTunes" href="https://www.beatunes.com/"/>
-            <item name="FFmpeg" href="http://www.ffmpeg.org/"/>
+            <item name="FFmpeg" href="https://www.ffmpeg.org/"/>
         </links>
 
         <menu name="FFSampledSP">
@@ -46,7 +46,7 @@
             <item name="Stems" href="stems.html"/>
             <item name="JavaDocs" href="apidocs/index.html"/>
             <item name="C-Docs" href="doxygen/index.html"/>
-            <item name="FFmpeg" href="http://www.ffmpeg.org/"/>
+            <item name="FFmpeg" href="https://www.ffmpeg.org/"/>
         </menu>
         <menu ref="modules" />
         <menu ref="reports"/>

@@ -9,7 +9,7 @@
     <packaging>pom</packaging>
     <name>FFSampledSP</name>
     <description>FFmpeg based service provider for javax.sound.sampled.</description>
-    <url>http://www.tagtraum.com/ffsampledsp</url>
+    <url>https://www.tagtraum.com/ffsampledsp</url>
     <inceptionYear>2013</inceptionYear>
 
     <licenses>
@@ -22,7 +22,7 @@
 
     <organization>
         <name>tagtraum industries incorporated</name>
-        <url>http://www.tagtraum.com/</url>
+        <url>https://www.tagtraum.com/</url>
     </organization>
 
     <developers>
@@ -30,9 +30,9 @@
             <id>hendrik</id>
             <name>Hendrik Schreiber</name>
             <email>hs@tagtraum.com</email>
-            <url>http://www.tagtraum.com/</url>
+            <url>https://www.tagtraum.com/</url>
             <organization>tagtraum industries incorporated</organization>
-            <organizationUrl>http://www.tagtraum.com/</organizationUrl>
+            <organizationUrl>https://www.tagtraum.com/</organizationUrl>
             <roles>
                 <role>creator</role>
             </roles>

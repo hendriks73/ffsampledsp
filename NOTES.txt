@@ -9,7 +9,7 @@
 
 - Detect and report 'drms'-files.
 - Added channel count sanity check.
-- Expose "encypted" flag for DRM-crippled files in AudioFormat properties.
+- Expose "encrypted" flag for DRM-crippled files in AudioFormat properties.
 
 
 0.9.31

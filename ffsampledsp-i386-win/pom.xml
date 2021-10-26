@@ -3,7 +3,7 @@
     <parent>
         <groupId>com.tagtraum</groupId>
         <artifactId>ffsampledsp</artifactId>
-        <version>0.9.32</version>
+        <version>0.9.33-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>ffsampledsp-i386-win</artifactId>
@@ -33,6 +33,9 @@
     <properties>
         <arch>i386</arch>
         <host>win</host>
+        <target>WIN32</target>
+        <gcc.code>-m32</gcc.code>
+        <maven.javadoc.skip>true</maven.javadoc.skip>
     </properties>
 
     <build>
@@ -77,6 +80,7 @@
                 </executions>
             </plugin>
 
+
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>native-maven-plugin</artifactId>
@@ -84,16 +88,15 @@
                 <configuration>
 
                     <compilerProvider>generic</compilerProvider>
-                    <compilerExecutable>${mingw.i386.path}/${mingw.i386.crossprefix}${ccompiler}</compilerExecutable>
-                    <linkerExecutable>${mingw.i386.path}/${mingw.i386.crossprefix}${ccompiler}</linkerExecutable>
+                    <compilerExecutable>${ccompiler}</compilerExecutable>
+                    <linkerExecutable>${ccompiler}</linkerExecutable>
 
                     <compilerStartOptions>
-                        <compilerStartOption>${mingw.compiler.startoptions}</compilerStartOption>
+                        <compilerStartOption>${compiler.startoptions}</compilerStartOption>
                     </compilerStartOptions>
 
-                    <javahOS>win32</javahOS>
-                    <!-- point to windows JNI.h headers -->
-                    <jdkIncludePath>${mingw.headers.jni}</jdkIncludePath>
+                    <javahOS>${headers.os}</javahOS>
+                    <jdkIncludePath>${headers.jni}</jdkIncludePath>
 
                     <sources>
                         <source>
@@ -104,17 +107,16 @@
                         </source>
                         <!-- additional include path -->
                         <source>
-                            <!-- FFmpeg headers -->
+                            <directory>../ffsampledsp-java/target/native/include</directory>
                             <directory>${project.build.directory}/native/include</directory>
                         </source>
                     </sources>
 
                     <linkerStartOptions>
-                        <linkerStartOption>${mingw.linker.startoptions}</linkerStartOption>
+                        <linkerStartOption>${linker.startoptions}</linkerStartOption>
                     </linkerStartOptions>
-
                     <linkerEndOptions>
-                        <linkerEndOption>${mingw.linker.endoptions}</linkerEndOption>
+                        <linkerEndOption>${linker.endoptions}</linkerEndOption>
                     </linkerEndOptions>
                 </configuration>
 

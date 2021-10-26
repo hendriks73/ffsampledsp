@@ -61,6 +61,6 @@ mvn -Ddarwin.headers.jni=/Library/Java/JavaVirtualMachines/jdk1.8.0_66.jdk/Conte
     all supported platforms. In fact, the very same sources <are> compiled in the modules
     for other platforms.
 
-    <FFSampledSP> depends on {{{FFmpeg}http://www.ffmpeg.org/}} artifacts pulled from a Maven
+    <FFSampledSP> depends on {{{FFmpeg}https://www.ffmpeg.org/}} artifacts pulled from a Maven
     repository. The artifacts are pulled from <<<https://www.beatunes.com/repo/maven2>>> and
-    built by the upstream project {{{http://www.tagtraum.com/ffmpeg/}tagtraum FFmpegPackage}}.
+    built by the upstream project {{{https://www.tagtraum.com/ffmpeg/}tagtraum FFmpegPackage}}.

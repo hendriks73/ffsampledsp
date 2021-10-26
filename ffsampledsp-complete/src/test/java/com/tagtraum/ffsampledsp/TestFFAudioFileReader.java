@@ -20,6 +20,7 @@
  */
 package com.tagtraum.ffsampledsp;
 
+import org.junit.Assume;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -84,7 +85,7 @@ public class TestFFAudioFileReader {
 
             assertEquals("m4a", fileFormat.getType().getExtension());
             assertEquals(file.length(), fileFormat.getByteLength());
-            assertEquals(133632, fileFormat.getFrameLength());
+            assertEquals(33, fileFormat.getFrameLength());
 
             final AudioFormat format = fileFormat.getFormat();
             assertEquals(-1, format.getFrameSize());
@@ -113,11 +114,12 @@ public class TestFFAudioFileReader {
 
                 assertEquals("mp4", fileFormat.getType().getExtension());
                 assertEquals(file.length(), fileFormat.getByteLength());
-                assertEquals(133632, fileFormat.getFrameLength());
+                assertEquals(33, fileFormat.getFrameLength());
 
                 final AudioFormat format = fileFormat.getFormat();
                 assertEquals(-1, format.getFrameSize());
                 assertEquals(2, format.getChannels());
+                assertEquals(16, format.getSampleSizeInBits());
                 final Long duration = (Long) fileFormat.getProperty("duration");
                 assertNotNull(duration);
                 assertEquals(3030204, (long) duration);
@@ -140,9 +142,10 @@ public class TestFFAudioFileReader {
 
             assertEquals("mp3", fileFormat.getType().getExtension());
             assertEquals(file.length(), fileFormat.getByteLength());
-            assertEquals(134784, fileFormat.getFrameLength());
+            assertEquals(117, fileFormat.getFrameLength());
 
             final AudioFormat format = fileFormat.getFormat();
+            assertEquals(-1, format.getSampleSizeInBits());
             assertEquals(-1, format.getFrameSize());
             assertEquals(2, format.getChannels());
             final Long duration = (Long)fileFormat.getProperty("duration");
@@ -218,6 +221,7 @@ public class TestFFAudioFileReader {
 
             final AudioFormat format = fileFormat.getFormat();
             assertEquals(-1, format.getFrameSize());
+            assertEquals(16, format.getSampleSizeInBits());
             assertEquals(2, format.getChannels());
             final Long duration = (Long)fileFormat.getProperty("duration");
             assertNotNull(duration);
@@ -382,6 +386,7 @@ public class TestFFAudioFileReader {
 
     @Test
     public void testFileWithPunctuationToURL() throws MalformedURLException {
+        Assume.assumeTrue(File.separator.equals("/"));
         final File file = new File("/someDir/;:&=+@[]?/name.txt");
         final URL url = FFAudioFileReader.fileToURL(file);
         assertEquals("file:/someDir/;:&=+@[]?/name.txt", url.toString());

@@ -19,6 +19,7 @@
         <dependency>
             <groupId>com.tagtraum</groupId>
             <artifactId>ffmpeg-${arch}-${host}</artifactId>
+            <version>${ffmpeg.version}</version>
             <scope>provided</scope>
             <type>pom</type>
         </dependency>
@@ -34,6 +35,7 @@
     <properties>
         <arch>x86_64</arch>
         <host>macos</host>
+        <maven.javadoc.skip>true</maven.javadoc.skip>
     </properties>
 
     <build>
@@ -103,11 +105,11 @@
                     <compilerProvider>generic</compilerProvider>
 
                     <compilerStartOptions>
-                        <compilerStartOption>${darwin.compiler.startoptions}</compilerStartOption>
+                        <compilerStartOption>${compiler.startoptions}</compilerStartOption>
                     </compilerStartOptions>
 
-                    <javahOS>darwin</javahOS>
-                    <jdkIncludePath>${darwin.headers.jni}</jdkIncludePath>
+                    <javahOS>${headers.os}</javahOS>
+                    <jdkIncludePath>${headers.jni}</jdkIncludePath>
 
                     <sources>
                         <source>
@@ -118,19 +120,14 @@
                         </source>
                         <!-- additional include path -->
                         <source>
-                            <!-- FFmpeg headers -->
+                            <directory>../ffsampledsp-java/target/native/include</directory>
                             <directory>${project.build.directory}/native/include</directory>
                         </source>
                     </sources>
 
                     <linkerStartOptions>
-                        <linkerStartOption>${darwin.linker.startoptions}</linkerStartOption>
+                        <linkerStartOption>${linker.startoptions}</linkerStartOption>
                     </linkerStartOptions>
-
-                    <linkerEndOptions>
-                        <linkerEndOption>${darwin.linker.endoptions}</linkerEndOption>
-                    </linkerEndOptions>
-
                 </configuration>
 
             </plugin>

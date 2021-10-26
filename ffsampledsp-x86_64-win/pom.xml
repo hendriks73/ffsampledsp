@@ -18,6 +18,7 @@
         <dependency>
             <groupId>com.tagtraum</groupId>
             <artifactId>ffmpeg-${arch}-${host}</artifactId>
+            <version>${ffmpeg.version}</version>
             <type>pom</type>
             <scope>provided</scope>
         </dependency>
@@ -33,6 +34,9 @@
     <properties>
         <arch>x86_64</arch>
         <host>win</host>
+        <target>WIN64</target>
+        <gcc.code>-m64</gcc.code>
+        <maven.javadoc.skip>true</maven.javadoc.skip>
     </properties>
 
     <build>
@@ -83,38 +87,36 @@
                 <configuration>
 
                     <compilerProvider>generic</compilerProvider>
-                    <compilerExecutable>${mingw.x86_64.path}/${mingw.x86_64.crossprefix}${ccompiler}</compilerExecutable>
-                    <linkerExecutable>${mingw.x86_64.path}/${mingw.x86_64.crossprefix}${ccompiler}</linkerExecutable>
+                    <compilerExecutable>${ccompiler}</compilerExecutable>
+                    <linkerExecutable>${ccompiler}</linkerExecutable>
+
                     <compilerStartOptions>
-                        <compilerStartOption>${mingw.compiler.startoptions}</compilerStartOption>
+                        <compilerStartOption>${compiler.startoptions}</compilerStartOption>
                     </compilerStartOptions>
 
-                    <javahOS>win32</javahOS>
-                    <!-- point to windows JNI.h headers -->
-                    <jdkIncludePath>${mingw.headers.jni}</jdkIncludePath>
+                    <javahOS>${headers.os}</javahOS>
+                    <jdkIncludePath>${headers.jni}</jdkIncludePath>
 
                     <sources>
                         <source>
-                            <directory>../ffsampledsp-x86_64-macos/src/main/c</directory>
+                            <directory>src/main/c</directory>
                             <includes>
                                 <include>*.c</include>
                             </includes>
                         </source>
                         <!-- additional include path -->
                         <source>
-                            <!-- FFmpeg headers -->
+                            <directory>../ffsampledsp-java/target/native/include</directory>
                             <directory>${project.build.directory}/native/include</directory>
                         </source>
                     </sources>
 
                     <linkerStartOptions>
-                        <linkerStartOption>${mingw.linker.startoptions}</linkerStartOption>
+                        <linkerStartOption>${linker.startoptions}</linkerStartOption>
                     </linkerStartOptions>
-
                     <linkerEndOptions>
-                        <linkerEndOption>${mingw.linker.endoptions}</linkerEndOption>
+                        <linkerEndOption>${linker.endoptions}</linkerEndOption>
                     </linkerEndOptions>
-
                 </configuration>
 
             </plugin>

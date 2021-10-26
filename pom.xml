@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <prerequisites>
         <maven>3.0.5</maven>
@@ -42,9 +43,6 @@
 
     <modules>
         <module>ffsampledsp-java</module>
-        <module>ffsampledsp-i386-win</module>
-        <module>ffsampledsp-x86_64-macos</module>
-        <module>ffsampledsp-x86_64-win</module>
         <module>ffsampledsp-complete</module>
     </modules>
 
@@ -226,7 +224,7 @@
                                 <echo>This doxygen call may fail for modules without doxygen configuration.</echo>
                                 <echo>=====================================================================</echo>
                                 <exec dir="${basedir}" executable="doxygen" failonerror="false">
-                                    <arg line="${basedir}/src/main/doxygen/Doxyfile" />
+                                    <arg line="${basedir}/src/main/doxygen/Doxyfile"/>
                                 </exec>
                             </target>
                         </configuration>
@@ -334,7 +332,7 @@
         <connection>scm:git:git://github.com/hendriks73/ffsampledsp.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/hendriks73/ffsampledsp.git</developerConnection>
         <url>https://github.com/hendriks73/ffsampledsp/tree/master</url>
-      <tag>HEAD</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <issueManagement>
@@ -346,65 +344,151 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
+        <!-- override with -D on commandline to pass additional flags, like -DDEBUG via the cflags property -->
+        <!-- <cflags>-DDEBUG</cflags> -->
+        <cflags/>
+
+        <!-- alias, because of http://maven.apache.org/plugins/maven-site-plugin/examples/creating-content.html#Filtering -->
+        <projectversion>${project.version}</projectversion>
+        
+        <!-- overwritten by modules -->
         <arch>x86_64</arch>
         <host>macos</host>
-        <!-- For newer XCode versions: -->
-        <!-- <mmacosx-version-min>10.7</mmacosx-version-min> -->
-        <mmacosx-version-min>10.10</mmacosx-version-min>
-        <isysroot>/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/</isysroot>
         <ffmpeg.version>4.0.0</ffmpeg.version>
-
-        <ccompiler>gcc</ccompiler>
-        <!-- override with -D on commandline to pass additional flags, like -DDEBUG via the cflags property. E.g.: -->
-        <cflags>-DDEBUG</cflags>
-        <!-- <cflags /> -->
-
-        <mingw.i386.path>/opt/local/bin</mingw.i386.path>
-        <mingw.i386.crossprefix>i686-w64-mingw32-</mingw.i386.crossprefix>
-        <mingw.x86_64.path>/opt/local/bin</mingw.x86_64.path>
-        <mingw.x86_64.crossprefix>x86_64-w64-mingw32-</mingw.x86_64.crossprefix>
-        <mingw.headers.jni>/Users/hendrik/windows-jdk/include</mingw.headers.jni>
-
-        <!-- add -DDEBUG to enable standard out debug messages -->
-        <mingw.compiler.startoptions>${cflags} -Wall -x c -Wno-multichar -D_JNI_IMPLEMENTATION_</mingw.compiler.startoptions>
-        <mingw.linker.startoptions>-Wl,--kill-at -v -static-libgcc -shared -Os -s</mingw.linker.startoptions>
-        <mingw.linker.endoptions>-Wl,-Bstatic -lws2_32 -lsecur32 -lbcrypt</mingw.linker.endoptions>
-
-        <!-- add -DDEBUG to enable standard out debug messages -->
-        <darwin.compiler.startoptions>${cflags} -Wall -x c -arch ${arch} -fmessage-length=0 -pipe -Wno-trigraphs
-            -fpascal-strings -fasm-blocks -Os -isysroot ${isysroot}
-            -mmacosx-version-min=${mmacosx-version-min}
-        </darwin.compiler.startoptions>
-
-        <darwin.linker.startoptions>-arch ${arch} -dynamiclib -isysroot ${isysroot}
-            -mmacosx-version-min=${mmacosx-version-min}
-            -framework CoreFoundation
-            -framework CoreMedia
-            -framework CoreVideo
-            -framework VideoToolbox
-            -framework AudioToolbox
-            -framework Security
-            -single_module
-            -compatibility_version 1
-            -current_version 1
-            -read_only_relocs suppress
-        </darwin.linker.startoptions>
-
-        <darwin.linker.endoptions />
-        <!-- Custom JDK: -->
-        <!-- <darwin.headers.jni>/Library/Java/JavaVirtualMachines/jdk1.8.0_66.jdk/Contents/Home/include/</darwin.headers.jni> -->
-        <!-- Apple JDK: -->
-        <!-- <darwin.headers.jni>${isysroot}System/Library/Frameworks/JavaVM.framework/Headers</darwin.headers.jni> -->
-        <!-- Custom JDK: -->
-        <darwin.headers.jni>${env.JAVA_HOME}/include/</darwin.headers.jni>
-
-        <!-- aliases, because of http://maven.apache.org/plugins/maven-site-plugin/examples/creating-content.html#Filtering -->
-        <projectversion>${project.version}</projectversion>
-        <ffmpegversion>${ffmpeg.version}}</ffmpegversion>
-
     </properties>
 
     <profiles>
+        <!-- Windows-specific Config 32 bit-->
+        <profile>
+            <!-- must be explicitly activated! -->
+            <id>platform-win-x86</id>
+            <modules>
+                <module>ffsampledsp-i386-win</module>
+            </modules>
+            <build>
+                <plugins>
+                    <plugin>
+                        <!--
+                        We are building this on a x86_64 with a i386
+                        toolchain. Because of this mismatch we cannot
+                        test the native code and skip testing
+                        altogether.
+                        -->
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <skipTests>true</skipTests>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+            <properties>
+                <target>WIN32</target>
+                <gcc.code>-m32</gcc.code>
+
+                <ccompiler>gcc</ccompiler>
+                <headers.jni>${env.JAVA_HOME}/include/</headers.jni>
+                <headers.os>win32</headers.os>
+                <compiler.startoptions>${cflags} ${gcc.code} -DTARGET_OS_${target} -Wall -x c -Wno-multichar -D_JNI_IMPLEMENTATION_ -O3</compiler.startoptions>
+                <linker.startoptions>${gcc.code} -Wl,--kill-at -Wl,--allow-multiple-definition -static-libgcc -shared -s</linker.startoptions>
+                <linker.endoptions>-Wl,-Bstatic -lws2_32 -lsecur32 -lbcrypt</linker.endoptions>
+            </properties>
+        </profile>
+
+        <!-- Windows-specific Config 64 bit-->
+        <profile>
+            <!-- must be explicitly activated! -->
+            <id>platform-win-x64</id>
+            <modules>
+                <module>ffsampledsp-x86_64-win</module>
+            </modules>
+            <properties>
+                <target>WIN64</target>
+                <gcc.code>-m64</gcc.code>
+
+                <ccompiler>gcc</ccompiler>
+                <headers.jni>${env.JAVA_HOME}/include/</headers.jni>
+                <headers.os>win32</headers.os>
+                <compiler.startoptions>${cflags} ${gcc.code} -DTARGET_OS_${target} -Wall -x c -Wno-multichar -D_JNI_IMPLEMENTATION_ -O3</compiler.startoptions>
+                <linker.startoptions>${gcc.code} -Wl,--kill-at -Wl,--allow-multiple-definition -static-libgcc -shared -s</linker.startoptions>
+                <linker.endoptions>-Wl,-Bstatic -lws2_32 -lsecur32 -lbcrypt</linker.endoptions>
+            </properties>
+        </profile>
+
+        <!-- Mac-specific Config -->
+        <profile>
+            <id>platform-mac</id>
+            <activation>
+                <os>
+                    <family>mac</family>
+                </os>
+            </activation>
+            <modules>
+                <module>ffsampledsp-x86_64-macos</module>
+                <!-- <module>ffsampledsp-aarch64-macos</module> -->
+            </modules>
+            <properties>
+                <!-- will be overwritten by aarch64 sub-module -->
+                <arch>x86_64</arch>
+                <isysroot>
+                    /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/
+                </isysroot>
+                <mmacosx-version-min>10.8</mmacosx-version-min>
+                <headers.jni>${env.JAVA_HOME}/include/</headers.jni>
+                <headers.os>darwin</headers.os>
+                <!-- add -DDEBUG to enable standard out debug messages -->
+                <compiler.startoptions>${cflags} -DTARGET_OS_MAC
+                    -arch ${arch} -fmessage-length=0
+                    -pipe -Wno-trigraphs -fpascal-strings -fasm-blocks
+                    -O3 -Wunused-variable -isysroot ${isysroot}
+                    -mmacosx-version-min=${mmacosx-version-min} -Wmost
+                    -Wno-four-char-constants -Wno-unknown-pragmas
+                    -I/System/Library/Frameworks/JavaVM.framework/Headers
+                </compiler.startoptions>
+                <linker.startoptions>
+                    -arch ${arch}
+                    -dynamiclib
+                    -isysroot ${isysroot}
+                    -mmacosx-version-min=${mmacosx-version-min}
+                    -framework CoreFoundation
+                    -framework CoreMedia
+                    -framework CoreVideo
+                    -framework VideoToolbox
+                    -framework AudioToolbox
+                    -framework Security
+                    -single_module
+                    -compatibility_version 1
+                    -current_version 1
+                    -read_only_relocs suppress
+                </linker.startoptions>
+            </properties>
+        </profile>
+
+        <!-- Linux-specific Config -->
+        <profile>
+            <id>platform-linux</id>
+            <activation>
+                <os>
+                    <family>unix</family>
+                    <name>!mac os x</name>
+                </os>
+            </activation>
+            <modules>
+                <module>ffsampledsp-x86_64-unix</module>
+            </modules>
+            <properties>
+                <gcc.code>-m64</gcc.code>
+
+                <ccompiler>gcc</ccompiler>
+                <headers.jni>${env.JAVA_HOME}/include/</headers.jni>
+                <headers.os>linux</headers.os>
+                <compiler.startoptions>${cflags} ${gcc.code} -fPIC -Wall -x c -Wno-multichar -D_JNI_IMPLEMENTATION_ -O3</compiler.startoptions>
+                <linker.startoptions>${gcc.code} -Wl,--allow-multiple-definition -shared -s</linker.startoptions>
+                <!-- <linker.endoptions>-lws2_32</linker.endoptions> -->
+                <linker.endoptions/>
+            </properties>
+        </profile>
+
         <profile>
             <id>release</id>
             <activation>
@@ -442,5 +526,5 @@
             </build>
         </profile>
     </profiles>
-    
+
 </project>

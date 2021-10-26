@@ -14,27 +14,6 @@
     <dependencies>
         <dependency>
             <groupId>com.tagtraum</groupId>
-            <artifactId>ffsampledsp-i386-win</artifactId>
-            <version>${project.version}</version>
-            <type>dll</type>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.tagtraum</groupId>
-            <artifactId>ffsampledsp-x86_64-macos</artifactId>
-            <version>${project.version}</version>
-            <type>dylib</type>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.tagtraum</groupId>
-            <artifactId>ffsampledsp-x86_64-win</artifactId>
-            <version>${project.version}</version>
-            <type>dll</type>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.tagtraum</groupId>
             <artifactId>ffsampledsp-java</artifactId>
             <scope>provided</scope>
         </dependency>
@@ -54,106 +33,68 @@
                 <artifactId>build-helper-maven-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>attach-artifacts</id>
-                        <phase>package</phase>
+                        <id>add-source</id>
+                        <phase>generate-sources</phase>
                         <goals>
-                            <goal>attach-artifact</goal>
+                            <goal>add-source</goal>
                         </goals>
                         <configuration>
-                            <artifacts>
-                                <artifact>
-                                    <file>${project.build.directory}/ffsampledsp-java-${project.version}-javadoc.jar</file>
-                                    <classifier>javadoc</classifier>
-                                    <type>jar</type>
-                                </artifact>
-                                <artifact>
-                                    <file>${project.build.directory}/ffsampledsp-java-${project.version}-sources.jar</file>
-                                    <type>jar</type>
-                                    <classifier>sources</classifier>
-                                </artifact>
-                            </artifacts>
+                            <sources>
+                                <source>${project.build.directory}/upstream-sources/</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>add-resource</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>add-resource</goal>
+                        </goals>
+                        <configuration>
+                            <resources>
+                                <resource>
+                                    <filtering>true</filtering>
+                                    <directory>${project.build.directory}/upstream-resources/</directory>
+                                </resource>
+                            </resources>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
-            
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
+                <artifactId>maven-resources-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>unpack</id>
+                        <id>upstream-sources</id>
                         <phase>generate-sources</phase>
                         <goals>
-                            <goal>unpack</goal>
+                            <goal>copy-resources</goal>
                         </goals>
                         <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>com.tagtraum</groupId>
-                                    <artifactId>ffsampledsp-java</artifactId>
-                                    <version>${project.version}</version>
-                                    <type>jar</type>
-                                    <overWrite>true</overWrite>
-                                    <outputDirectory>${project.build.directory}/classes</outputDirectory>
-                                    <excludes>META-INF/maven/com.tagtraum/ffsampledsp-java/**</excludes>
-                                </artifactItem>
-                            </artifactItems>
+                            <outputDirectory>${project.build.directory}/upstream-sources/</outputDirectory>
+                            <overwrite>true</overwrite>
+                            <resources>
+                                <resource>
+                                    <directory>../ffsampledsp-java/src/main/java/</directory>
+                                </resource>
+                            </resources>
                         </configuration>
                     </execution>
                     <execution>
-                        <id>copy</id>
-                        <phase>generate-sources</phase>
+                        <id>upstream-resources</id>
+                        <phase>generate-resources</phase>
                         <goals>
-                            <goal>copy</goal>
+                            <goal>copy-resources</goal>
                         </goals>
                         <configuration>
-                            <artifactItems>
-                                
-                                <artifactItem>
-                                    <groupId>com.tagtraum</groupId>
-                                    <artifactId>ffsampledsp-i386-win</artifactId>
-                                    <version>${project.version}</version>
-                                    <type>dll</type>
-                                    <overWrite>true</overWrite>
-                                    <outputDirectory>${project.build.directory}/classes</outputDirectory>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>com.tagtraum</groupId>
-                                    <artifactId>ffsampledsp-x86_64-macos</artifactId>
-                                    <version>${project.version}</version>
-                                    <type>dylib</type>
-                                    <overWrite>true</overWrite>
-                                    <outputDirectory>${project.build.directory}/classes</outputDirectory>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>com.tagtraum</groupId>
-                                    <artifactId>ffsampledsp-x86_64-win</artifactId>
-                                    <version>${project.version}</version>
-                                    <type>dll</type>
-                                    <overWrite>true</overWrite>
-                                    <outputDirectory>${project.build.directory}/classes</outputDirectory>
-                                </artifactItem>
-
-                                <artifactItem>
-                                    <groupId>com.tagtraum</groupId>
-                                    <artifactId>ffsampledsp-java</artifactId>
-                                    <version>${project.version}</version>
-                                    <type>jar</type>
-                                    <classifier>sources</classifier>
-                                    <overWrite>true</overWrite>
-                                    <outputDirectory>${project.build.directory}</outputDirectory>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>com.tagtraum</groupId>
-                                    <artifactId>ffsampledsp-java</artifactId>
-                                    <version>${project.version}</version>
-                                    <type>jar</type>
-                                    <classifier>javadoc</classifier>
-                                    <overWrite>true</overWrite>
-                                    <outputDirectory>${project.build.directory}</outputDirectory>
-                                </artifactItem>
-                            </artifactItems>
+                            <outputDirectory>${project.build.directory}/upstream-resources/</outputDirectory>
+                            <overwrite>true</overwrite>
+                            <resources>
+                                <resource>
+                                    <directory>../ffsampledsp-java/src/main/resources/</directory>
+                                </resource>
+                            </resources>
                         </configuration>
                     </execution>
                 </executions>
@@ -161,4 +102,281 @@
         </plugins>
     </build>
 
+    <profiles>
+
+        <!-- Mac-specific Config -->
+        <profile>
+            <id>platform-mac</id>
+            <activation>
+                <os>
+                    <family>mac</family>
+                </os>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>com.tagtraum</groupId>
+                    <artifactId>ffsampledsp-x86_64-macos</artifactId>
+                    <version>${project.version}</version>
+                    <type>dylib</type>
+                    <scope>provided</scope>
+                </dependency>
+                <!--
+                <dependency>
+                    <groupId>com.tagtraum</groupId>
+                    <artifactId>ffsampledsp-aarch64-macos</artifactId>
+                    <version>${project.version}</version>
+                    <type>dylib</type>
+                    <scope>provided</scope>
+                </dependency>
+                -->
+            </dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>copy</id>
+                                <phase>generate-sources</phase>
+                                <goals>
+                                    <goal>copy</goal>
+                                </goals>
+                                <configuration>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>com.tagtraum</groupId>
+                                            <artifactId>ffsampledsp-x86_64-macos</artifactId>
+                                            <version>${project.version}</version>
+                                            <type>dylib</type>
+                                            <overWrite>true</overWrite>
+                                            <outputDirectory>${project.build.directory}/classes</outputDirectory>
+                                        </artifactItem>
+                                        <!--
+                                        <artifactItem>
+                                            <groupId>com.tagtraum</groupId>
+                                            <artifactId>ffsampledsp-aarch64-macos</artifactId>
+                                            <version>${project.version}</version>
+                                            <type>dylib</type>
+                                            <overWrite>true</overWrite>
+                                            <outputDirectory>${project.build.directory}/classes</outputDirectory>
+                                        </artifactItem>
+                                        -->
+                                    </artifactItems>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!-- Unix-specific Config -->
+        <profile>
+            <id>platform-linux</id>
+            <activation>
+                <os>
+                    <family>unix</family>
+                    <name>!mac os x</name>
+                </os>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>com.tagtraum</groupId>
+                    <artifactId>ffsampledsp-x86_64-unix</artifactId>
+                    <version>${project.version}</version>
+                    <type>so</type>
+                    <scope>provided</scope>
+                </dependency>
+            </dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>copy</id>
+                                <phase>generate-sources</phase>
+                                <goals>
+                                    <goal>copy</goal>
+                                </goals>
+                                <configuration>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>com.tagtraum</groupId>
+                                            <artifactId>ffsampledsp-x86_64-unix</artifactId>
+                                            <version>${project.version}</version>
+                                            <type>so</type>
+                                            <overWrite>true</overWrite>
+                                            <outputDirectory>${project.build.directory}/classes</outputDirectory>
+                                        </artifactItem>
+                                    </artifactItems>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!-- Windows-specific Config 32 bit-->
+        <profile>
+            <!-- must be explicitly activated! -->
+            <id>platform-win-x86</id>
+            <dependencies>
+                <dependency>
+                    <groupId>com.tagtraum</groupId>
+                    <artifactId>ffsampledsp-i386-win</artifactId>
+                    <version>${project.version}</version>
+                    <type>dll</type>
+                    <scope>provided</scope>
+                </dependency>
+            </dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>copy</id>
+                                <phase>generate-sources</phase>
+                                <goals>
+                                    <goal>copy</goal>
+                                </goals>
+                                <configuration>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>com.tagtraum</groupId>
+                                            <artifactId>ffsampledsp-i386-win</artifactId>
+                                            <version>${project.version}</version>
+                                            <type>dll</type>
+                                            <overWrite>true</overWrite>
+                                            <outputDirectory>${project.build.directory}/classes</outputDirectory>
+                                        </artifactItem>
+                                    </artifactItems>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!-- Windows-specific Config 64 bit-->
+        <profile>
+            <!-- must be explicitly activated! -->
+            <id>platform-win-x64</id>
+            <dependencies>
+                <dependency>
+                    <groupId>com.tagtraum</groupId>
+                    <artifactId>ffsampledsp-x86_64-win</artifactId>
+                    <version>${project.version}</version>
+                    <type>dll</type>
+                    <scope>provided</scope>
+                </dependency>
+            </dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>copy</id>
+                                <phase>generate-sources</phase>
+                                <goals>
+                                    <goal>copy</goal>
+                                </goals>
+                                <configuration>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>com.tagtraum</groupId>
+                                            <artifactId>ffsampledsp-x86_64-win</artifactId>
+                                            <version>${project.version}</version>
+                                            <type>dll</type>
+                                            <overWrite>true</overWrite>
+                                            <outputDirectory>${project.build.directory}/classes</outputDirectory>
+                                        </artifactItem>
+                                    </artifactItems>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!-- release profile -->
+        <profile>
+            <!-- must be explicitly activated! -->
+            <id>release</id>
+            <activation>
+                <property>
+                    <name>performRelease</name>
+                    <value>true</value>
+                </property>
+            </activation>
+            <dependencies>
+                <!-- Mac -->
+                <dependency>
+                    <groupId>com.tagtraum</groupId>
+                    <artifactId>ffsampledsp-x86_64-macos</artifactId>
+                    <version>${project.version}</version>
+                    <type>dylib</type>
+                    <scope>provided</scope>
+                </dependency>
+                <!--
+                <dependency>
+                    <groupId>com.tagtraum</groupId>
+                    <artifactId>ffsampledsp-aarch64-macos</artifactId>
+                    <version>${project.version}</version>
+                    <type>dylib</type>
+                    <scope>provided</scope>
+                </dependency>
+                -->
+            </dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>copy</id>
+                                <phase>generate-sources</phase>
+                                <goals>
+                                    <goal>copy</goal>
+                                </goals>
+                                <configuration>
+                                    <artifactItems>
+                                        <!-- Mac -->
+                                        <artifactItem>
+                                            <groupId>com.tagtraum</groupId>
+                                            <artifactId>ffsampledsp-x86_64-macos</artifactId>
+                                            <version>${project.version}</version>
+                                            <type>dylib</type>
+                                            <overWrite>true</overWrite>
+                                            <outputDirectory>${project.build.directory}/classes</outputDirectory>
+                                        </artifactItem>
+                                        <!--
+                                        <artifactItem>
+                                            <groupId>com.tagtraum</groupId>
+                                            <artifactId>ffsampledsp-aarch64-macos</artifactId>
+                                            <version>${project.version}</version>
+                                            <type>dylib</type>
+                                            <overWrite>true</overWrite>
+                                            <outputDirectory>${project.build.directory}/classes</outputDirectory>
+                                        </artifactItem>
+                                        -->
+                                    </artifactItems>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>    
 </project>

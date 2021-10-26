@@ -1,0 +1,288 @@
+name: Deploy
+
+# NOTE
+# secrets.OSSRH_GPG_SECRET_KEY was created with
+#    gpg --export-secret-keys -a <key-id> > secret.txt
+# then all newlines were replaced with literal '\n'
+# see also https://gist.github.com/sualeh/ae78dc16123899d7942bc38baba5203c
+
+
+# README
+# This script
+#  - builds native libs for the supported platforms (except macOS)
+#  - uploads the native libs as GitHub artifacts
+#  - deploys the native libs to Sonatype
+#  - downloads all native libs artifacts
+#  - injects the artifacts into the macOS build (-> complete)
+#  - deploys the all macOS products
+
+on:
+  push:
+    branches:
+      - main
+
+
+jobs:
+
+  windows-x64-build:
+
+    runs-on: windows-2019
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: mingw64
+          install: mingw-w64-x86_64-toolchain
+          path-type: inherit
+
+      - id: install-secret-key
+        name: Install gpg secret key
+        run: |
+          cat <(echo -e "${{ secrets.OSSRH_GPG_SECRET_KEY }}") | gpg --batch --import
+          gpg --list-secret-keys --keyid-format LONG
+
+      - uses: actions/checkout@v2
+
+      - name: Set up publication to Maven Central
+        uses: actions/setup-java@v1
+        with:
+          java-version: 9
+          architecture: x64
+          server-id: ossrh
+          server-username: MAVEN_USERNAME
+          server-password: MAVEN_PASSWORD
+
+# use cache to transport artifacts to the next job
+      - uses: actions/cache@v1
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Build/test code with Maven
+        run: |
+          which mvn
+          mvn --activate-profiles platform-win-x64 --batch-mode install --file pom.xml
+
+      - run: mkdir nativelibs && cp ffsampledsp-x86_64-win/target/*.dll nativelibs
+      - uses: actions/upload-artifact@v2
+        with:
+          name: nativelibs-x64-win
+          path: nativelibs
+          retention-days: 1
+
+      - id: publish-native-lib-to-central
+        name: Publish to Central Repository
+        env:
+          MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
+          GPG_TTY: $(tty)
+        run: |
+          mvn \
+            --projects ffsampledsp-x86_64-win \
+            --no-transfer-progress \
+            --batch-mode \
+            -Dgpg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }} \
+            --activate-profiles release,platform-win-x64 \
+            --file pom.xml \
+            deploy
+
+  windows-x86-build:
+
+    runs-on: windows-2019
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: mingw32
+          install: mingw-w64-i686-toolchain
+          path-type: inherit
+
+      - id: install-secret-key
+        name: Install gpg secret key
+        run: |
+          cat <(echo -e "${{ secrets.OSSRH_GPG_SECRET_KEY }}") | gpg --batch --import
+          gpg --list-secret-keys --keyid-format LONG
+
+      - uses: actions/checkout@v2
+
+      - name: Set up publication to Maven Central
+        uses: actions/setup-java@v1
+        with:
+          java-version: 9
+          architecture: x64
+          server-id: ossrh
+          server-username: MAVEN_USERNAME
+          server-password: MAVEN_PASSWORD
+
+      # use cache to transport artifacts to the next job
+      - uses: actions/cache@v1
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Build/test code with Maven
+        run: |
+          which mvn
+          mvn --activate-profiles platform-win-x86 --batch-mode install --file pom.xml
+
+      - run: mkdir nativelibs && cp ffsampledsp-i386-win/target/*.dll nativelibs
+      - uses: actions/upload-artifact@v2
+        with:
+          name: nativelibs-x86-win
+          path: nativelibs
+          retention-days: 1
+
+      - id: publish-native-lib-to-central
+        name: Publish to Central Repository
+        env:
+          MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
+          GPG_TTY: $(tty)
+        run: |
+          mvn \
+            --projects ffsampledsp-i386-win \
+            --no-transfer-progress \
+            --batch-mode \
+            -Dgpg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }} \
+            --activate-profiles release,platform-win-x86 \
+            --file pom.xml \
+            deploy
+
+
+#  linux-build:
+#
+#    runs-on: ubuntu-20.04
+#
+#    steps:
+#      - uses: actions/checkout@v2
+#
+#      - id: install-secret-key
+#        name: Install gpg secret key
+#        run: |
+#          cat <(echo -e "${{ secrets.OSSRH_GPG_SECRET_KEY }}") | gpg --batch --import
+#          gpg --list-secret-keys --keyid-format LONG
+#
+#      - name: Set up publication to Maven Central
+#        uses: actions/setup-java@v1
+#        with:
+#          java-version: 9
+#          architecture: x64
+#          server-id: ossrh
+#          server-username: MAVEN_USERNAME
+#          server-password: MAVEN_PASSWORD
+#
+## use cache to transport artifacts to the next job
+#      - uses: actions/cache@v1
+#        with:
+#          path: ~/.m2/repository
+#          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+#          restore-keys: |
+#            ${{ runner.os }}-maven-
+#
+#      - name: Build/test code with Maven
+#        run: mvn --batch-mode install --file pom.xml
+#
+#      - run: mkdir nativelibs && cp ffsampledsp-x86_64-unix/target/*.so nativelibs
+#      - uses: actions/upload-artifact@v2
+#        with:
+#          name: nativelibs-x86-unix
+#          path: nativelibs
+#          retention-days: 1
+#
+#      - id: publish-native-lib-to-central
+#        name: Publish to Central Repository
+#        env:
+#          MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+#          MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
+#          GPG_TTY: $(tty)
+#        run: |
+#          mvn \
+#            --projects ffsampledsp-x86_64-unix \
+#            --no-transfer-progress \
+#            --batch-mode \
+#            -Dgpg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }} \
+#            --activate-profiles release,platform-linux \
+#            --file pom.xml  \
+#            deploy
+
+
+  macos-build:
+
+    needs: [windows-x86-build, windows-x64-build ]
+    runs-on: macos-10.15
+
+    steps:
+      - id: install-secret-key
+        name: Install gpg secret key
+        run: |
+          cat <(echo -e "${{ secrets.OSSRH_GPG_SECRET_KEY }}") | gpg --batch --import
+          gpg --list-secret-keys --keyid-format LONG
+
+      - uses: actions/checkout@v2
+
+      - name: Set up publication to Maven Central
+        uses: actions/setup-java@v1
+        with:
+          java-version: 9
+          architecture: x64
+          server-id: ossrh
+          server-username: MAVEN_USERNAME
+          server-password: MAVEN_PASSWORD
+
+# use cache to transport (in this case read) artifacts from prior
+      - uses: actions/cache@v1
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: create target/classes for ffsampledsp-complete
+        run: mkdir -p ffsampledsp-complete/target/classes/
+
+      - name: Get Linux native lib
+        uses: actions/download-artifact@v2
+        with:
+          name: nativelibs-x86-unix
+          path: ffsampledsp-complete/target/classes/
+
+      - name: Get Windows x86 native lib
+        uses: actions/download-artifact@v2
+        with:
+          name: nativelibs-x86-win
+          path: ffsampledsp-complete/target/classes/
+
+      - name: Get Windows x64 native lib
+        uses: actions/download-artifact@v2
+        with:
+          name: nativelibs-x64-win
+          path: ffsampledsp-complete/target/classes/
+
+      - id: publish-to-central
+        name: Publish to Central Repository
+        env:
+          MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
+          GPG_TTY: $(tty)
+        run: |
+          mvn \
+            --no-transfer-progress \
+            --batch-mode \
+            -Dgpg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }} \
+            --activate-profiles release \
+            deploy --file pom.xml
+
+      # deploy javadocs to github pages
+      - name: Deploy Javadocs to GitHub Pages Branch
+        uses: JamesIves/github-pages-deploy-action@4.1.5
+        with:
+          branch: gh-pages
+          folder: ffsampledsp-complete/target/apidocs/

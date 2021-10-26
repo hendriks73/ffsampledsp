@@ -20,6 +20,7 @@
  */
 package com.tagtraum.ffsampledsp;
 
+import org.junit.Assume;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -385,6 +386,7 @@ public class TestFFAudioFileReader {
 
     @Test
     public void testFileWithPunctuationToURL() throws MalformedURLException {
+        Assume.assumeTrue(File.separator.equals("/"));
         final File file = new File("/someDir/;:&=+@[]?/name.txt");
         final URL url = FFAudioFileReader.fileToURL(file);
         assertEquals("file:/someDir/;:&=+@[]?/name.txt", url.toString());

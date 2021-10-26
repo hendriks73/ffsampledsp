@@ -37,6 +37,9 @@ jobs:
           install: mingw-w64-x86_64-toolchain
           path-type: inherit
 
+      - name: Set up Doxygen
+        run: pacman -S mingw-w64-x86_64-doxygen
+
       - id: install-secret-key
         name: Install gpg secret key
         run: |
@@ -102,6 +105,9 @@ jobs:
           msystem: mingw32
           install: mingw-w64-i686-toolchain
           path-type: inherit
+
+      - name: Set up Doxygen
+        run: pacman -S mingw-w64-x86_64-doxygen
 
       - id: install-secret-key
         name: Install gpg secret key
@@ -220,6 +226,9 @@ jobs:
     runs-on: macos-10.15
 
     steps:
+      - name: Set up Doxygen
+        run: brew install doxygen
+
       - id: install-secret-key
         name: Install gpg secret key
         run: |
@@ -248,11 +257,11 @@ jobs:
       - name: create target/classes for ffsampledsp-complete
         run: mkdir -p ffsampledsp-complete/target/classes/
 
-      - name: Get Linux native lib
-        uses: actions/download-artifact@v2
-        with:
-          name: nativelibs-x86-unix
-          path: ffsampledsp-complete/target/classes/
+#      - name: Get Linux native lib
+#        uses: actions/download-artifact@v2
+#        with:
+#          name: nativelibs-x86-unix
+#          path: ffsampledsp-complete/target/classes/
 
       - name: Get Windows x86 native lib
         uses: actions/download-artifact@v2

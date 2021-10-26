@@ -99,7 +99,7 @@
 
                     <sources>
                         <source>
-                            <directory>src/main/c</directory>
+                            <directory>../ffsampledsp-x86_64-macos/src/main/c</directory>
                             <includes>
                                 <include>*.c</include>
                             </includes>

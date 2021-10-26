@@ -150,6 +150,16 @@
             <plugins>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-enforcer-plugin</artifactId>
+                    <version>3.0.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>0.8.6</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>2.19</version>
                 </plugin>
@@ -285,7 +295,27 @@
                     </execution>
                 </executions>
             </plugin>
-
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <executions>
+                    <!-- Prepares the property pointing to the JaCoCo runtime agent
+                    which is passed as VM argument when Maven the Surefire plugin is executed. -->
+                    <execution>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <!-- Ensures that the code coverage report is created after
+                    all tests have been run. -->
+                    <execution>
+                        <id>generate-report</id>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
@@ -331,7 +361,7 @@
     <scm>
         <connection>scm:git:git://github.com/hendriks73/ffsampledsp.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/hendriks73/ffsampledsp.git</developerConnection>
-        <url>https://github.com/hendriks73/ffsampledsp/tree/master</url>
+        <url>https://github.com/hendriks73/ffsampledsp/tree/main</url>
         <tag>HEAD</tag>
     </scm>
 

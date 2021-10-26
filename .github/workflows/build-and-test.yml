@@ -23,6 +23,9 @@ jobs:
         java: [ 9, 11, 15, 17 ]
 
     steps:
+      - name: Set up Doxygen
+        run: brew install doxygen
+
       - uses: actions/checkout@v2
       - name: Set up Java
         uses: actions/setup-java@v1
@@ -73,6 +76,9 @@ jobs:
           path-type: inherit
 
       - uses: actions/checkout@v2
+
+      - name: Set up Doxygen
+        run: pacman -S mingw-w64-x86_64-doxygen
 
       - name: Set up Java
         uses: actions/setup-java@v1

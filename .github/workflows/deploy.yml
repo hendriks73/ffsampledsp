@@ -169,7 +169,7 @@ jobs:
 
     steps:
       - name: Set up Doxygen
-        run: apt-get install -y doxygen
+        run: sudo apt-get install -y doxygen
 
       - uses: actions/checkout@v2
 

@@ -42,6 +42,23 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <configuration>
+                            <target>
+                                <mkdir dir="${project.build.directory}/classes" />
+                            </target>
+                        </configuration>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -57,10 +74,19 @@
                             <artifactItems>
                                 <artifactItem>
                                     <groupId>com.tagtraum</groupId>
-                                    <artifactId>ffmpeg</artifactId>
+                                    <artifactId>ffmpeg-${arch}-${host}</artifactId>
+                                    <version>${ffmpeg.version}</version>
+                                    <type>jar</type>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                                    <includes>**/*.a</includes>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>com.tagtraum</groupId>
+                                    <artifactId>ffmpeg-${arch}-${host}</artifactId>
                                     <version>${ffmpeg.version}</version>
                                     <type>tar.bz2</type>
-                                    <classifier>sources-${arch}-${host}</classifier>
+                                    <classifier>ffmpeg-sources</classifier>
                                     <overWrite>true</overWrite>
                                     <outputDirectory>${project.build.directory}/native/include</outputDirectory>
                                     <includes>**/*.h</includes>
@@ -78,10 +104,8 @@
                             </artifactItems>
                         </configuration>
                     </execution>
-
                 </executions>
             </plugin>
-
 
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>

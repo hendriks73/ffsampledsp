@@ -1,6 +1,7 @@
 - 0.9.34
   - Added support for macOS aarch64 (arm64) 
   - Added support for Linux x86_64
+  - Moved to FFmpeg 4.0.2
 
 
 - 0.9.33

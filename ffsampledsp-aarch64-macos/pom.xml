@@ -6,10 +6,11 @@
         <version>0.9.34-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <artifactId>ffsampledsp-x86_64-win</artifactId>
-    <packaging>dll</packaging>
-    <name>FFSampledSP Native Library Windows (64bit)</name>
-    <description>Windows 64bit binary library for FFSampledSP compiled via MinGW.</description>
+    <artifactId>ffsampledsp-aarch64-macos</artifactId>
+    <packaging>dylib</packaging>
+    <name>FFSampledSP Native Library macOS (aarch64)</name>
+    <description>Darwin aarch64/arm64 binary library for FFSampledSP.</description>
+
     <dependencies>
         <dependency>
             <groupId>com.tagtraum</groupId>
@@ -20,27 +21,43 @@
             <artifactId>ffmpeg-${arch}-${host}</artifactId>
             <version>${ffmpeg.version}</version>
             <scope>provided</scope>
-            <type>pom</type>
         </dependency>
         <dependency>
             <groupId>com.tagtraum</groupId>
-            <artifactId>ffmpeg</artifactId>
+            <artifactId>ffmpeg-${arch}-${host}</artifactId>
+            <version>${ffmpeg.version}</version>
             <type>tar.bz2</type>
-            <classifier>sources-${arch}-${host}</classifier>
+            <classifier>ffmpeg-sources</classifier>
             <scope>provided</scope>
         </dependency>
     </dependencies>
 
     <properties>
-        <arch>x86_64</arch>
-        <host>win</host>
-        <target>WIN64</target>
-        <gcc.code>-m64</gcc.code>
+        <arch>aarch64</arch>
+        <host>macos</host>
         <maven.javadoc.skip>true</maven.javadoc.skip>
     </properties>
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <configuration>
+                            <target>
+                                <mkdir dir="${project.build.directory}/classes" />
+                            </target>
+                        </configuration>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
@@ -55,10 +72,19 @@
                             <artifactItems>
                                 <artifactItem>
                                     <groupId>com.tagtraum</groupId>
-                                    <artifactId>ffmpeg</artifactId>
+                                    <artifactId>ffmpeg-${arch}-${host}</artifactId>
+                                    <version>${ffmpeg.version}</version>
+                                    <type>jar</type>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                                    <includes>**/*.a</includes>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>com.tagtraum</groupId>
+                                    <artifactId>ffmpeg-${arch}-${host}</artifactId>
                                     <version>${ffmpeg.version}</version>
                                     <type>tar.bz2</type>
-                                    <classifier>sources-${arch}-${host}</classifier>
+                                    <classifier>ffmpeg-sources</classifier>
                                     <overWrite>true</overWrite>
                                     <outputDirectory>${project.build.directory}/native/include</outputDirectory>
                                     <includes>**/*.h</includes>
@@ -76,7 +102,6 @@
                             </artifactItems>
                         </configuration>
                     </execution>
-
                 </executions>
             </plugin>
 
@@ -87,8 +112,6 @@
                 <configuration>
 
                     <compilerProvider>generic</compilerProvider>
-                    <compilerExecutable>${ccompiler}</compilerExecutable>
-                    <linkerExecutable>${ccompiler}</linkerExecutable>
 
                     <compilerStartOptions>
                         <compilerStartOption>${compiler.startoptions}</compilerStartOption>

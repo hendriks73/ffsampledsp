@@ -19,6 +19,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
+        jarch: [ aarch64, x86_64 ]
         os: [ macos-10.15, macos-latest ]
         java: [ 9, 11, 15, 17 ]
 
@@ -42,13 +43,13 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: Build/test code with Maven
-        run: mvn -B install --file pom.xml
+        run: mvn -P ffsampledsp-${{ matrix.jarch }}-macos
 
       - name: Upload CodeCov Report
         uses: codecov/codecov-action@v2
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-        if: matrix.os == 'macos-10.15' && matrix.java == 9
+        if: matrix.os == 'macos-10.15' && matrix.java == 9 && matrix.jarch == x86_64
 
 
   windows-build:
@@ -60,11 +61,14 @@ jobs:
         java: [ 9, 11, 15, 17 ]
         include:
           - arch: x64
+            jarch: x86_64
             sys: mingw64
             env: x86_64
           - arch: x86
+            jarch: i386
             sys: mingw32
             env: i686
+
     defaults:
       run:
         shell: msys2 {0}
@@ -95,8 +99,7 @@ jobs:
 
       - name: Build/test code with Maven
         run: |
-          which mvn
-          mvn -P platform-win-${{ matrix.arch }} -B install --file pom.xml
+          mvn -P ffsampledsp-${{ matrix.jarch }}-win -B install --file pom.xml
 
 
 #  linux-build:

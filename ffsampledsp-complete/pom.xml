@@ -3,7 +3,7 @@
     <parent>
         <groupId>com.tagtraum</groupId>
         <artifactId>ffsampledsp</artifactId>
-        <version>0.9.33-SNAPSHOT</version>
+        <version>0.9.34-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>ffsampledsp-complete</artifactId>
@@ -16,13 +16,6 @@
             <groupId>com.tagtraum</groupId>
             <artifactId>ffsampledsp-java</artifactId>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.tagtraum</groupId>
-            <artifactId>ffmpeg</artifactId>
-            <version>${ffmpeg.version}</version>
-            <type>tar.bz2</type>
-            <classifier>sources</classifier>
         </dependency>
     </dependencies>
 
@@ -106,7 +99,7 @@
 
         <!-- Mac-specific Config -->
         <profile>
-            <id>platform-mac</id>
+            <id>ffsampledsp-x86_64-macos</id>
             <activation>
                 <os>
                     <family>mac</family>
@@ -119,6 +112,13 @@
                     <version>${project.version}</version>
                     <type>dylib</type>
                     <scope>provided</scope>
+                </dependency>
+                <dependency>
+                    <groupId>com.tagtraum</groupId>
+                    <artifactId>ffmpeg-x86_64-macos</artifactId>
+                    <version>${ffmpeg.version}</version>
+                    <type>tar.bz2</type>
+                    <classifier>ffmpeg-sources</classifier>
                 </dependency>
                 <!--
                 <dependency>
@@ -173,7 +173,7 @@
 
         <!-- Unix-specific Config -->
         <profile>
-            <id>platform-linux</id>
+            <id>ffsampledsp-x86_64-unix</id>
             <activation>
                 <os>
                     <family>unix</family>
@@ -223,7 +223,7 @@
         <!-- Windows-specific Config 32 bit-->
         <profile>
             <!-- must be explicitly activated! -->
-            <id>platform-win-x86</id>
+            <id>ffsampledsp-i386-win</id>
             <dependencies>
                 <dependency>
                     <groupId>com.tagtraum</groupId>
@@ -267,7 +267,7 @@
         <!-- Windows-specific Config 64 bit-->
         <profile>
             <!-- must be explicitly activated! -->
-            <id>platform-win-x64</id>
+            <id>ffsampledsp-x86_64-win</id>
             <dependencies>
                 <dependency>
                     <groupId>com.tagtraum</groupId>

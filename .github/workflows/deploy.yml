@@ -68,7 +68,7 @@ jobs:
       - name: Build/test code with Maven
         run: |
           which mvn
-          mvn --activate-profiles platform-win-x64 --batch-mode install --file pom.xml
+          mvn --activate-profiles ffsampledsp-x86_64-win --batch-mode install --file pom.xml
 
       - run: mkdir nativelibs && cp ffsampledsp-x86_64-win/target/*.dll nativelibs
       - uses: actions/upload-artifact@v2
@@ -89,9 +89,10 @@ jobs:
             --no-transfer-progress \
             --batch-mode \
             -Dgpg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }} \
-            --activate-profiles release,platform-win-x64 \
+            --activate-profiles release,ffsampledsp-x86_64-win \
             --file pom.xml \
             deploy
+
 
   windows-x86-build:
 
@@ -137,7 +138,7 @@ jobs:
       - name: Build/test code with Maven
         run: |
           which mvn
-          mvn --activate-profiles platform-win-x86 --batch-mode install --file pom.xml
+          mvn --activate-profiles ffsampledsp-i386-win --batch-mode install --file pom.xml
 
       - run: mkdir nativelibs && cp ffsampledsp-i386-win/target/*.dll nativelibs
       - uses: actions/upload-artifact@v2
@@ -158,7 +159,7 @@ jobs:
             --no-transfer-progress \
             --batch-mode \
             -Dgpg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }} \
-            --activate-profiles release,platform-win-x86 \
+            --activate-profiles release,ffsampledsp-i386-win \
             --file pom.xml \
             deploy
 
@@ -215,14 +216,73 @@ jobs:
 #            --no-transfer-progress \
 #            --batch-mode \
 #            -Dgpg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }} \
-#            --activate-profiles release,platform-linux \
+#            --activate-profiles release,ffsampledsp-x86_64-unix \
 #            --file pom.xml  \
 #            deploy
+
+  macos-aarch64-build:
+
+    runs-on: macos-10.15
+
+    steps:
+      - name: Set up Doxygen
+        run: brew install doxygen
+
+      - id: install-secret-key
+        name: Install gpg secret key
+        run: |
+          cat <(echo -e "${{ secrets.OSSRH_GPG_SECRET_KEY }}") | gpg --batch --import
+          gpg --list-secret-keys --keyid-format LONG
+
+      - uses: actions/checkout@v2
+
+      - name: Set up publication to Maven Central
+        uses: actions/setup-java@v1
+        with:
+          java-version: 9
+          architecture: x64
+          server-id: ossrh
+          server-username: MAVEN_USERNAME
+          server-password: MAVEN_PASSWORD
+
+      # use cache to transport (in this case read) artifacts from prior
+      - uses: actions/cache@v1
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Build/test code with Maven
+        run: mvn --batch-mode install --file pom.xml
+
+      - run: mkdir nativelibs && cp ffsampledsp-aarch64-macos/target/*.dylib nativelibs
+      - uses: actions/upload-artifact@v2
+        with:
+          name: nativelibs-aarch64-macos
+          path: nativelibs
+          retention-days: 1
+
+      - id: publish-to-central
+        name: Publish to Central Repository
+        env:
+          MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
+          GPG_TTY: $(tty)
+        run: |
+          mvn \
+            --projects ffsampledsp-aarch64-macos \
+            --no-transfer-progress \
+            --batch-mode \
+            -Dgpg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }} \
+            --activate-profiles release,ffsampledsp-aarch64-macos \
+            --file pom.xml \
+            deploy
 
 
   macos-build:
 
-    needs: [windows-x86-build, windows-x64-build ]
+    needs: [ windows-x86-build, windows-x64-build, macos-aarch64-build ]
     runs-on: macos-10.15
 
     steps:
@@ -263,6 +323,12 @@ jobs:
 #          name: nativelibs-x86-unix
 #          path: ffsampledsp-complete/target/classes/
 
+      - name: Get macOS aarch64 native lib
+        uses: actions/download-artifact@v2
+        with:
+          name: nativelibs-aarch64-macos
+          path: ffsampledsp-complete/target/classes/
+
       - name: Get Windows x86 native lib
         uses: actions/download-artifact@v2
         with:
@@ -286,7 +352,7 @@ jobs:
             --no-transfer-progress \
             --batch-mode \
             -Dgpg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }} \
-            --activate-profiles release \
+            --activate-profiles release,ffsampledsp-x86_64-macos \
             deploy --file pom.xml
 
       # deploy javadocs to github pages

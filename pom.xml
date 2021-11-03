@@ -5,7 +5,7 @@
         <maven>3.0.5</maven>
     </prerequisites>
     <groupId>com.tagtraum</groupId>
-    <version>0.9.33-SNAPSHOT</version>
+    <version>0.9.34-SNAPSHOT</version>
     <artifactId>ffsampledsp</artifactId>
     <packaging>pom</packaging>
     <name>FFSampledSP</name>
@@ -384,14 +384,14 @@
         <!-- overwritten by modules -->
         <arch>x86_64</arch>
         <host>macos</host>
-        <ffmpeg.version>4.0.0</ffmpeg.version>
+        <ffmpeg.version>4.0.1</ffmpeg.version>
     </properties>
 
     <profiles>
         <!-- Windows-specific Config 32 bit-->
         <profile>
             <!-- must be explicitly activated! -->
-            <id>platform-win-x86</id>
+            <id>ffsampledsp-i386-win</id>
             <modules>
                 <module>ffsampledsp-i386-win</module>
             </modules>
@@ -428,7 +428,7 @@
         <!-- Windows-specific Config 64 bit-->
         <profile>
             <!-- must be explicitly activated! -->
-            <id>platform-win-x64</id>
+            <id>ffsampledsp-x86_64-win</id>
             <modules>
                 <module>ffsampledsp-x86_64-win</module>
             </modules>
@@ -445,14 +445,10 @@
             </properties>
         </profile>
 
-        <!-- Mac-specific Config -->
+        <!-- Mac-specific Config x86_64 -->
         <profile>
-            <id>platform-mac</id>
-            <activation>
-                <os>
-                    <family>mac</family>
-                </os>
-            </activation>
+            <!-- must be explicitly activated! -->
+            <id>ffsampledsp-x86_64-macos</id>
             <modules>
                 <module>ffsampledsp-x86_64-macos</module>
                 <!-- <module>ffsampledsp-aarch64-macos</module> -->
@@ -491,18 +487,77 @@
                     -current_version 1
                     -read_only_relocs suppress
                 </linker.startoptions>
+                <linker.endoptions>-L${project.build.directory}/lib -lavformat -lavcodec -lavutil -lswresample -lz -lbz2</linker.endoptions>
+            </properties>
+        </profile>
+
+        <!-- Mac-specific Config arm64/aarch64 -->
+        <profile>
+            <!-- must be explicitly activated! -->
+            <id>ffsampledsp-aarch64-macos</id>
+            <modules>
+                <module>ffsampledsp-aarch64-macos</module>
+            </modules>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <!--
+                        We are building this on a x86_64 with a arm64
+                        toolchain. Because of this mismatch we cannot
+                        test the native code and skip testing
+                        altogether.
+                        -->
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <skipTests>true</skipTests>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+
+            <properties>
+                <arch>aarch64</arch>
+                <isysroot>
+                    /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/
+                </isysroot>
+                <mmacosx-version-min>10.8</mmacosx-version-min>
+                <headers.jni>${env.JAVA_HOME}/include/</headers.jni>
+                <headers.os>darwin</headers.os>
+                <!-- add -DDEBUG to enable standard out debug messages -->
+                <compiler.startoptions>${cflags} -DTARGET_OS_MAC
+                    -arch arm64 -fmessage-length=0
+                    -pipe -Wno-trigraphs -fpascal-strings -fasm-blocks
+                    -O3 -Wunused-variable -isysroot ${isysroot}
+                    -mmacosx-version-min=${mmacosx-version-min} -Wmost
+                    -Wno-four-char-constants -Wno-unknown-pragmas
+                    -I/System/Library/Frameworks/JavaVM.framework/Headers
+                </compiler.startoptions>
+                <linker.startoptions>
+                    -arch arm64
+                    -dynamiclib
+                    -isysroot ${isysroot}
+                    -mmacosx-version-min=${mmacosx-version-min}
+                    -framework CoreFoundation
+                    -framework CoreMedia
+                    -framework CoreVideo
+                    -framework VideoToolbox
+                    -framework AudioToolbox
+                    -framework Security
+                    -single_module
+                    -compatibility_version 1
+                    -current_version 1
+                    -read_only_relocs suppress
+                </linker.startoptions>
+                <linker.endoptions>-L${project.build.directory}/lib -lavformat -lavcodec -lavutil -lswresample -lz -lbz2</linker.endoptions>
             </properties>
         </profile>
 
         <!-- Linux-specific Config -->
         <profile>
-            <id>platform-linux</id>
-            <activation>
-                <os>
-                    <family>unix</family>
-                    <name>!mac os x</name>
-                </os>
-            </activation>
+            <!-- must be explicitly activated! -->
+            <id>ffsampledsp-x86_64-unix</id>
             <modules>
                 <module>ffsampledsp-x86_64-unix</module>
             </modules>
@@ -515,7 +570,7 @@
                 <compiler.startoptions>${cflags} ${gcc.code} -fPIC -Wall -x c -Wno-multichar -D_JNI_IMPLEMENTATION_ -O3</compiler.startoptions>
                 <linker.startoptions>${gcc.code} -Wl,--allow-multiple-definition -shared -s</linker.startoptions>
                 <!-- <linker.endoptions>-lws2_32</linker.endoptions> -->
-                <linker.endoptions/>
+                <linker.endoptions>-L${project.build.directory}/lib -lavformat -lavcodec -lavutil -lswresample -lz -lbz2</linker.endoptions>
             </properties>
         </profile>
 

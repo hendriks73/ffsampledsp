@@ -440,7 +440,7 @@
                 <headers.os>win32</headers.os>
                 <compiler.startoptions>${cflags} ${gcc.code} -DTARGET_OS_${target} -Wall -x c -Wno-multichar -D_JNI_IMPLEMENTATION_ -O3</compiler.startoptions>
                 <linker.startoptions>${gcc.code} -Wl,--kill-at -Wl,--allow-multiple-definition -static-libgcc -shared -s</linker.startoptions>
-                <linker.endoptions>-Wl,-Bstatic -L${project.build.directory}/lib -lavformat -lavcodec -lavutil -lswresample -lz -lbz2 -lws2_32 -lsecur32 -lbcrypt -llzma</linker.endoptions>
+                <linker.endoptions>-Wl,-Bstatic -L${project.build.directory}\lib -lavformat -lavcodec -lavutil -lswresample -lz -lbz2 -lws2_32 -lsecur32 -lbcrypt -llzma</linker.endoptions>
                 <doxygen>doxygen</doxygen>
             </properties>
         </profile>
@@ -461,7 +461,7 @@
                 <headers.os>win32</headers.os>
                 <compiler.startoptions>${cflags} ${gcc.code} -DTARGET_OS_${target} -Wall -x c -Wno-multichar -D_JNI_IMPLEMENTATION_ -O3</compiler.startoptions>
                 <linker.startoptions>${gcc.code} -Wl,--kill-at -Wl,--allow-multiple-definition -static-libgcc -shared -s</linker.startoptions>
-                <linker.endoptions>-Wl,-Bstatic -L${project.build.directory}/lib -lavformat -lavcodec -lavutil -lswresample -lz -lbz2  -lws2_32 -lsecur32 -lbcrypt -llzma</linker.endoptions>
+                <linker.endoptions>-Wl,-Bstatic -L${project.build.directory}\lib -lavformat -lavcodec -lavutil -lswresample -lz -lbz2  -lws2_32 -lsecur32 -lbcrypt -llzma</linker.endoptions>
                 <doxygen>doxygen</doxygen>
             </properties>
         </profile>
@@ -589,9 +589,9 @@
                 <headers.jni>${env.JAVA_HOME}/include/</headers.jni>
                 <headers.os>linux</headers.os>
                 <compiler.startoptions>${cflags} ${gcc.code} -fPIC -Wall -x c -Wno-multichar -D_JNI_IMPLEMENTATION_ -O3</compiler.startoptions>
-                <linker.startoptions>${gcc.code} -Wl,--allow-multiple-definition -shared -s</linker.startoptions>
+                <linker.startoptions>${gcc.code} -Wl,--allow-multiple-definition -static-libgcc -shared -s</linker.startoptions>
                 <!-- <linker.endoptions>-lws2_32</linker.endoptions> -->
-                <linker.endoptions>-no-pie -static -L${project.build.directory}/lib -lavformat -lavcodec -lavutil -lswresample</linker.endoptions>
+                <linker.endoptions>-Wl,-Bstatic -L${project.build.directory}/lib -lavformat -lavcodec -lavutil -lswresample</linker.endoptions>
             </properties>
         </profile>
 

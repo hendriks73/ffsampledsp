@@ -7,7 +7,7 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>ffsampledsp-x86_64-unix</artifactId>
-    <packaging>dylib</packaging>
+    <packaging>so</packaging>
     <name>FFSampledSP Native Library unix (64bit)</name>
     <description>Unix 64bit binary library for FFSampledSP.</description>
 

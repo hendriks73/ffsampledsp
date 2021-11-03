@@ -103,28 +103,32 @@ jobs:
           mvn -P ffsampledsp-${{ matrix.jarch }}-win --no-transfer-progress --batch-mode  install --file pom.xml
 
 
-#  linux-build:
-#
-#    runs-on: ${{ matrix.os }}
-#    strategy:
-#      matrix:
-#        os: [ ubuntu-18.04, ubuntu-latest ]
-#        java: [ 9, 11, 15, 17 ]
-#
-#    steps:
-#      - uses: actions/checkout@v2
-#      - name: Set up Java
-#        uses: actions/setup-java@v1
-#        with:
-#          java-version: ${{ matrix.java }}
-#
-#      # cache maven repo for faster builds
-#      - uses: actions/cache@v1
-#        with:
-#          path: ~/.m2/repository
-#          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-#          restore-keys: |
-#            ${{ runner.os }}-maven-
-#
-#      - name: Build/test code with Maven
-#        run: mvn --no-transfer-progress --batch-mode  install --file pom.xml
+  linux-build:
+
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ ubuntu-18.04, ubuntu-latest ]
+        java: [ 9, 11, 15, 17 ]
+        arch: [ x64 ]
+        include:
+          - arch: x64
+            jarch: x86_64
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Java
+        uses: actions/setup-java@v1
+        with:
+          java-version: ${{ matrix.java }}
+
+      # cache maven repo for faster builds
+      - uses: actions/cache@v1
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Build/test code with Maven
+        run: mvn -P ffsampledsp-${{ matrix.jarch }}-unix --no-transfer-progress --batch-mode  install --file pom.xml

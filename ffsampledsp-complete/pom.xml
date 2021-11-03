@@ -153,7 +153,7 @@
             <dependencies>
                 <dependency>
                     <groupId>com.tagtraum</groupId>
-                    <artifactId>ffsampledsp-x86_64-macos</artifactId>
+                    <artifactId>ffsampledsp-aarch64-macos</artifactId>
                     <version>${project.version}</version>
                     <type>dylib</type>
                     <scope>provided</scope>

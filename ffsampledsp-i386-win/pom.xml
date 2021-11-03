@@ -10,6 +10,7 @@
     <packaging>dll</packaging>
     <name>FFSampledSP Native Library Windows (32bit)</name>
     <description>Windows 32bit binary library for FFSampledSP compiled via MinGW.</description>
+
     <dependencies>
         <dependency>
             <groupId>com.tagtraum</groupId>
@@ -20,13 +21,13 @@
             <artifactId>ffmpeg-${arch}-${host}</artifactId>
             <version>${ffmpeg.version}</version>
             <scope>provided</scope>
-            <type>pom</type>
         </dependency>
         <dependency>
             <groupId>com.tagtraum</groupId>
-            <artifactId>ffmpeg</artifactId>
+            <artifactId>ffmpeg-${arch}-${host}</artifactId>
+            <version>${ffmpeg.version}</version>
             <type>tar.bz2</type>
-            <classifier>sources-${arch}-${host}</classifier>
+            <classifier>ffmpeg-sources</classifier>
             <scope>provided</scope>
         </dependency>
     </dependencies>

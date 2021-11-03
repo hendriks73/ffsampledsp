@@ -108,7 +108,7 @@ jobs:
           path-type: inherit
 
       - name: Set up Doxygen
-        run: pacman --noconfirm -S mingw-w64-x86_64-doxygen
+        run: pacman --noconfirm -S mingw-w64-i686-doxygen
 
       - id: install-secret-key
         name: Install gpg secret key

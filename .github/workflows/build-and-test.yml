@@ -84,10 +84,7 @@ jobs:
 
       - name: Set up Doxygen
         run: |
-          pacman --noconfirm --verbose -S mingw-w64-x86_64-doxygen
-          which doxygen
-          which doxygen.exe
-          doxygen --help
+          pacman --noconfirm -S mingw-w64-${{ matrix.env}}-doxygen
 
       - name: Set up Java
         uses: actions/setup-java@v1

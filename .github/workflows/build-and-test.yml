@@ -116,6 +116,9 @@ jobs:
             jarch: x86_64
 
     steps:
+      - name: Set up Doxygen
+        run: apt-get install -y doxygen
+        
       - uses: actions/checkout@v2
       - name: Set up Java
         uses: actions/setup-java@v1

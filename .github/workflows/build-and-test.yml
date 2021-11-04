@@ -102,8 +102,8 @@ jobs:
 
       - name: Build/test code with Maven
         run: |
-          ls -lah C:\hostedtoolcache\windows\jdk\15.0.5\
-          echo $JAVA_HOME
+          dir C:\hostedtoolcache\windows\jdk\15.0.5\
+          echo %JAVA_HOME%
           mvn -P ffsampledsp-${{ matrix.jarch }}-win --no-transfer-progress --batch-mode  install --file pom.xml
 
 

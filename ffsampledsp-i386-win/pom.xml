@@ -80,6 +80,7 @@
                                     <overWrite>true</overWrite>
                                     <outputDirectory>${project.build.directory}/lib</outputDirectory>
                                     <includes>**/*.a</includes>
+                                    <excludes>**/libbz2.a</excludes>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>com.tagtraum</groupId>

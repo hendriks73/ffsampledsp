@@ -116,7 +116,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ ubuntu-18.04, ubuntu-latest ]
+        os: [ ubuntu-latest ]
         java: [ 9, 11, 15, 17 ]
         arch: [ x64 ]
         include:
@@ -146,4 +146,4 @@ jobs:
 
       - name: Print lib dir
         if: always()
-        run: ls -la /home/runner/work/ffsampledsp/ffsampledsp/ffsampledsp-x86_64-unix/target/lib
+        run: ls -la ffsampledsp-${{ matrix.jarch }}-win/target/lib

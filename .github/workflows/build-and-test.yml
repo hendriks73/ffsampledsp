@@ -116,7 +116,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ ubuntu-latest ]
+        os: [ ubuntu-18.04, ubuntu-latest ]
         java: [ 9, 11, 15, 17 ]
         arch: [ x64 ]
         include:

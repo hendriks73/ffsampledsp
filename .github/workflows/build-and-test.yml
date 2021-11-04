@@ -107,8 +107,8 @@ jobs:
       - name: Print lib/include dir
         if: always()
         run: |
-          ls -la D:/a/ffsampledsp/ffsampledsp/ffsampledsp-i386-win/target/lib
-          ls -la D:/a/ffsampledsp/ffsampledsp/ffsampledsp-i386-win/target/native/include
+          ls -la ffsampledsp-i386-win\\target\\lib
+          ls -la ffsampledsp-i386-win\\target\\native\\include
 
 
   linux-build:

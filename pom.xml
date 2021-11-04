@@ -591,7 +591,7 @@
                 <compiler.startoptions>${cflags} ${gcc.code} -fPIC -Wall -x c -Wno-multichar -D_JNI_IMPLEMENTATION_ -O3</compiler.startoptions>
                 <linker.startoptions>${gcc.code} -Wl,--allow-multiple-definition -static-libgcc -shared -s</linker.startoptions>
                 <!-- <linker.endoptions>-lws2_32</linker.endoptions> -->
-                <linker.endoptions>-Wl,-Bstatic -L${project.build.directory}/lib -lavformat -lavcodec -lavutil -lswresample</linker.endoptions>
+                <linker.endoptions>-Wl,-Bstatic -L${project.build.directory}/lib -lavformat -lavcodec -lavutil -lswresample -lz -lbz2</linker.endoptions>
             </properties>
         </profile>
 

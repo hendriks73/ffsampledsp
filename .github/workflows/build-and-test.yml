@@ -104,6 +104,12 @@ jobs:
         run: |
           mvn -P ffsampledsp-${{ matrix.jarch }}-win --no-transfer-progress --batch-mode  install --file pom.xml
 
+      - name: Print lib/include dir
+        if: always()
+        run: |
+          ls -la D:/a/ffsampledsp/ffsampledsp/ffsampledsp-i386-win/target/lib
+          ls -la D:/a/ffsampledsp/ffsampledsp/ffsampledsp-i386-win/target/native/include
+
 
   linux-build:
 

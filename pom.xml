@@ -587,7 +587,7 @@
                 <headers.jni>${env.JAVA_HOME}/include/</headers.jni>
                 <headers.os>linux</headers.os>
                 <compiler.startoptions>${cflags} ${gcc.code} -fPIC -Wall -x c -Wno-multichar -D_JNI_IMPLEMENTATION_ -O3</compiler.startoptions>
-                <linker.startoptions>-v ${gcc.code} -Wl,--kill-at -shared -s</linker.startoptions>
+                <linker.startoptions>-v ${gcc.code} -shared -s</linker.startoptions>
                 <linker.endoptions>-L${project.build.directory}/lib -lavformat -lavcodec -lavutil -lswresample -lz -lbz2</linker.endoptions>
             </properties>
         </profile>

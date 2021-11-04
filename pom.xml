@@ -112,7 +112,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.10.3</version>
+                <version>3.3.1</version>
                 <reportSets>
                     <reportSet>
                         <reports>
@@ -134,9 +134,6 @@
                     <verbose>true</verbose>
                     <doctitle>FFSampledSP ${project.version} API</doctitle>
                     <windowtitle>FFSampledSP ${project.version} API</windowtitle>
-                    <links>
-                        <link>http://docs.oracle.com/javase/10/docs/api/</link>
-                    </links>
                 </configuration>
             </plugin>
         </plugins>
@@ -188,7 +185,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
-                    <version>2.10.3</version>
+                    <version>3.3.1</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -305,9 +302,6 @@
                     <verbose>true</verbose>
                     <doctitle>FFSampledSP ${project.version} API</doctitle>
                     <windowtitle>FFSampledSP ${project.version} API</windowtitle>
-                    <links>
-                        <link>http://docs.oracle.com/javase/10/docs/api/</link>
-                    </links>
                 </configuration>
                 <executions>
                     <execution>

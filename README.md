@@ -16,6 +16,12 @@ libraries.
 Its main purpose is to decode audio files or streams to signed
 [linear PCM](https://en.wikipedia.org/wiki/Pulse-code_modulation).
 
+Supported platforms are currently:
+
+- macOS x64 (>=10.8) and aarch64 (>=11)
+- Windows i686 and x64
+- Linux (Ubuntu 18) x64
+
 FFSampledSP makes use of the [tagtraum FFmpeg package](https://www.tagtraum.com/ffmpeg).
 
 Binaries and more info can be found at its [tagtraum home](https://www.tagtraum.com/ffsampledsp/).
@@ -76,7 +82,7 @@ public class DecodeExample {
 
 ## Build
 
-You can build this library locally on macOS or Windows.
+You can build this library locally on macOS, Windows, or Linux (Ubuntu is tested).
 When doing so, only the appropriate  native libraries are included in the "complete" jar.
 The GitHub-based build also adds native libraries for other platforms.
 

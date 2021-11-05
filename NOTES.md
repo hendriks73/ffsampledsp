@@ -1,3 +1,7 @@
+- 0.9.35 - 0.9.36
+  - Battling deployment issues 
+
+ 
 - 0.9.34
   - Added support for macOS aarch64 (arm64) 
   - Added support for Linux x86_64

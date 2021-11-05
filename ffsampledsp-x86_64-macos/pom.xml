@@ -3,7 +3,7 @@
     <parent>
         <groupId>com.tagtraum</groupId>
         <artifactId>ffsampledsp</artifactId>
-        <version>0.9.33</version>
+        <version>0.9.34</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>ffsampledsp-x86_64-macos</artifactId>
@@ -21,13 +21,13 @@
             <artifactId>ffmpeg-${arch}-${host}</artifactId>
             <version>${ffmpeg.version}</version>
             <scope>provided</scope>
-            <type>pom</type>
         </dependency>
         <dependency>
             <groupId>com.tagtraum</groupId>
-            <artifactId>ffmpeg</artifactId>
+            <artifactId>ffmpeg-${arch}-${host}</artifactId>
+            <version>${ffmpeg.version}</version>
             <type>tar.bz2</type>
-            <classifier>sources-${arch}-${host}</classifier>
+            <classifier>ffmpeg-sources</classifier>
             <scope>provided</scope>
         </dependency>
     </dependencies>
@@ -60,6 +60,29 @@
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>upstream-sources</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/native</outputDirectory>
+                            <overwrite>true</overwrite>
+                            <resources>
+                                <resource>
+                                    <directory>../ffsampledsp-java/target/native/</directory>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
                     <execution>
@@ -72,22 +95,21 @@
                             <artifactItems>
                                 <artifactItem>
                                     <groupId>com.tagtraum</groupId>
-                                    <artifactId>ffmpeg</artifactId>
+                                    <artifactId>ffmpeg-${arch}-${host}</artifactId>
                                     <version>${ffmpeg.version}</version>
-                                    <type>tar.bz2</type>
-                                    <classifier>sources-${arch}-${host}</classifier>
+                                    <type>jar</type>
                                     <overWrite>true</overWrite>
-                                    <outputDirectory>${project.build.directory}/native/include</outputDirectory>
-                                    <includes>**/*.h</includes>
+                                    <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                                    <includes>**/*.a</includes>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>com.tagtraum</groupId>
-                                    <artifactId>ffsampledsp-java</artifactId>
-                                    <version>${project.version}</version>
-                                    <type>jar</type>
-                                    <classifier>sources</classifier>
+                                    <artifactId>ffmpeg-${arch}-${host}</artifactId>
+                                    <version>${ffmpeg.version}</version>
+                                    <type>tar.bz2</type>
+                                    <classifier>ffmpeg-sources</classifier>
                                     <overWrite>true</overWrite>
-                                    <outputDirectory>${project.build.directory}/native</outputDirectory>
+                                    <outputDirectory>${project.build.directory}/native/include</outputDirectory>
                                     <includes>**/*.h</includes>
                                 </artifactItem>
                             </artifactItems>
@@ -128,6 +150,9 @@
                     <linkerStartOptions>
                         <linkerStartOption>${linker.startoptions}</linkerStartOption>
                     </linkerStartOptions>
+                    <linkerEndOptions>
+                        <linkerEndOption>${linker.endoptions}</linkerEndOption>
+                    </linkerEndOptions>
                 </configuration>
 
             </plugin>

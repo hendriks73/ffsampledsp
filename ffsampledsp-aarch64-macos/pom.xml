@@ -3,13 +3,13 @@
     <parent>
         <groupId>com.tagtraum</groupId>
         <artifactId>ffsampledsp</artifactId>
-        <version>0.9.34</version>
+        <version>0.9.34-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <artifactId>ffsampledsp-i386-win</artifactId>
-    <packaging>dll</packaging>
-    <name>FFSampledSP Native Library Windows (32bit)</name>
-    <description>Windows 32bit binary library for FFSampledSP compiled via MinGW.</description>
+    <artifactId>ffsampledsp-aarch64-macos</artifactId>
+    <packaging>dylib</packaging>
+    <name>FFSampledSP Native Library macOS (aarch64)</name>
+    <description>Darwin aarch64/arm64 binary library for FFSampledSP.</description>
 
     <dependencies>
         <dependency>
@@ -33,10 +33,8 @@
     </dependencies>
 
     <properties>
-        <arch>i386</arch>
-        <host>win</host>
-        <target>WIN32</target>
-        <gcc.code>-m32</gcc.code>
+        <arch>aarch64</arch>
+        <host>macos</host>
         <maven.javadoc.skip>true</maven.javadoc.skip>
     </properties>
 
@@ -103,8 +101,6 @@
                                     <overWrite>true</overWrite>
                                     <outputDirectory>${project.build.directory}/lib</outputDirectory>
                                     <includes>**/*.a</includes>
-                                    <!-- our own z/bz2 don't seem to work for some reason -->
-                                    <excludes>**/libbz2.a,**/libz.a</excludes>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>com.tagtraum</groupId>
@@ -112,26 +108,6 @@
                                     <version>${ffmpeg.version}</version>
                                     <type>tar.bz2</type>
                                     <classifier>ffmpeg-sources</classifier>
-                                    <overWrite>true</overWrite>
-                                    <outputDirectory>${project.build.directory}/native/include</outputDirectory>
-                                    <includes>**/*.h</includes>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>com.tagtraum</groupId>
-                                    <artifactId>ffmpeg-${arch}-${host}</artifactId>
-                                    <version>${ffmpeg.version}</version>
-                                    <type>jar</type>
-                                    <classifier>bzip2-sources</classifier>
-                                    <overWrite>true</overWrite>
-                                    <outputDirectory>${project.build.directory}/native/include</outputDirectory>
-                                    <includes>**/*.h</includes>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>com.tagtraum</groupId>
-                                    <artifactId>ffmpeg-${arch}-${host}</artifactId>
-                                    <version>${ffmpeg.version}</version>
-                                    <type>jar</type>
-                                    <classifier>libz-sources</classifier>
                                     <overWrite>true</overWrite>
                                     <outputDirectory>${project.build.directory}/native/include</outputDirectory>
                                     <includes>**/*.h</includes>
@@ -149,8 +125,6 @@
                 <configuration>
 
                     <compilerProvider>generic</compilerProvider>
-                    <compilerExecutable>${ccompiler}</compilerExecutable>
-                    <linkerExecutable>${ccompiler}</linkerExecutable>
 
                     <compilerStartOptions>
                         <compilerStartOption>${compiler.startoptions}</compilerStartOption>

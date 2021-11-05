@@ -3,7 +3,7 @@
     <skin>
         <groupId>org.apache.maven.skins</groupId>
         <artifactId>maven-fluido-skin</artifactId>
-        <version>1.4</version>
+        <version>1.9</version>
     </skin>
     <custom>
         <fluidoSkin>
@@ -31,8 +31,10 @@
     </bannerRight>
     <body>
         <head>
+            <![CDATA[
             <meta name="keyword" content="ffmpeg, audio, FFSampledSP, Maven, java, sound, javax.sound, dsp, digital signal processing, flac, ogg" />
             <link rel="icon" type="image/x-icon" href="../favicon.ico" />
+            ]]>
         </head>
         <links>
             <item name="tagtraum" href="https://www.tagtraum.com/"/>
@@ -42,11 +44,11 @@
 
         <menu name="FFSampledSP">
             <item name="Introduction" href="index.html"/>
-            <item name="Developer" href="developer.html"/>
             <item name="Stems" href="stems.html"/>
             <item name="JavaDocs" href="apidocs/index.html"/>
             <item name="C-Docs" href="doxygen/index.html"/>
             <item name="FFmpeg" href="https://www.ffmpeg.org/"/>
+            <item name="GitHub Repo" href="https://github.com/hendriks73/ffsampledsp"/>
         </menu>
         <menu ref="modules" />
         <menu ref="reports"/>

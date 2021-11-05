@@ -19,6 +19,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
+        jarch: [ aarch64, x86_64 ]
         os: [ macos-10.15, macos-latest ]
         java: [ 9, 11, 15, 17 ]
 
@@ -42,13 +43,14 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: Build/test code with Maven
-        run: mvn -B install --file pom.xml
+        run: |
+          mvn -P ffsampledsp-${{ matrix.jarch }}-macos --no-transfer-progress --batch-mode install --file pom.xml
 
       - name: Upload CodeCov Report
         uses: codecov/codecov-action@v2
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-        if: matrix.os == 'macos-10.15' && matrix.java == 9
+        if: matrix.os == 'macos-10.15' && matrix.java == 9 && matrix.jarch == 'x86_64'
 
 
   windows-build:
@@ -60,11 +62,14 @@ jobs:
         java: [ 9, 11, 15, 17 ]
         include:
           - arch: x64
+            jarch: x86_64
             sys: mingw64
             env: x86_64
           - arch: x86
+            jarch: i386
             sys: mingw32
             env: i686
+
     defaults:
       run:
         shell: msys2 {0}
@@ -78,8 +83,51 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Set up Doxygen
-        run: pacman --noconfirm -S mingw-w64-x86_64-doxygen
+        run: |
+          pacman --noconfirm -S mingw-w64-${{ matrix.env}}-doxygen
 
+      - name: Set up Java
+        uses: actions/setup-java@v1
+        with:
+          java-version: ${{ matrix.java }}
+          architecture: ${{ matrix.arch }}
+
+      # cache maven repo for faster builds
+      - uses: actions/cache@v1
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Build/test code with Maven
+        run: |
+          mvn -P ffsampledsp-${{ matrix.jarch }}-win --no-transfer-progress --batch-mode  install --file pom.xml
+
+      - name: Print lib/include dir
+        if: always()
+        run: |
+          ls -la ffsampledsp-${{ matrix.jarch }}-win\\target\\lib
+          ls -la ffsampledsp-${{ matrix.jarch }}-win\\target\\native\\include
+
+
+  linux-build:
+
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ ubuntu-18.04, ubuntu-latest ]
+        java: [ 9, 11, 15, 17 ]
+        arch: [ x64 ]
+        include:
+          - arch: x64
+            jarch: x86_64
+
+    steps:
+      - name: Set up Doxygen
+        run: sudo apt-get install -y doxygen
+        
+      - uses: actions/checkout@v2
       - name: Set up Java
         uses: actions/setup-java@v1
         with:
@@ -94,33 +142,8 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: Build/test code with Maven
-        run: |
-          which mvn
-          mvn -P platform-win-${{ matrix.arch }} -B install --file pom.xml
+        run: mvn -P ffsampledsp-${{ matrix.jarch }}-unix --no-transfer-progress --batch-mode  install --file pom.xml
 
-
-#  linux-build:
-#
-#    runs-on: ${{ matrix.os }}
-#    strategy:
-#      matrix:
-#        os: [ ubuntu-18.04, ubuntu-latest ]
-#        java: [ 9, 11, 15, 17 ]
-#
-#    steps:
-#      - uses: actions/checkout@v2
-#      - name: Set up Java
-#        uses: actions/setup-java@v1
-#        with:
-#          java-version: ${{ matrix.java }}
-#
-#      # cache maven repo for faster builds
-#      - uses: actions/cache@v1
-#        with:
-#          path: ~/.m2/repository
-#          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-#          restore-keys: |
-#            ${{ runner.os }}-maven-
-#
-#      - name: Build/test code with Maven
-#        run: mvn -B install --file pom.xml
+      - name: Print lib dir
+        if: always()
+        run: ls -la ffsampledsp-${{ matrix.jarch }}-unix/target/lib

@@ -1,3 +1,9 @@
+- 0.9.34
+  - Added support for macOS aarch64 (arm64) 
+  - Added support for Linux x86_64
+  - Moved to FFmpeg 4.0.3
+
+
 - 0.9.33
   - Change AudioFileFormat.getFrameLength() so that it reflects the correct number
     of frames even for compressed formats.

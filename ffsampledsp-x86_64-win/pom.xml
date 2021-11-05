@@ -3,13 +3,14 @@
     <parent>
         <groupId>com.tagtraum</groupId>
         <artifactId>ffsampledsp</artifactId>
-        <version>0.9.33</version>
+        <version>0.9.34</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>ffsampledsp-x86_64-win</artifactId>
     <packaging>dll</packaging>
     <name>FFSampledSP Native Library Windows (64bit)</name>
     <description>Windows 64bit binary library for FFSampledSP compiled via MinGW.</description>
+
     <dependencies>
         <dependency>
             <groupId>com.tagtraum</groupId>
@@ -19,14 +20,14 @@
             <groupId>com.tagtraum</groupId>
             <artifactId>ffmpeg-${arch}-${host}</artifactId>
             <version>${ffmpeg.version}</version>
-            <type>pom</type>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.tagtraum</groupId>
-            <artifactId>ffmpeg</artifactId>
+            <artifactId>ffmpeg-${arch}-${host}</artifactId>
+            <version>${ffmpeg.version}</version>
             <type>tar.bz2</type>
-            <classifier>sources-${arch}-${host}</classifier>
+            <classifier>ffmpeg-sources</classifier>
             <scope>provided</scope>
         </dependency>
     </dependencies>
@@ -43,6 +44,47 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <configuration>
+                            <target>
+                                <mkdir dir="${project.build.directory}/classes" />
+                            </target>
+                        </configuration>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>upstream-sources</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/native</outputDirectory>
+                            <overwrite>true</overwrite>
+                            <resources>
+                                <resource>
+                                    <directory>../ffsampledsp-java/target/native/</directory>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
                     <execution>
@@ -55,28 +97,48 @@
                             <artifactItems>
                                 <artifactItem>
                                     <groupId>com.tagtraum</groupId>
-                                    <artifactId>ffmpeg</artifactId>
+                                    <artifactId>ffmpeg-${arch}-${host}</artifactId>
+                                    <version>${ffmpeg.version}</version>
+                                    <type>jar</type>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                                    <includes>**/*.a</includes>
+                                    <!-- our own z/bz2 don't seem to work for some reason -->
+                                    <excludes>**/libbz2.a,**/libz.a</excludes>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>com.tagtraum</groupId>
+                                    <artifactId>ffmpeg-${arch}-${host}</artifactId>
                                     <version>${ffmpeg.version}</version>
                                     <type>tar.bz2</type>
-                                    <classifier>sources-${arch}-${host}</classifier>
+                                    <classifier>ffmpeg-sources</classifier>
                                     <overWrite>true</overWrite>
                                     <outputDirectory>${project.build.directory}/native/include</outputDirectory>
                                     <includes>**/*.h</includes>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>com.tagtraum</groupId>
-                                    <artifactId>ffsampledsp-java</artifactId>
-                                    <version>${project.version}</version>
+                                    <artifactId>ffmpeg-${arch}-${host}</artifactId>
+                                    <version>${ffmpeg.version}</version>
                                     <type>jar</type>
-                                    <classifier>sources</classifier>
+                                    <classifier>bzip2-sources</classifier>
                                     <overWrite>true</overWrite>
-                                    <outputDirectory>${project.build.directory}/native</outputDirectory>
+                                    <outputDirectory>${project.build.directory}/native/include</outputDirectory>
+                                    <includes>**/*.h</includes>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>com.tagtraum</groupId>
+                                    <artifactId>ffmpeg-${arch}-${host}</artifactId>
+                                    <version>${ffmpeg.version}</version>
+                                    <type>jar</type>
+                                    <classifier>libz-sources</classifier>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${project.build.directory}/native/include</outputDirectory>
                                     <includes>**/*.h</includes>
                                 </artifactItem>
                             </artifactItems>
                         </configuration>
                     </execution>
-
                 </executions>
             </plugin>
 

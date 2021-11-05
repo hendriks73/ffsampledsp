@@ -3,7 +3,7 @@
     <parent>
         <groupId>com.tagtraum</groupId>
         <artifactId>ffsampledsp</artifactId>
-        <version>0.9.33</version>
+        <version>0.9.34</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>ffsampledsp-complete</artifactId>
@@ -16,13 +16,6 @@
             <groupId>com.tagtraum</groupId>
             <artifactId>ffsampledsp-java</artifactId>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.tagtraum</groupId>
-            <artifactId>ffmpeg</artifactId>
-            <version>${ffmpeg.version}</version>
-            <type>tar.bz2</type>
-            <classifier>sources</classifier>
         </dependency>
     </dependencies>
 
@@ -106,12 +99,7 @@
 
         <!-- Mac-specific Config -->
         <profile>
-            <id>platform-mac</id>
-            <activation>
-                <os>
-                    <family>mac</family>
-                </os>
-            </activation>
+            <id>ffsampledsp-x86_64-macos</id>
             <dependencies>
                 <dependency>
                     <groupId>com.tagtraum</groupId>
@@ -120,15 +108,13 @@
                     <type>dylib</type>
                     <scope>provided</scope>
                 </dependency>
-                <!--
                 <dependency>
                     <groupId>com.tagtraum</groupId>
-                    <artifactId>ffsampledsp-aarch64-macos</artifactId>
-                    <version>${project.version}</version>
-                    <type>dylib</type>
-                    <scope>provided</scope>
+                    <artifactId>ffmpeg-x86_64-macos</artifactId>
+                    <version>${ffmpeg.version}</version>
+                    <type>tar.bz2</type>
+                    <classifier>ffmpeg-sources</classifier>
                 </dependency>
-                -->
             </dependencies>
             <build>
                 <plugins>
@@ -152,7 +138,48 @@
                                             <overWrite>true</overWrite>
                                             <outputDirectory>${project.build.directory}/classes</outputDirectory>
                                         </artifactItem>
-                                        <!--
+                                    </artifactItems>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!-- Mac-specific Config -->
+        <profile>
+            <id>ffsampledsp-aarch64-macos</id>
+            <dependencies>
+                <dependency>
+                    <groupId>com.tagtraum</groupId>
+                    <artifactId>ffsampledsp-aarch64-macos</artifactId>
+                    <version>${project.version}</version>
+                    <type>dylib</type>
+                    <scope>provided</scope>
+                </dependency>
+                <dependency>
+                    <groupId>com.tagtraum</groupId>
+                    <artifactId>ffmpeg-aarch64-macos</artifactId>
+                    <version>${ffmpeg.version}</version>
+                    <type>tar.bz2</type>
+                    <classifier>ffmpeg-sources</classifier>
+                </dependency>
+            </dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>copy</id>
+                                <phase>generate-sources</phase>
+                                <goals>
+                                    <goal>copy</goal>
+                                </goals>
+                                <configuration>
+                                    <artifactItems>
                                         <artifactItem>
                                             <groupId>com.tagtraum</groupId>
                                             <artifactId>ffsampledsp-aarch64-macos</artifactId>
@@ -161,7 +188,6 @@
                                             <overWrite>true</overWrite>
                                             <outputDirectory>${project.build.directory}/classes</outputDirectory>
                                         </artifactItem>
-                                        -->
                                     </artifactItems>
                                 </configuration>
                             </execution>
@@ -173,13 +199,7 @@
 
         <!-- Unix-specific Config -->
         <profile>
-            <id>platform-linux</id>
-            <activation>
-                <os>
-                    <family>unix</family>
-                    <name>!mac os x</name>
-                </os>
-            </activation>
+            <id>ffsampledsp-x86_64-unix</id>
             <dependencies>
                 <dependency>
                     <groupId>com.tagtraum</groupId>
@@ -223,7 +243,7 @@
         <!-- Windows-specific Config 32 bit-->
         <profile>
             <!-- must be explicitly activated! -->
-            <id>platform-win-x86</id>
+            <id>ffsampledsp-i386-win</id>
             <dependencies>
                 <dependency>
                     <groupId>com.tagtraum</groupId>
@@ -267,7 +287,7 @@
         <!-- Windows-specific Config 64 bit-->
         <profile>
             <!-- must be explicitly activated! -->
-            <id>platform-win-x64</id>
+            <id>ffsampledsp-x86_64-win</id>
             <dependencies>
                 <dependency>
                     <groupId>com.tagtraum</groupId>

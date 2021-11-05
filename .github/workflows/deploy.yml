@@ -256,7 +256,7 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: Build/test code with Maven
-        run: mvn --activate-profiles ffsampledsp-aarch64-unix --batch-mode install --file pom.xml -Dmaven.test.skip=true
+        run: mvn --activate-profiles ffsampledsp-aarch64-macos --batch-mode install --file pom.xml -Dmaven.test.skip=true
 
       - run: mkdir nativelibs && cp ffsampledsp-aarch64-macos/target/*.dylib nativelibs
       - uses: actions/upload-artifact@v2

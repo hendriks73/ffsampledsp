@@ -407,6 +407,7 @@
         <host>macos</host>
         <ffmpeg.version>4.0.3</ffmpeg.version>
         <doxygen>doxygen</doxygen>
+        <ffmpegversion>${ffmpeg.version}</ffmpegversion>
     </properties>
 
     <profiles>

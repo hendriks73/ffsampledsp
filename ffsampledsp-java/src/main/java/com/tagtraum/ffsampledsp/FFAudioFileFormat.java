@@ -61,7 +61,7 @@ public class FFAudioFileFormat extends AudioFileFormat {
     }
 
 
-    private HashMap<String, Object> properties;
+    private final HashMap<String, Object> properties;
 
     public FFAudioFileFormat(final String url, final int codecId,
                              final float sampleRate, final int sampleSize, final int channels, final int packetSize,
@@ -119,6 +119,9 @@ public class FFAudioFileFormat extends AudioFileFormat {
             if (type != null) return type;
             return new Type(encoding.toString().toUpperCase(), encoding.toString());
         }
+        if (url.endsWith("/")) {
+            throw new UnsupportedAudioFileException("Unknown target audio url type: " + url);
+        }
         final Type fileType;
         final int lastDot = url.lastIndexOf('.');
         if (lastDot != -1) {
@@ -150,21 +153,11 @@ public class FFAudioFileFormat extends AudioFileFormat {
 
     @Override
     public Map<String, Object> properties() {
-        Map<java.lang.String,java.lang.Object> obj;
-        if (properties == null) {
-            obj = new HashMap<java.lang.String,java.lang.Object>(0);
-        } else {
-            obj = (Map<java.lang.String,java.lang.Object>)properties.clone();
-        }
-        return Collections.unmodifiableMap(obj);
+        return Collections.unmodifiableMap((Map<String, Object>)properties.clone());
     }
 
     @Override
     public Object getProperty(final String s) {
-        if (properties == null) {
-            return null;
-        } else {
-            return properties.get(s);
-        }
+        return properties.get(s);
     }
 }

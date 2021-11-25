@@ -96,5 +96,5 @@ Introduction
 
 * FFmpeg Sources
 
-    You can find the FFmpeg sources used for this package
-    {{{https://www.beatunes.com/repo/maven2/com/tagtraum/ffmpeg/ffmpeg/${ffmpegversion}here}}.
+    You can find the FFmpeg sources used for this package (i.e. the x86_64 macOS version)
+    {{{https://repo1.maven.org/maven2/com/tagtraum/ffmpeg-x86_64-macos/${ffmpegversion}}here}}.

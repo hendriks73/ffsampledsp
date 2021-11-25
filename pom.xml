@@ -2,7 +2,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.tagtraum</groupId>
-    <version>0.9.37</version>
+    <version>0.9.38</version>
     <artifactId>ffsampledsp</artifactId>
     <packaging>pom</packaging>
     <name>FFSampledSP</name>
@@ -354,12 +354,12 @@
             <extension>
                 <groupId>org.apache.maven.wagon</groupId>
                 <artifactId>wagon-ftp</artifactId>
-                <version>2.10</version>
+                <version>3.4.3</version>
             </extension>
             <extension>
                 <groupId>org.apache.maven.wagon</groupId>
                 <artifactId>wagon-ssh</artifactId>
-                <version>2.10</version>
+                <version>3.4.3</version>
             </extension>
         </extensions>
     </build>
@@ -375,7 +375,7 @@
         </repository>
         <site>
             <id>tagtraum-site</id>
-            <url>ftp://www.tagtraum-industries.de/ffsampledsp/</url>
+            <url>sftp://ssh.strato.de/ffsampledsp/</url>
         </site>
     </distributionManagement>
 
@@ -407,6 +407,7 @@
         <host>macos</host>
         <ffmpeg.version>4.0.3</ffmpeg.version>
         <doxygen>doxygen</doxygen>
+        <ffmpegversion>${ffmpeg.version}</ffmpegversion>
     </properties>
 
     <profiles>

@@ -3,7 +3,7 @@
     <parent>
         <groupId>com.tagtraum</groupId>
         <artifactId>ffsampledsp</artifactId>
-        <version>0.9.37</version>
+        <version>0.9.38</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>ffsampledsp-complete</artifactId>
@@ -137,6 +137,7 @@
                                             <type>dylib</type>
                                             <overWrite>true</overWrite>
                                             <outputDirectory>${project.build.directory}/classes</outputDirectory>
+                                            <destFileName>ffsampledsp-x86_64-macos.dylib</destFileName>
                                         </artifactItem>
                                     </artifactItems>
                                 </configuration>
@@ -187,6 +188,7 @@
                                             <type>dylib</type>
                                             <overWrite>true</overWrite>
                                             <outputDirectory>${project.build.directory}/classes</outputDirectory>
+                                            <destFileName>ffsampledsp-aarch64-macos.dylib</destFileName>
                                         </artifactItem>
                                     </artifactItems>
                                 </configuration>
@@ -230,6 +232,7 @@
                                             <type>so</type>
                                             <overWrite>true</overWrite>
                                             <outputDirectory>${project.build.directory}/classes</outputDirectory>
+                                            <destFileName>ffsampledsp-x86_64-unix.so</destFileName>
                                         </artifactItem>
                                     </artifactItems>
                                 </configuration>
@@ -274,6 +277,7 @@
                                             <type>dll</type>
                                             <overWrite>true</overWrite>
                                             <outputDirectory>${project.build.directory}/classes</outputDirectory>
+                                            <destFileName>ffsampledsp-i386-win.dll</destFileName>
                                         </artifactItem>
                                     </artifactItems>
                                 </configuration>
@@ -318,6 +322,7 @@
                                             <type>dll</type>
                                             <overWrite>true</overWrite>
                                             <outputDirectory>${project.build.directory}/classes</outputDirectory>
+                                            <destFileName>ffsampledsp-x86_64-win.dll</destFileName>
                                         </artifactItem>
                                     </artifactItems>
                                 </configuration>
@@ -379,6 +384,7 @@
                                             <type>dylib</type>
                                             <overWrite>true</overWrite>
                                             <outputDirectory>${project.build.directory}/classes</outputDirectory>
+                                            <destFileName>ffsampledsp-x86_64-macos.dylib</destFileName>
                                         </artifactItem>
                                         <!--
                                         <artifactItem>

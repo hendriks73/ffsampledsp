@@ -534,4 +534,25 @@ public class TestFFAudioFileReader {
         }
     }
 
+    @Test(expected = IOException.class)
+    public void testNonMarkableInputstream() throws UnsupportedAudioFileException, IOException {
+        // at the moment we do not support InputStream that do not support mark()
+        final InputStream in = new ByteArrayInputStream(new byte[0]) {
+            @Override
+            public boolean markSupported() {
+                return false;
+            }
+        };
+        new FFAudioFileReader().getAudioFileFormats(in);
+    }
+
+    @Test(expected = IOException.class)
+    public void testNonExistingFile1() throws UnsupportedAudioFileException, IOException {
+        new FFAudioFileReader().getAudioFileFormats(new File("Does Not Exist 12345.mp3"));
+    }
+
+    @Test(expected = IOException.class)
+    public void testNonExistingFile2() throws UnsupportedAudioFileException, IOException {
+        new FFAudioFileReader().getAudioFileFormat(new File("Does Not Exist 12345.mp3"));
+    }
 }

@@ -363,3 +363,23 @@ jobs:
         with:
           branch: gh-pages
           folder: ffsampledsp-complete/target/apidocs/
+
+      - name: Set up publication to tagtraum
+        uses: actions/setup-java@v1
+        with:
+          java-version: 9
+          server-id: tagtraum-site
+          server-username: MAVEN_USERNAME
+          server-password: MAVEN_PASSWORD
+
+      - name: Publish to tagtraum
+        env:
+          MAVEN_USERNAME: ${{ secrets.TAGTRAUM_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.TAGTRAUM_PASSWORD }}
+        run: |
+          sed -i.bak 's@tagtraum-site</id>@tagtraum-site</id><configuration><StrictHostKeyChecking>no</StrictHostKeyChecking></configuration><filePermissions>775</filePermissions><directoryPermissions>775</directoryPermissions>@' $HOME/.m2/settings.xml
+          mvn --no-transfer-progress \
+            --batch-mode \
+            --activate-profiles ffsampledsp-x86_64-macos \
+            --file pom.xml  \
+            clean install site:site site:deploy

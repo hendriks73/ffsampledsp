@@ -26,6 +26,7 @@ import java.net.URL;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -34,16 +35,17 @@ import java.util.logging.Logger;
  * is in. This way, a native library is found, if it is located in the same directory as a particular jar, identified
  * by a specific class from that jar.
  *
- *
  * @author <a href="mailto:hs@tagtraum.com">Hendrik Schreiber</a>
  */
 public final class FFNativeLibraryLoader {
 
+    private static final Logger LOG = Logger.getLogger(FFNativeLibraryLoader.class.getName());
     private static final String JAR_PROTOCOL = "jar";
     private static final String FILE_PROTOCOL = "file";
     private static final String CLASS_FILE_EXTENSION = ".class";
-    private static final String HOST = System.getProperty("os.name").toLowerCase().contains("mac")
-            ? "macos" : "win";
+    private static final String OS_NAME = System.getProperty("os.name").toLowerCase();
+    private static final String HOST = OS_NAME.contains("mac")
+            ? "macos" : (OS_NAME.contains("win") ? "win" : "unix");
     private static final String ARCH = arch();
     private static final String VERSION = readProjectVersion();
 
@@ -59,6 +61,9 @@ public final class FFNativeLibraryLoader {
 
         NATIVE_LIBRARY_EXTENSION = systemLibraryName.substring(dot + 1);
         NATIVE_LIBRARY_PREFIX = systemLibraryName.substring(0, dot);
+
+        LOG.fine("NATIVE_LIBRARY_EXTENSION: " + NATIVE_LIBRARY_EXTENSION);
+        LOG.fine("NATIVE_LIBRARY_PREFIX: " + NATIVE_LIBRARY_PREFIX);
     }
 
     private FFNativeLibraryLoader() {
@@ -78,8 +83,7 @@ public final class FFNativeLibraryLoader {
             FFNativeLibraryLoader.loadLibrary("ffsampledsp");
             loaded = true;
         } catch (Error e) {
-            e.printStackTrace();
-            Logger.getLogger(FFNativeLibraryLoader.class.getName()).severe("Failed to load native library 'ffsampledsp'. Please check your library path. FFSampledSP will be dysfunctional.");
+            LOG.severe("Failed to load native library 'ffsampledsp'. Please check your library path. FFSampledSP will be dysfunctional.");
         }
         ffSampledSPLibraryLoaded = loaded;
         return ffSampledSPLibraryLoaded;
@@ -104,43 +108,66 @@ public final class FFNativeLibraryLoader {
      * @param libName name of the library, as described in {@link System#loadLibrary(String)} );
      * @param baseClass class that identifies the jar
      */
-    public static synchronized void loadLibrary(final String libName, final Class baseClass) {
+    public static synchronized void loadLibrary(final String libName, final Class<?> baseClass) {
+        if (LOG.isLoggable(Level.FINEST)) {
+            LOG.finest("loadLibrary(\"" + libName + "\", " + baseClass + ")");
+        }
         final String key = libName + "|" + baseClass.getName();
-        if (LOADED.contains(key)) return;
-        final String packagedNativeLib = libName + "-" + ARCH + "-" + HOST + "-" + VERSION + "." + NATIVE_LIBRARY_EXTENSION;
-        final File extractedNativeLib = new File(System.getProperty("java.io.tmpdir") + "/" + packagedNativeLib);
+        if (LOADED.contains(key)) {
+            return;
+        }
+        // in the jar, we already know the version, so no need there...
+        final String packagedNativeLib = libName + "-" + ARCH + "-" + HOST + "." + NATIVE_LIBRARY_EXTENSION;
+        // but extracted, we want to keep things separate
+        final String extractedNativeLibFilename = libName + "-" + ARCH + "-" + HOST + "-" + VERSION + "." + NATIVE_LIBRARY_EXTENSION;
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("packagedNativeLib: " + packagedNativeLib);
+        }
+        final File extractedNativeLib = new File(System.getProperty("java.io.tmpdir") + "/" + extractedNativeLibFilename);
         if (!extractedNativeLib.exists() || extractedNativeLib.toString().contains("SNAPSHOT")) {
             extractResourceToFile(baseClass, "/" + packagedNativeLib, extractedNativeLib);
         }
         if (extractedNativeLib.exists()) {
             try {
+                if (LOG.isLoggable(Level.FINE)) {
+                    LOG.fine("Trying Runtime.getRuntime().load(\"" + extractedNativeLib + "\")");
+                }
                 Runtime.getRuntime().load(extractedNativeLib.toString());
                 LOADED.add(key);
                 return;
             } catch (Error e) {
                 // failed to extract and load, will try other ways
+                if (LOG.isLoggable(Level.FINE)) {
+                    LOG.fine("Failed to load " + extractedNativeLib + " (will try other ways): " + e);
+                }
             }
         }
 
         try {
-            Logger.getLogger(FFNativeLibraryLoader.class.getName()).fine("Trying System.loadLibrary(\"" + libName + "-" + ARCH + "-" + HOST + "\")");
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.fine("Trying System.loadLibrary(\"" + libName + "-" + ARCH + "-" + HOST + "\")");
+            }
             System.loadLibrary(libName + "-" + ARCH + "-" + HOST);
             LOADED.add(key);
         } catch (Error e) {
             try {
                 final String libFilename = findFile(libName, baseClass, new LibFileFilter(libName, ARCH));
-                Logger.getLogger(FFNativeLibraryLoader.class.getName()).fine("Trying Runtime.getRuntime().load(\"" + libFilename + "\")");
+                if (LOG.isLoggable(Level.FINE)) {
+                    LOG.fine("Trying Runtime.getRuntime().load(\"" + libFilename + "\")");
+                }
                 Runtime.getRuntime().load(libFilename);
                 LOADED.add(key);
             } catch (FileNotFoundException e1) {
                 try {
-                    Logger.getLogger(FFNativeLibraryLoader.class.getName()).fine("Trying System.loadLibrary(\"" + libName + "\")");
+                    if (LOG.isLoggable(Level.FINE)) {
+                        LOG.fine("Trying System.loadLibrary(\"" + libName + "\")");
+                    }
                     System.loadLibrary(libName);
                     LOADED.add(key);
                 } catch (Error e0) {
                     try {
                         final String libFilename = findFile(libName, baseClass, new LibFileFilter(libName));
-                        Logger.getLogger(FFNativeLibraryLoader.class.getName()).fine("Trying Runtime.getRuntime().load(\"" + libFilename + "\")");
+                        LOG.fine("Trying Runtime.getRuntime().load(\"" + libFilename + "\")");
                         Runtime.getRuntime().load(libFilename);
                         LOADED.add(key);
                     } catch (FileNotFoundException e2) {
@@ -149,7 +176,7 @@ public final class FFNativeLibraryLoader {
                 }
             }
         }
-        Logger.getLogger(FFNativeLibraryLoader.class.getName()).fine("Successfully loaded " + libName);
+        LOG.fine("Successfully loaded " + libName);
     }
 
     /**
@@ -160,7 +187,7 @@ public final class FFNativeLibraryLoader {
      * @param sourceResource resource name
      * @param targetFile target file
      */
-    private static void extractResourceToFile(final Class baseClass, final String sourceResource, final File targetFile) {
+    private static void extractResourceToFile(final Class<?> baseClass, final String sourceResource, final File targetFile) {
         try (final InputStream in = baseClass.getResourceAsStream(sourceResource)) {
             if (in != null) {
                 try (final OutputStream out = new FileOutputStream(targetFile)) {
@@ -170,9 +197,14 @@ public final class FFNativeLibraryLoader {
                         out.write(buf, 0, justRead);
                     }
                 }
+                if (LOG.isLoggable(Level.FINE)) LOG.fine("Created " + targetFile + " from resource " + sourceResource);
+            } else {
+                LOG.warning("Failed to find resource " + sourceResource);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.log(Level.WARNING,
+                "Failed to extract native lib using base class " + baseClass +
+                    " and resource name " + sourceResource + " to file " + targetFile, e);
         }
     }
 
@@ -185,7 +217,7 @@ public final class FFNativeLibraryLoader {
      * @return file
      * @throws FileNotFoundException if a matching file cannot be found
      */
-    public static String findFile(final String name, final Class baseClass, final FileFilter filter)
+    public static String findFile(final String name, final Class<?> baseClass, final FileFilter filter)
             throws FileNotFoundException {
         try {
             final String filename;
@@ -214,7 +246,7 @@ public final class FFNativeLibraryLoader {
             }
             return filename;
         } catch (UnsupportedEncodingException | MalformedURLException e) {
-            final FileNotFoundException fnfe = new FileNotFoundException(name + ": " + e.toString());
+            final FileNotFoundException fnfe = new FileNotFoundException(name + ": " + e);
             fnfe.initCause(e);
             throw fnfe;
         }
@@ -252,10 +284,12 @@ public final class FFNativeLibraryLoader {
         final String arch = System.getProperty("os.arch");
         final boolean x84_64 = "x86_64".equals(arch) || "amd64".equals(arch);
         final boolean i386 = "x86".equals(arch) || "i386".equals(arch) || "i486".equals(arch) || "i586".equals(arch) || "i686".equals(arch);
+        final boolean aarch64 = "aarch64".equals(arch) || "arm64".equals(arch);
+
         final String resultingArch = x84_64
-                ? "x86_64"
-                : (i386 ? "i386" : arch);
-        Logger.getLogger(FFNativeLibraryLoader.class.getName()).fine("Effective arch name: " + resultingArch);
+            ? "x86_64"
+            : (i386 ? "i386" : (aarch64 ? "aarch64" : arch));
+        if (LOG.isLoggable(Level.INFO)) LOG.info("Using arch=" + resultingArch);
         return resultingArch;
     }
 
@@ -267,7 +301,7 @@ public final class FFNativeLibraryLoader {
      * @param s url
      * @return decoded URL
      */
-    private static String decodeURL(final String s) throws UnsupportedEncodingException {
+    static String decodeURL(final String s) throws UnsupportedEncodingException {
         boolean needToChange = false;
         final int numChars = s.length();
         final StringBuilder sb = new StringBuilder(numChars > 500 ? numChars / 2 : numChars);

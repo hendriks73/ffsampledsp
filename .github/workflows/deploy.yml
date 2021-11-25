@@ -49,21 +49,15 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Set up publication to Maven Central
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v2
         with:
-          java-version: 9
+          java-version: '9'
           architecture: x64
           server-id: ossrh
           server-username: MAVEN_USERNAME
           server-password: MAVEN_PASSWORD
-
-# use cache to transport artifacts to the next job
-      - uses: actions/cache@v1
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
+          distribution: 'zulu'
+          cache: 'maven'
 
       - name: Build/test code with Maven
         run: |
@@ -119,21 +113,15 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Set up publication to Maven Central
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v2
         with:
-          java-version: 9
+          java-version: '9'
           architecture: x86
           server-id: ossrh
           server-username: MAVEN_USERNAME
           server-password: MAVEN_PASSWORD
-
-      # use cache to transport artifacts to the next job
-      - uses: actions/cache@v1
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
+          distribution: 'zulu'
+          cache: 'maven'
 
       - name: Build/test code with Maven
         run: |
@@ -180,21 +168,15 @@ jobs:
           gpg --list-secret-keys --keyid-format LONG
 
       - name: Set up publication to Maven Central
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v2
         with:
-          java-version: 9
+          java-version: '9'
           architecture: x64
           server-id: ossrh
           server-username: MAVEN_USERNAME
           server-password: MAVEN_PASSWORD
-
-# use cache to transport artifacts to the next job
-      - uses: actions/cache@v1
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
+          distribution: 'zulu'
+          cache: 'maven'
 
       - name: Build/test code with Maven
         run: mvn --activate-profiles ffsampledsp-x86_64-unix --no-transfer-progress --batch-mode install  --file pom.xml
@@ -239,21 +221,15 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Set up publication to Maven Central
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v2
         with:
-          java-version: 9
+          java-version: '9'
           architecture: x64
           server-id: ossrh
           server-username: MAVEN_USERNAME
           server-password: MAVEN_PASSWORD
-
-      # use cache to transport (in this case read) artifacts from prior
-      - uses: actions/cache@v1
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
+          distribution: 'zulu'
+          cache: 'maven'
 
       - name: Build/test code with Maven
         run: mvn --activate-profiles ffsampledsp-aarch64-macos --batch-mode install --file pom.xml -Dmaven.test.skip=true
@@ -300,21 +276,15 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Set up publication to Maven Central
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v2
         with:
-          java-version: 9
+          java-version: '9'
           architecture: x64
           server-id: ossrh
           server-username: MAVEN_USERNAME
           server-password: MAVEN_PASSWORD
-
-# use cache to transport (in this case read) artifacts from prior
-      - uses: actions/cache@v1
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
+          distribution: 'zulu'
+          cache: 'maven'
 
       - name: create target/classes for ffsampledsp-complete
         run: mkdir -p ffsampledsp-complete/target/classes/
@@ -365,12 +335,14 @@ jobs:
           folder: ffsampledsp-complete/target/apidocs/
 
       - name: Set up publication to tagtraum
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v2
         with:
-          java-version: 9
+          java-version: '9'
           server-id: tagtraum-site
           server-username: MAVEN_USERNAME
           server-password: MAVEN_PASSWORD
+          distribution: 'zulu'
+          cache: 'maven'
 
       - name: Publish to tagtraum
         env:

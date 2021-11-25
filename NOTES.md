@@ -1,4 +1,4 @@
-- 0.9.38
+- 0.9.38 - 0.9.41
   - Added automatic deployment to tagtraum site
   - Fixed native library loading issues
   - Improved test coverage

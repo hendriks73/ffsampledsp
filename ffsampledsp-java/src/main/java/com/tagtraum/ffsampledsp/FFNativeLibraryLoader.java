@@ -113,12 +113,17 @@ public final class FFNativeLibraryLoader {
             LOG.finest("loadLibrary(\"" + libName + "\", " + baseClass + ")");
         }
         final String key = libName + "|" + baseClass.getName();
-        if (LOADED.contains(key)) return;
-        final String packagedNativeLib = libName + "-" + ARCH + "-" + HOST + "-" + VERSION + "." + NATIVE_LIBRARY_EXTENSION;
+        if (LOADED.contains(key)) {
+            return;
+        }
+        // in the jar, we already know the version, so no need there...
+        final String packagedNativeLib = libName + "-" + ARCH + "-" + HOST + "." + NATIVE_LIBRARY_EXTENSION;
+        // but extracted, we want to keep things separate
+        final String extractedNativeLibFilename = libName + "-" + ARCH + "-" + HOST + "-" + VERSION + "." + NATIVE_LIBRARY_EXTENSION;
         if (LOG.isLoggable(Level.FINE)) {
             LOG.fine("packagedNativeLib: " + packagedNativeLib);
         }
-        final File extractedNativeLib = new File(System.getProperty("java.io.tmpdir") + "/" + packagedNativeLib);
+        final File extractedNativeLib = new File(System.getProperty("java.io.tmpdir") + "/" + extractedNativeLibFilename);
         if (!extractedNativeLib.exists() || extractedNativeLib.toString().contains("SNAPSHOT")) {
             extractResourceToFile(baseClass, "/" + packagedNativeLib, extractedNativeLib);
         }

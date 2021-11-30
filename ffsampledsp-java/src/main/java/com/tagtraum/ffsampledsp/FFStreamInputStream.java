@@ -23,6 +23,7 @@ package com.tagtraum.ffsampledsp;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
@@ -45,7 +46,9 @@ public class FFStreamInputStream extends FFNativePeerInputStream {
     }
 
     public FFStreamInputStream(final InputStream stream, final int streamIndex) throws IOException, UnsupportedAudioFileException {
-        this.nativeBuffer.limit(0);
+        // workaround covariant return type introduced in Java 9
+        // ensure limit(int) is called on Buffer, not ByteBuffer
+        ((Buffer)this.nativeBuffer).limit(0);
         this.channel = Channels.newChannel(stream);
         this.pointer = lockedOpen(streamIndex);
     }
@@ -84,7 +87,10 @@ public class FFStreamInputStream extends FFNativePeerInputStream {
     protected void fillNativeBuffer() throws IOException {
         if (isOpen()) {
             // make sure we are at the start of the native buffer, before we fill it
-            nativeBuffer.limit(0);
+
+            // workaround covariant return type introduced in Java 9
+            // ensure limit(int) is called on Buffer, not ByteBuffer
+            ((Buffer)this.nativeBuffer).limit(0);
             // read data, until we have a new limit or we reached the end of the file
             fillNativeBuffer(pointer);
             if (!nativeBuffer.hasRemaining()) {

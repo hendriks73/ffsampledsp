@@ -23,6 +23,7 @@ package com.tagtraum.ffsampledsp;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.Buffer;
 import java.util.concurrent.TimeUnit;
 
 import static com.tagtraum.ffsampledsp.FFGlobalLock.LOCK;
@@ -48,7 +49,9 @@ public class FFURLInputStream extends FFNativePeerInputStream {
             throw new UnsupportedAudioFileException("DRM encrypted file is unsupported: " + url);
         }
         this.url = url;
-        this.nativeBuffer.limit(0);
+        // workaround covariant return type introduced in Java 9
+        // ensure limit(int) is called on Buffer, not ByteBuffer
+        ((Buffer)this.nativeBuffer).limit(0);
         this.pointer = lockedOpen(FFAudioFileReader.urlToString(url), streamIndex);
         this.seekable = isSeekable(pointer);
     }
@@ -64,7 +67,9 @@ public class FFURLInputStream extends FFNativePeerInputStream {
         if (!isSeekable()) throw new UnsupportedOperationException("Seeking is not supported for " + url);
         final long microseconds = timeUnit.toMicros(time);
         seek(pointer, microseconds);
-        nativeBuffer.limit(0);
+        // workaround covariant return type introduced in Java 9
+        // ensure limit(int) is called on Buffer, not ByteBuffer
+        ((Buffer)this.nativeBuffer).limit(0);
     }
 
 

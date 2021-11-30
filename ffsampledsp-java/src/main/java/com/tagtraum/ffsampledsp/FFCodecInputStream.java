@@ -24,6 +24,7 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.nio.Buffer;
 import java.util.concurrent.TimeUnit;
 
 import static com.tagtraum.ffsampledsp.FFAudioFormat.FFEncoding.Codec.*;
@@ -66,7 +67,9 @@ public class FFCodecInputStream extends FFNativePeerInputStream {
                     targetFormat.getSampleRate(), targetFormat.getSampleSizeInBits(), targetFormat.getChannels(),
                     targetFormat.getFrameSize(), targetFormat.getFrameRate(), targetFormat.isBigEndian());
 
-        this.nativeBuffer.limit(0);
+        // workaround covariant return type introduced in Java 9
+        // ensure limit(int) is called on Buffer, not ByteBuffer
+        ((Buffer)this.nativeBuffer).limit(0);
         this.pointer = lockedOpen(audioFormat, stream.getNativePeerInputStreamPointer());
     }
 

@@ -1,3 +1,8 @@
+- 0.9.42
+  - Fixed issue with covariant return type of ByteBuffer.limit(int)
+  - Ensure building and testing on Java 8.
+
+
 - 0.9.38 - 0.9.41
   - Added automatic deployment to tagtraum site
   - Fixed native library loading issues

@@ -1,4 +1,4 @@
-- 0.9.42
+- 0.9.42 - 0.9.43
   - Fixed issue with covariant return type of ByteBuffer.limit(int)
   - Ensure building and testing on Java 8.
 

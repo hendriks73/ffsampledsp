@@ -21,7 +21,7 @@ jobs:
       matrix:
         jarch: [ aarch64, x86_64 ]
         os: [ macos-10.15, macos-latest ]
-        java: [ '9', '11', '15', '17' ]
+        java: [ '8', '9', '11', '15', '17' ]
 
     steps:
       - name: Set up Doxygen
@@ -66,7 +66,7 @@ jobs:
     strategy:
       matrix:
         arch: [x64, x86]
-        java: [ '9', '11', '15', '17' ]
+        java: [ '8', '9', '11', '15', '17' ]
         include:
           - arch: x64
             jarch: x86_64
@@ -122,7 +122,7 @@ jobs:
     strategy:
       matrix:
         os: [ ubuntu-18.04, ubuntu-latest ]
-        java: [ '9', '11', '15', '17' ]
+        java: [ '8', '9', '11', '15', '17' ]
         arch: [ x64 ]
         include:
           - arch: x64

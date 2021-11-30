@@ -1,4 +1,8 @@
-- 0.9.42
+- 0.9.44
+  - Report `UnsupportedAudioFileException`, if stream with index `0` cannot be found 
+
+
+- 0.9.42 - 0.9.43
   - Fixed issue with covariant return type of ByteBuffer.limit(int)
   - Ensure building and testing on Java 8.
 

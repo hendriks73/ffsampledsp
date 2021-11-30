@@ -355,7 +355,11 @@ int ff_open_file(JNIEnv *env, AVFormatContext **format_context, AVStream **opene
         if (stream == NULL) {
             // we didn't find a stream with the given index
             res = -1;
-            throwIndexOutOfBoundsExceptionIfError(env, res, *stream_index);
+            if (*stream_index == 0) {
+                throwUnsupportedAudioFileExceptionIfError(env, res, "No stream found (index=0).");
+            } else {
+                throwIndexOutOfBoundsExceptionIfError(env, res, *stream_index);
+            }
             goto bail;
         }
         res = ff_open_stream(env, stream, context);

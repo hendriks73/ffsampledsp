@@ -13,7 +13,7 @@ Introduction
     <<<javax.sound.sampled>>> libraries.
 
     Its main purpose is to decode audio from various formats at high speed using
-    {{{https://www.ffmpeg.org}FFmpeg ${ffmpegversion}}.
+    {{{https://www.ffmpeg.org}FFmpeg ${ffmpegversion}}}.
     To do so, it uses the {{{https://www.tagtraum.com/ffmpeg/}tagtraum FFmpeg package}}, which offers
     FFmpeg binaries configured to decode audio while avoiding codecs with patent problems. In other words,
     it supports formats like OGG, FLAC, GSM, MP3... well, while leaving MPEG-4 unsupported.

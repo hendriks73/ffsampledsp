@@ -26,6 +26,7 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.*;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.*;
 
@@ -37,15 +38,107 @@ import static org.junit.Assert.*;
 public class TestFFCodecInputStream {
 
     @Test
+    public void testSeek() throws IOException, UnsupportedAudioFileException {
+        final String filename = "test.wav";
+        final File file = File.createTempFile("testSeek", filename);
+        extractFile(filename, file);
+        int bytesRead = 0;
+        FFCodecInputStream targetStream = null;
+        try (final AudioInputStream sourceStream = new FFAudioFileReader().getAudioInputStream(file)) {
+            final AudioFormat targetFormat = new AudioFormat(FFAudioFormat.FFEncoding.PCM_SIGNED, 44100/2f, 16, 2, 4, 44100/2f, false);
+            targetStream = new FFCodecInputStream(targetFormat, (FFAudioInputStream) sourceStream);
+
+            if (targetStream.isSeekable()) {
+                targetStream.seek(0, TimeUnit.MICROSECONDS);
+                targetStream.seek(1, TimeUnit.SECONDS);
+            }
+
+            //AudioSystem.write(new FFAudioInputStream(targetStream, targetFormat, -1), AudioFileFormat.Type.WAVE, new File("writtentest.wav"));
+            int justRead;
+            final byte[] buf = new byte[1024];
+            while ((justRead = targetStream.read(buf)) != -1) {
+                assertTrue(justRead > 0);
+                bytesRead += justRead;
+            }
+            // at the end read another byte
+            assertEquals(-1, targetStream.read());
+
+        } finally {
+            if (targetStream != null) {
+                try {
+                    targetStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            file.delete();
+        }
+        System.out.println("Read " + bytesRead + " bytes.");
+        assertEquals(179064, bytesRead);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testAlawEncoding() throws IOException, UnsupportedAudioFileException {
+        final AudioFormat targetFormat = new AudioFormat(AudioFormat.Encoding.ALAW, 44100f, 16, 2, 4, 44100f, false);
+        new FFCodecInputStream(targetFormat, null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testPCMUnsignedIllegalSampleSize() throws IOException, UnsupportedAudioFileException {
+        final AudioFormat targetFormat = new AudioFormat(AudioFormat.Encoding.PCM_UNSIGNED, 44100f, 9, 2, 4, 44100f, false);
+        new FFCodecInputStream(targetFormat, null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testPCMSignedIllegalSampleSize() throws IOException, UnsupportedAudioFileException {
+        final AudioFormat targetFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 44100f, 9, 2, 4, 44100f, false);
+        new FFCodecInputStream(targetFormat, null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testPCMFloatIllegalSampleSize() throws IOException, UnsupportedAudioFileException {
+        final AudioFormat targetFormat = new AudioFormat(AudioFormat.Encoding.PCM_FLOAT, 44100f, 9, 2, 4, 44100f, false);
+        new FFCodecInputStream(targetFormat, null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testIllegalFrameSizeSample8() throws IOException, UnsupportedAudioFileException {
+        final AudioFormat targetFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 44100f, 8, 2, 5, 44100f, false);
+        new FFCodecInputStream(targetFormat, null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testIllegalFrameSizeSample16() throws IOException, UnsupportedAudioFileException {
+        final AudioFormat targetFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 44100f, 16, 2, 5, 44100f, false);
+        new FFCodecInputStream(targetFormat, null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testIllegalFrameSizeSample24() throws IOException, UnsupportedAudioFileException {
+        final AudioFormat targetFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 44100f, 24, 2, 5, 44100f, false);
+        new FFCodecInputStream(targetFormat, null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testIllegalFrameSizeSample32() throws IOException, UnsupportedAudioFileException {
+        final AudioFormat targetFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 44100f, 32, 2, 5, 44100f, false);
+        new FFCodecInputStream(targetFormat, null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testIllegalFrameSizeSample64() throws IOException, UnsupportedAudioFileException {
+        final AudioFormat targetFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 44100f, 64, 2, 5, 44100f, false);
+        new FFCodecInputStream(targetFormat, null);
+    }
+
+    @Test
     public void testReadConvert24to16Bit() throws IOException, UnsupportedAudioFileException {
         final String filename = "test24bit.wav";
         final File file = File.createTempFile("testReadConvert24to16Bit", filename);
         extractFile(filename, file);
         int bytesRead = 0;
-        AudioInputStream wav24bitStream = null;
         FFCodecInputStream wav16bitStream = null;
-        try {
-            wav24bitStream = new FFAudioFileReader().getAudioInputStream(file);
+        try (final AudioInputStream wav24bitStream = new FFAudioFileReader().getAudioInputStream(file)) {
             final AudioFormat targetFormat = new AudioFormat(FFAudioFormat.FFEncoding.PCM_SIGNED, 96000, 16, 2, 4, 96000, false);
             System.err.println("24bit: " + wav24bitStream.getFormat());
             System.err.println("16bit: " + targetFormat);
@@ -66,13 +159,6 @@ public class TestFFCodecInputStream {
                     e.printStackTrace();
                 }
             }
-            if (wav24bitStream != null) {
-                try {
-                    wav24bitStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
             file.delete();
         }
         System.out.println("Read " + bytesRead + " bytes.");
@@ -84,10 +170,8 @@ public class TestFFCodecInputStream {
         final File file = File.createTempFile("testReadConvertMP3FileToPCM", filename);
         extractFile(filename, file);
         int bytesRead = 0;
-        AudioInputStream mp3Stream = null;
         FFCodecInputStream pcmStream = null;
-        try {
-            mp3Stream = new FFAudioFileReader().getAudioInputStream(file);
+        try (final AudioInputStream mp3Stream = new FFAudioFileReader().getAudioInputStream(file)) {
             final AudioFormat targetFormat = new AudioFormat(FFAudioFormat.FFEncoding.PCM_SIGNED, 44100, 16, 2, 4, 44100, false);
             System.err.println("mp3: " + mp3Stream.getFormat());
             System.err.println("pcm: " + targetFormat);
@@ -110,13 +194,6 @@ public class TestFFCodecInputStream {
                     e.printStackTrace();
                 }
             }
-            if (mp3Stream != null) {
-                try {
-                    mp3Stream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
             file.delete();
         }
         System.out.println("Read " + bytesRead + " bytes.");
@@ -129,10 +206,9 @@ public class TestFFCodecInputStream {
         final File file = File.createTempFile("testReadConvertM4AFileToPCM", filename);
         extractFile(filename, file);
         int bytesRead = 0;
-        AudioInputStream m4aStream = null;
         FFCodecInputStream pcmStream = null;
-        try {
-            m4aStream = new FFAudioFileReader().getAudioInputStream(file);
+        try (final AudioInputStream m4aStream = new FFAudioFileReader().getAudioInputStream(file)) {
+            ;
             final AudioFormat targetFormat = new AudioFormat(FFAudioFormat.FFEncoding.PCM_SIGNED, 44100, 16, 2, 4, 44100, false);
             System.err.println("m4a: " + m4aStream.getFormat());
             System.err.println("pcm: " + targetFormat);
@@ -156,13 +232,6 @@ public class TestFFCodecInputStream {
                     e.printStackTrace();
                 }
             }
-            if (m4aStream != null) {
-                try {
-                    m4aStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
         }
         System.out.println("Read " + bytesRead + " bytes.");
         assertEquals(534528, bytesRead);
@@ -174,10 +243,8 @@ public class TestFFCodecInputStream {
         final File file = File.createTempFile("testReadConvertFLACFileToPCM", filename);
         extractFile(filename, file);
         int bytesRead = 0;
-        AudioInputStream flacStream = null;
         FFCodecInputStream pcmStream = null;
-        try {
-            flacStream = new FFAudioFileReader().getAudioInputStream(file);
+        try (final AudioInputStream flacStream = new FFAudioFileReader().getAudioInputStream(file)) {
             final AudioFormat targetFormat = new AudioFormat(FFAudioFormat.FFEncoding.PCM_SIGNED, 44100, 16, 2, 4, 44100, false);
             System.err.println("flac: " + flacStream.getFormat());
             System.err.println("pcm : " + targetFormat);
@@ -200,13 +267,6 @@ public class TestFFCodecInputStream {
                     e.printStackTrace();
                 }
             }
-            if (flacStream != null) {
-                try {
-                    flacStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
             file.delete();
         }
         System.out.println("Read " + bytesRead + " bytes.");
@@ -219,10 +279,8 @@ public class TestFFCodecInputStream {
         final File file = File.createTempFile("testDownsampleWaveFile", filename);
         extractFile(filename, file);
         int bytesRead = 0;
-        AudioInputStream sourceStream = null;
         FFCodecInputStream targetStream = null;
-        try {
-            sourceStream = new FFAudioFileReader().getAudioInputStream(file);
+        try (final AudioInputStream sourceStream = new FFAudioFileReader().getAudioInputStream(file)) {
             final AudioFormat targetFormat = new AudioFormat(FFAudioFormat.FFEncoding.PCM_SIGNED, 44100/2, 16, 2, 4, 44100/2, false);
             System.err.println("44.100: " + sourceStream.getFormat());
             System.err.println("22.050: " + targetFormat);
@@ -241,13 +299,6 @@ public class TestFFCodecInputStream {
             if (targetStream != null) {
                 try {
                     targetStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (sourceStream != null) {
-                try {
-                    sourceStream.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -264,10 +315,8 @@ public class TestFFCodecInputStream {
         final File file = File.createTempFile("testDownsampleMP3File", filename);
         extractFile(filename, file);
         int bytesRead = 0;
-        AudioInputStream sourceStream = null;
         FFCodecInputStream targetStream = null;
-        try {
-            sourceStream = new FFAudioFileReader().getAudioInputStream(file);
+        try (final AudioInputStream sourceStream = new FFAudioFileReader().getAudioInputStream(file)) {
             final AudioFormat targetFormat = new AudioFormat(FFAudioFormat.FFEncoding.PCM_SIGNED, 44100/2, 16, 2, 4, 44100/2, false);
             System.err.println("44.100: " + sourceStream.getFormat());
             System.err.println("22.050: " + targetFormat);
@@ -286,13 +335,6 @@ public class TestFFCodecInputStream {
             if (targetStream != null) {
                 try {
                     targetStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (sourceStream != null) {
-                try {
-                    sourceStream.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -309,10 +351,8 @@ public class TestFFCodecInputStream {
         final File file = File.createTempFile("testDownsampleOggFile", filename);
         extractFile(filename, file);
         int bytesRead = 0;
-        AudioInputStream sourceStream = null;
         FFCodecInputStream targetStream = null;
-        try {
-            sourceStream = new FFAudioFileReader().getAudioInputStream(file);
+        try (final AudioInputStream sourceStream = new FFAudioFileReader().getAudioInputStream(file)) {
             final AudioFormat targetFormat = new AudioFormat(FFAudioFormat.FFEncoding.PCM_SIGNED, 44100/2, 16, 2, 4, 44100/2, false);
             System.err.println("44.100: " + sourceStream.getFormat());
             System.err.println("22.050: " + targetFormat);
@@ -335,13 +375,6 @@ public class TestFFCodecInputStream {
                     e.printStackTrace();
                 }
             }
-            if (sourceStream != null) {
-                try {
-                    sourceStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
             file.delete();
         }
         System.out.println("Read " + bytesRead + " bytes.");
@@ -354,10 +387,8 @@ public class TestFFCodecInputStream {
         final File file = File.createTempFile("testDownsampleMP3File", filename);
         extractFile(filename, file);
         int bytesRead = 0;
-        AudioInputStream sourceStream = null;
         FFCodecInputStream targetStream = null;
-        try {
-            sourceStream = new FFAudioFileReader().getAudioInputStream(file);
+        try (final AudioInputStream sourceStream = new FFAudioFileReader().getAudioInputStream(file)) {
             final AudioFormat targetFormat = new AudioFormat(FFAudioFormat.FFEncoding.PCM_SIGNED, 44100/4*3, 16, 2, 4, 44100/4*3, false);
             System.err.println("44.100: " + sourceStream.getFormat());
             System.err.println("33.075: " + targetFormat);
@@ -377,13 +408,6 @@ public class TestFFCodecInputStream {
             if (targetStream != null) {
                 try {
                     targetStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (sourceStream != null) {
-                try {
-                    sourceStream.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -400,10 +424,8 @@ public class TestFFCodecInputStream {
         final File file = File.createTempFile("testDownsampleOggFile", filename);
         extractFile(filename, file);
         int bytesRead = 0;
-        AudioInputStream sourceStream = null;
         FFCodecInputStream targetStream = null;
-        try {
-            sourceStream = new FFAudioFileReader().getAudioInputStream(file);
+        try (final AudioInputStream sourceStream = new FFAudioFileReader().getAudioInputStream(file)) {
             final AudioFormat targetFormat = new AudioFormat(FFAudioFormat.FFEncoding.PCM_SIGNED, 44100/4*3, 16, 2, 4, 44100/4*3, false);
             System.err.println("44.100: " + sourceStream.getFormat());
             System.err.println("33.075: " + targetFormat);
@@ -427,13 +449,6 @@ public class TestFFCodecInputStream {
                     e.printStackTrace();
                 }
             }
-            if (sourceStream != null) {
-                try {
-                    sourceStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
             file.delete();
         }
         System.out.println("Read " + bytesRead + " bytes.");
@@ -446,10 +461,8 @@ public class TestFFCodecInputStream {
         final File file = File.createTempFile("testReadConvertMP3FileToPCM", filename);
         extractFile(filename, file);
         int bytesRead = 0;
-        AudioInputStream mp3Stream = null;
         FFCodecInputStream pcmStream = null;
-        try {
-            mp3Stream = new FFAudioFileReader().getAudioInputStream(new BufferedInputStream(new FileInputStream(file)));
+        try (final AudioInputStream mp3Stream = new FFAudioFileReader().getAudioInputStream(new BufferedInputStream(new FileInputStream(file)))) {
             final AudioFormat targetFormat = new AudioFormat(FFAudioFormat.FFEncoding.PCM_SIGNED, 44100, 16, 2, 4, 44100, false);
             System.err.println("mp3: " + mp3Stream.getFormat());
             System.err.println("pcm: " + targetFormat);
@@ -472,13 +485,6 @@ public class TestFFCodecInputStream {
                     e.printStackTrace();
                 }
             }
-            if (mp3Stream != null) {
-                try {
-                    mp3Stream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
             file.delete();
         }
         System.out.println("Read " + bytesRead + " bytes.");
@@ -486,15 +492,13 @@ public class TestFFCodecInputStream {
     }
 
     @Test
-    public void testReadConvertOggStreamToPCM() throws IOException, UnsupportedAudioFileException {
+    public void testReadConvertOggStreamToPCM() throws IOException {
         final String filename = "test.ogg";
         final File file = File.createTempFile("testReadConvertOggFileToPCM", filename);
         extractFile(filename, file);
         int bytesRead = 0;
-        AudioInputStream oggStream = null;
         FFCodecInputStream pcmStream = null;
-        try {
-            oggStream = new FFAudioFileReader().getAudioInputStream(new BufferedInputStream(new FileInputStream(file)));
+        try (final AudioInputStream oggStream = new FFAudioFileReader().getAudioInputStream(new BufferedInputStream(new FileInputStream(file)))) {
             final AudioFormat targetFormat = new AudioFormat(FFAudioFormat.FFEncoding.PCM_SIGNED, 44100, 16, 2, 4, 44100, false);
             System.err.println("ogg: " + oggStream.getFormat());
             System.err.println("pcm: " + targetFormat);
@@ -518,13 +522,6 @@ public class TestFFCodecInputStream {
                     e.printStackTrace();
                 }
             }
-            if (oggStream != null) {
-                try {
-                    oggStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
             file.delete();
         }
         System.out.println("Read " + bytesRead + " bytes.");
@@ -537,11 +534,9 @@ public class TestFFCodecInputStream {
         final File file = File.createTempFile("testReadConvertM4AFileToPCM", filename);
         extractFile(filename, file);
         int bytesRead = 0;
-        AudioInputStream m4aStream = null;
         FFCodecInputStream pcmStream = null;
         FFCodecInputStream downStream = null;
-        try {
-            m4aStream = new FFAudioFileReader().getAudioInputStream(new BufferedInputStream(new FileInputStream(file)));
+        try (final AudioInputStream m4aStream = new FFAudioFileReader().getAudioInputStream(new BufferedInputStream(new FileInputStream(file)))) {
             final AudioFormat pcmTargetFormat = new AudioFormat(FFAudioFormat.FFEncoding.PCM_SIGNED, 44100, 16, 2, 4, 44100, false);
             System.err.println("m4a: " + m4aStream.getFormat());
             System.err.println("pcm: " + pcmTargetFormat);
@@ -576,13 +571,6 @@ public class TestFFCodecInputStream {
                     e.printStackTrace();
                 }
             }
-            if (m4aStream != null) {
-                try {
-                    m4aStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
             file.delete();
         }
         System.out.println("Read " + bytesRead + " bytes.");
@@ -595,11 +583,9 @@ public class TestFFCodecInputStream {
         final File file = File.createTempFile("testReadConvertFLACFileToPCM", filename);
         extractFile(filename, file);
         int bytesRead = 0;
-        AudioInputStream flacStream = null;
         FFCodecInputStream pcmStream = null;
         FFCodecInputStream downStream = null;
-        try {
-            flacStream = new FFAudioFileReader().getAudioInputStream(new BufferedInputStream(new FileInputStream(file)));
+        try (final AudioInputStream flacStream = new FFAudioFileReader().getAudioInputStream(new BufferedInputStream(new FileInputStream(file)))) {
             final AudioFormat pcmTargetFormat = new AudioFormat(FFAudioFormat.FFEncoding.PCM_SIGNED, 44100, 16, 2, 4, 44100, false);
             System.err.println("flac: " + flacStream.getFormat());
             System.err.println("pcm : " + pcmTargetFormat);
@@ -634,13 +620,6 @@ public class TestFFCodecInputStream {
                     e.printStackTrace();
                 }
             }
-            if (flacStream != null) {
-                try {
-                    flacStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
             file.delete();
         }
         System.out.println("Read " + bytesRead + " bytes.");
@@ -653,10 +632,8 @@ public class TestFFCodecInputStream {
         final File file = File.createTempFile("testReadConvertM4AFileToPCM", filename);
         extractFile(filename, file);
         int bytesRead = 0;
-        AudioInputStream m4aStream = null;
         FFCodecInputStream pcmStream = null;
-        try {
-            m4aStream = new FFAudioFileReader().getAudioInputStream(new BufferedInputStream(new FileInputStream(file)));
+        try (final AudioInputStream m4aStream = new FFAudioFileReader().getAudioInputStream(new BufferedInputStream(new FileInputStream(file)))) {
             final AudioFormat targetFormat = new AudioFormat(FFAudioFormat.FFEncoding.PCM_SIGNED, 44100, 16, 2, 4, 44100, false);
             System.err.println("m4a: " + m4aStream.getFormat());
             System.err.println("pcm: " + targetFormat);
@@ -679,13 +656,6 @@ public class TestFFCodecInputStream {
                     e.printStackTrace();
                 }
             }
-            if (m4aStream != null) {
-                try {
-                    m4aStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
             file.delete();
         }
         System.out.println("Read " + bytesRead + " bytes.");
@@ -698,10 +668,8 @@ public class TestFFCodecInputStream {
         final File file = File.createTempFile("testReadConvertFLACFileToPCM", filename);
         extractFile(filename, file);
         int bytesRead = 0;
-        AudioInputStream flacStream = null;
         FFCodecInputStream pcmStream = null;
-        try {
-            flacStream = new FFAudioFileReader().getAudioInputStream(new BufferedInputStream(new FileInputStream(file)));
+        try (final AudioInputStream flacStream = new FFAudioFileReader().getAudioInputStream(new BufferedInputStream(new FileInputStream(file)))) {
             final AudioFormat targetFormat = new AudioFormat(FFAudioFormat.FFEncoding.PCM_SIGNED, 44100, 16, 2, 4, 44100, false);
             System.err.println("flac: " + flacStream.getFormat());
             System.err.println("pcm : " + targetFormat);
@@ -724,13 +692,6 @@ public class TestFFCodecInputStream {
                     e.printStackTrace();
                 }
             }
-            if (flacStream != null) {
-                try {
-                    flacStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
             file.delete();
         }
         System.out.println("Read " + bytesRead + " bytes.");
@@ -743,10 +704,8 @@ public class TestFFCodecInputStream {
         final File file = File.createTempFile("testReadConvertWaveStreamToPCM", filename);
         extractFile(filename, file);
         int bytesRead = 0;
-        AudioInputStream mp3Stream = null;
         FFCodecInputStream pcmStream = null;
-        try {
-            mp3Stream = new FFAudioFileReader().getAudioInputStream(new BufferedInputStream(new FileInputStream(file)));
+        try (final AudioInputStream mp3Stream = new FFAudioFileReader().getAudioInputStream(new BufferedInputStream(new FileInputStream(file)))) {
             final AudioFormat targetFormat = new AudioFormat(FFAudioFormat.FFEncoding.PCM_SIGNED, 44100, 16, 2, 4, 44100, false);
             System.err.println("wave: " + mp3Stream.getFormat());
             System.err.println("pcm: " + targetFormat);
@@ -769,13 +728,6 @@ public class TestFFCodecInputStream {
                     e.printStackTrace();
                 }
             }
-            if (mp3Stream != null) {
-                try {
-                    mp3Stream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
             file.delete();
         }
         System.out.println("Read " + bytesRead + " bytes.");
@@ -788,10 +740,8 @@ public class TestFFCodecInputStream {
         final File file = File.createTempFile("testConvertWaveFileTo24bit", filename);
         extractFile(filename, file);
         int bytesRead = 0;
-        AudioInputStream sourceStream = null;
         FFCodecInputStream targetStream = null;
-        try {
-            sourceStream = new FFAudioFileReader().getAudioInputStream(file);
+        try (final AudioInputStream sourceStream = new FFAudioFileReader().getAudioInputStream(file)) {
             final AudioFormat targetFormat = new AudioFormat(FFAudioFormat.FFEncoding.PCM_SIGNED, 44100, 24, 2, 6, 44100, false);
             System.err.println("16bit: " + sourceStream.getFormat());
             System.err.println("24bit: " + targetFormat);
@@ -814,13 +764,6 @@ public class TestFFCodecInputStream {
                     e.printStackTrace();
                 }
             }
-            if (sourceStream != null) {
-                try {
-                    sourceStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
             file.delete();
         }
         System.out.println("Read " + bytesRead + " bytes.");
@@ -834,10 +777,8 @@ public class TestFFCodecInputStream {
         final File file = File.createTempFile("testDownsampleWaveStream", filename);
         extractFile(filename, file);
         int bytesRead = 0;
-        AudioInputStream sourceStream = null;
         FFCodecInputStream targetStream = null;
-        try {
-            sourceStream = new FFAudioFileReader().getAudioInputStream(new BufferedInputStream(new FileInputStream(file)));
+        try (final AudioInputStream sourceStream = new FFAudioFileReader().getAudioInputStream(new BufferedInputStream(new FileInputStream(file)))) {
             final AudioFormat targetFormat = new AudioFormat(FFAudioFormat.FFEncoding.PCM_SIGNED, 44100/2, 16, 2, 4, 44100/2, false);
             System.err.println("44.100: " + sourceStream.getFormat());
             System.err.println("22.050: " + targetFormat);
@@ -860,13 +801,6 @@ public class TestFFCodecInputStream {
                     e.printStackTrace();
                 }
             }
-            if (sourceStream != null) {
-                try {
-                    sourceStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
             file.delete();
         }
         System.out.println("Read " + bytesRead + " bytes.");
@@ -879,10 +813,8 @@ public class TestFFCodecInputStream {
         final File file = File.createTempFile("testUpsampleWaveStream", filename);
         extractFile(filename, file);
         int bytesRead = 0;
-        AudioInputStream sourceStream = null;
         FFCodecInputStream targetStream = null;
-        try {
-            sourceStream = new FFAudioFileReader().getAudioInputStream(new BufferedInputStream(new FileInputStream(file)));
+        try (final AudioInputStream sourceStream = new FFAudioFileReader().getAudioInputStream(new BufferedInputStream(new FileInputStream(file)))) {
             final AudioFormat targetFormat = new AudioFormat(FFAudioFormat.FFEncoding.PCM_SIGNED, 48000f, 16, 2, 4, 48000, false);
             System.err.println("44.100: " + sourceStream.getFormat());
             System.err.println("48.000: " + targetFormat);
@@ -905,13 +837,6 @@ public class TestFFCodecInputStream {
                     e.printStackTrace();
                 }
             }
-            if (sourceStream != null) {
-                try {
-                    sourceStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
             file.delete();
         }
         System.out.println("Read " + bytesRead + " bytes.");
@@ -919,30 +844,12 @@ public class TestFFCodecInputStream {
     }
 
     private void extractFile(final String filename, final File file) throws IOException {
-        InputStream in = null;
-        OutputStream out = null;
-        try {
-            in = getClass().getResourceAsStream(filename);
-            out = new FileOutputStream(file);
+        try (final InputStream in = getClass().getResourceAsStream(filename);
+             final OutputStream out = new FileOutputStream(file)) {
             final byte[] buf = new byte[1024*64];
             int justRead;
             while ((justRead = in.read(buf)) != -1) {
                 out.write(buf, 0, justRead);
-            }
-        } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (out != null) {
-                try {
-                    out.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
             }
         }
     }

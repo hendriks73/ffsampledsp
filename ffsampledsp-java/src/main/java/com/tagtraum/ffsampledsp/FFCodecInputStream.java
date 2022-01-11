@@ -23,12 +23,14 @@ package com.tagtraum.ffsampledsp;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.nio.Buffer;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import static com.tagtraum.ffsampledsp.FFAudioFormat.FFEncoding.Codec.*;
 import static com.tagtraum.ffsampledsp.FFGlobalLock.LOCK;
+import static java.util.Arrays.asList;
 
 /**
  * Used by {@link FFFormatConversionProvider} to convert a {@link FFAudioInputStream} (not just
@@ -49,23 +51,25 @@ import static com.tagtraum.ffsampledsp.FFGlobalLock.LOCK;
  */
 public class FFCodecInputStream extends FFNativePeerInputStream {
 
+    private static final Set<Integer> PCM_VALID_SAMPLE_SIZES = new HashSet<>(asList(8, 16, 24, 32));
+    private static final Set<Integer> PCM_FLOAT_VALID_SAMPLE_SIZES = new HashSet<>(asList(32, 64));
     private final FFNativePeerInputStream wrappedStream;
 
     public FFCodecInputStream(final AudioFormat targetFormat, final FFAudioInputStream stream) throws IOException, UnsupportedAudioFileException {
 
-        this.wrappedStream = stream.getNativePeerInputStream();
-
         if (!isEncodingSupported(targetFormat)) {
-            throw new UnsupportedEncodingException("This codec does not support the encoding \"" + targetFormat.getEncoding()
-                    + "\". Supported codecs are: " + FFAudioFormat.FFEncoding.getSupportedEncodings());
+            throw new IllegalArgumentException("This codec does not support the encoding \"" + targetFormat.getEncoding()
+                + "\". Supported codecs are: " + FFAudioFormat.FFEncoding.getSupportedEncodings());
         }
         if (!isSampleSizeFrameSizeChannelsSupported(targetFormat)) {
-            throw new UnsupportedEncodingException("This codec does not support the desired frame size " + targetFormat.getFrameSize() + ".");
+            throw new IllegalArgumentException("This codec does not support the desired frame size " + targetFormat.getFrameSize() + ".");
         }
         final FFAudioFormat.FFEncoding ffEncoding = FFAudioFormat.FFEncoding.getInstance(targetFormat);
         AudioFormat audioFormat = new AudioFormat(ffEncoding,
-                    targetFormat.getSampleRate(), targetFormat.getSampleSizeInBits(), targetFormat.getChannels(),
-                    targetFormat.getFrameSize(), targetFormat.getFrameRate(), targetFormat.isBigEndian());
+            targetFormat.getSampleRate(), targetFormat.getSampleSizeInBits(), targetFormat.getChannels(),
+            targetFormat.getFrameSize(), targetFormat.getFrameRate(), targetFormat.isBigEndian());
+
+        this.wrappedStream = stream.getNativePeerInputStream();
 
         // workaround covariant return type introduced in Java 9
         // ensure limit(int) is called on Buffer, not ByteBuffer
@@ -118,11 +122,11 @@ public class FFCodecInputStream extends FFNativePeerInputStream {
     static boolean isEncodingSupported(final AudioFormat targetFormat) {
         final FFAudioFormat.FFEncoding ffEncoding = FFAudioFormat.FFEncoding.getInstance(targetFormat.getEncoding().toString());
         boolean supported;
-        if (PCM_UNSIGNED.getEncoding().equals(ffEncoding) && targetFormat.getSampleSizeInBits() >= 8 && targetFormat.getSampleSizeInBits() <= 32) {
+        if (PCM_UNSIGNED.getEncoding().equals(ffEncoding) && PCM_VALID_SAMPLE_SIZES.contains(targetFormat.getSampleSizeInBits())) {
             supported = true;
-        } else if (PCM_FLOAT.getEncoding().equals(ffEncoding) && (targetFormat.getSampleSizeInBits() == 32 || targetFormat.getSampleSizeInBits() == 64)) {
+        } else if (PCM_FLOAT.getEncoding().equals(ffEncoding) && PCM_FLOAT_VALID_SAMPLE_SIZES.contains(targetFormat.getSampleSizeInBits())) {
             supported = true;
-        } else if (PCM_SIGNED.getEncoding().equals(ffEncoding) && targetFormat.getSampleSizeInBits() >= 8 && targetFormat.getSampleSizeInBits() <= 32) {
+        } else if (PCM_SIGNED.getEncoding().equals(ffEncoding) && PCM_VALID_SAMPLE_SIZES.contains(targetFormat.getSampleSizeInBits())) {
             supported = true;
         } else {
             supported = false;

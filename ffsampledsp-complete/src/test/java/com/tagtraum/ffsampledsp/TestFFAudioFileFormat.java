@@ -22,7 +22,7 @@ public class TestFFAudioFileFormat {
 
     @Test
     public void testHTTPURL() throws UnsupportedAudioFileException {
-        final FFAudioFileFormat fileFormat = new FFAudioFileFormat("http://www.cnn.com/some.mp3", 0, 44100, 16, 1, 16, 44100, true, 5, 160, false, false);
+        final FFAudioFileFormat fileFormat = new FFAudioFileFormat("http://www.cnn.com/some.mp3", 0, 44100, 16, 1, 16, 44100, 1, true, 5, 160, false, false);
         assertEquals(-1, fileFormat.getByteLength());
         assertEquals("mp3", fileFormat.getType().getExtension());
         assertEquals(5L, fileFormat.properties().get("duration"));
@@ -30,12 +30,12 @@ public class TestFFAudioFileFormat {
 
     @Test(expected = UnsupportedAudioFileException.class)
     public void testHTTPURLNoFile() throws UnsupportedAudioFileException {
-        new FFAudioFileFormat("http://www.cnn.com/", 0, 44100, 16, 1, 16, 44100, true, 5, 160, false, false);
+        new FFAudioFileFormat("http://www.cnn.com/", 0, 44100, 16, 1, 16, 44100, 1, true, 5, 160, false, false);
     }
 
     @Test
     public void testDetermineFrameRate() throws UnsupportedAudioFileException {
-        final FFAudioFileFormat fileFormat = new FFAudioFileFormat("http://www.cnn.com/some.mp3", 0, 44100, 16, 1, 16, AudioSystem.NOT_SPECIFIED, true, 5, 160, false, false);
+        final FFAudioFileFormat fileFormat = new FFAudioFileFormat("http://www.cnn.com/some.mp3", 0, 44100, 16, 1, 16, AudioSystem.NOT_SPECIFIED, 1, true, 5, 160, false, false);
         assertEquals((float)AudioSystem.NOT_SPECIFIED, fileFormat.getFormat().getFrameRate(), 0.01f);
     }
 }

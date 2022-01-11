@@ -23,13 +23,14 @@ package com.tagtraum.ffsampledsp;
 
 import org.junit.Test;
 
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.UnsupportedAudioFileException;
-import java.io.*;
+import javax.sound.sampled.*;
+import java.io.File;
+import java.io.IOException;
 
-import static org.junit.Assert.*;
+import static com.tagtraum.ffsampledsp.TestFFURLInputStream.extractFile;
+import static javax.sound.sampled.AudioFormat.Encoding.PCM_SIGNED;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * TestAudioSystemIntegration.
@@ -56,11 +57,8 @@ public class TestAudioSystemIntegration {
         final String filename = "test.flac";
         final File file = File.createTempFile("testAudioFileReader", filename);
         extractFile(filename, file);
-
         int bytesRead = 0;
-        AudioInputStream in = null;
-        try {
-            in = AudioSystem.getAudioInputStream(file);
+        try (final AudioInputStream in = AudioSystem.getAudioInputStream(file)) {
             int justRead;
             final byte[] buf = new byte[1024];
             while ((justRead = in.read(buf)) != -1) {
@@ -68,13 +66,6 @@ public class TestAudioSystemIntegration {
                 bytesRead += justRead;
             }
         } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
             file.delete();
         }
         System.out.println("Bytes read: " + bytesRead);
@@ -83,14 +74,14 @@ public class TestAudioSystemIntegration {
     @Test
     public void testAudioFileReader2() throws IOException, UnsupportedAudioFileException {
         final String filename = "test.flac";
-        final File file = File.createTempFile("testAudioFileReader", filename);
+        final File file = File.createTempFile("testAudioFileReader2", filename);
         extractFile(filename, file);
+        final AudioFileFormat audioFileFormat = AudioSystem.getAudioFileFormat(file);
+        final long duration = (Long)audioFileFormat.getProperty("duration");
+        final AudioFormat targetFormat = new AudioFormat(PCM_SIGNED, 44100f, 16, 2, 4, 44100f, true);
 
         int bytesRead = 0;
-        AudioInputStream in = null;
-        try {
-            final AudioInputStream flacStream = AudioSystem.getAudioInputStream(file);
-            in = AudioSystem.getAudioInputStream(AudioFormat.Encoding.PCM_SIGNED, flacStream);
+        try (final AudioInputStream in = AudioSystem.getAudioInputStream(PCM_SIGNED, AudioSystem.getAudioInputStream(file))) {
             int justRead;
             final byte[] buf = new byte[1024];
             while ((justRead = in.read(buf)) != -1) {
@@ -98,44 +89,35 @@ public class TestAudioSystemIntegration {
                 bytesRead += justRead;
             }
         } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
             file.delete();
         }
         System.out.println("Bytes read: " + bytesRead);
+        final int expectedBytes = (int)Math.ceil(targetFormat.getFrameRate() * duration / 1000L / 1000L * targetFormat.getFrameSize());
+        assertEquals(expectedBytes, bytesRead);
     }
 
-    private void extractFile(final String filename, final File file) throws IOException {
-        InputStream in = null;
-        OutputStream out = null;
-        try {
-            in = getClass().getResourceAsStream(filename);
-            out = new FileOutputStream(file);
-            final byte[] buf = new byte[1024*64];
+    @Test
+    public void testAudioFileReader3() throws IOException, UnsupportedAudioFileException {
+        final String filename = "test.mp3";
+        final File file = File.createTempFile("testAudioFileReader3", filename);
+        extractFile(filename, file);
+        final AudioFileFormat audioFileFormat = AudioSystem.getAudioFileFormat(file);
+        final long duration = (Long)audioFileFormat.getProperty("duration");
+
+        final AudioFormat targetFormat = new AudioFormat(PCM_SIGNED, 44100f, 16, 2, 4, 44100f, true);
+        int bytesRead = 0;
+        try (final AudioInputStream in = AudioSystem.getAudioInputStream(targetFormat, AudioSystem.getAudioInputStream(file))) {
             int justRead;
+            final byte[] buf = new byte[1024];
             while ((justRead = in.read(buf)) != -1) {
-                out.write(buf, 0, justRead);
+                assertTrue(justRead > 0);
+                bytesRead += justRead;
             }
         } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (out != null) {
-                try {
-                    out.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+            file.delete();
         }
+        System.out.println("Bytes read: " + bytesRead);
+        final int expectedBytes = (int)Math.ceil(targetFormat.getFrameRate() * duration / 1000L / 1000L * targetFormat.getFrameSize());
+        assertEquals(expectedBytes, bytesRead);
     }
 }

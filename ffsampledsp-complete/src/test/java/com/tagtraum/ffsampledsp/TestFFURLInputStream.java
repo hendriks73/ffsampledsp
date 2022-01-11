@@ -40,30 +40,74 @@ public class TestFFURLInputStream {
 
     @Test
     public void testReadThroughMP3File() throws IOException, UnsupportedAudioFileException {
-        final String filename = "test.mp3";
-        final File file = File.createTempFile("testReadThroughMP3File", filename);
-        extractFile(filename, file);
-        int bytesRead = 0;
-        FFURLInputStream in = null;
-        try {
-            in = new FFURLInputStream(file.toURI().toURL());
-            int justRead;
-            final byte[] buf = new byte[1024];
-            while ((justRead = in.read(buf)) != -1) {
-                assertTrue(justRead > 0);
-                bytesRead += justRead;
-            }
-        } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            file.delete();
-        }
-        System.out.println("Read " + bytesRead + " bytes.");
+        final int bytesRead = readThroughFile("testReadThroughMP3File", "test.mp3");
+        assertEquals(1078272, bytesRead);
+    }
+
+    @Test
+    public void testSkipThroughMP3File() throws IOException, UnsupportedAudioFileException {
+        final int bytesSkipped = skipThroughFile("testSkipThroughMP3File", "test.mp3");
+        assertEquals(1078272, bytesSkipped);
+    }
+
+    @Test
+    public void testReadThroughVBRMP3File() throws IOException, UnsupportedAudioFileException {
+        final int bytesRead = readThroughFile("testReadThroughVBRMP3File", "test_vbr130.mp3");
+        assertEquals(1078272, bytesRead);
+    }
+
+    @Test
+    public void testReadThroughCBRMP3File() throws IOException, UnsupportedAudioFileException {
+        final int bytesRead = readThroughFile("testReadThroughCBRMP3File", "test_cbr256.mp3");
+        assertEquals(1078272, bytesRead);
+    }
+
+    @Test
+    public void testReadThroughM4AFile() throws IOException, UnsupportedAudioFileException {
+        final int bytesRead = readThroughFile("testReadThroughM4AFile", "test.m4a");
+        assertEquals(534528, bytesRead);
+    }
+
+    @Test
+    public void testReadThroughCBRM4AFile() throws IOException, UnsupportedAudioFileException {
+        final int bytesRead = readThroughFile("testReadThroughCBRM4AFile", "test_cbr.m4a");
+        assertEquals(1073152, bytesRead);
+    }
+
+    @Test
+    public void testReadThroughVBRM4AFile() throws IOException, UnsupportedAudioFileException {
+        final int bytesRead = readThroughFile("testReadThroughVBRM4AFile", "test_vbr.m4a");
+        assertEquals(1073152, bytesRead);
+    }
+
+    @Test
+    public void testReadThrough48kCBRM4AFile() throws IOException, UnsupportedAudioFileException {
+        final int bytesRead = readThroughFile("testReadThrough48kCBRM4AFile", "test_48k_cbr.m4a");
+        assertEquals(1171456, bytesRead);
+    }
+
+    @Test
+    public void testReadThrough48kVBRM4AFile() throws IOException, UnsupportedAudioFileException {
+        final int bytesRead = readThroughFile("testReadThrough48kVBRM4AFile", "test_48k_vbr.m4a");
+        assertEquals(1171456, bytesRead);
+    }
+
+    @Test
+    public void testReadThrough48kWavFile() throws IOException, UnsupportedAudioFileException {
+        final int bytesRead = readThroughFile("testReadThrough48kWavFile", "test_48k.wav");
+        assertEquals(581800, bytesRead);
+    }
+
+    @Test
+    public void testSkipThrough48kWavFile() throws IOException, UnsupportedAudioFileException {
+        final int bytesSkipped = skipThroughFile("testSkipThrough48kWavFile", "test_48k.wav");
+        assertEquals(581800, bytesSkipped);
+    }
+
+    @Test
+    public void testReadThrough48kAppleLosslessFile() throws IOException, UnsupportedAudioFileException {
+        final int bytesRead = readThroughFile("testReadThrough48kAppleLosslessFile", "test_48k_alac.m4a");
+        assertEquals(581800, bytesRead);
     }
 
     @Test(expected = UnsupportedAudioFileException.class)
@@ -71,33 +115,6 @@ public class TestFFURLInputStream {
         new FFURLInputStream(new URL("file://somefile.m4p"));
     }
 
-    @Test
-    public void testReadThroughM4AFile() throws IOException, UnsupportedAudioFileException {
-        final String filename = "test.m4a";
-        final File file = File.createTempFile("testReadThroughM4AFile", filename);
-        extractFile(filename, file);
-        int bytesRead = 0;
-        FFURLInputStream in = null;
-        try {
-            in = new FFURLInputStream(file.toURI().toURL());
-            int justRead;
-            final byte[] buf = new byte[1024];
-            while ((justRead = in.read(buf)) != -1) {
-                assertTrue(justRead > 0);
-                bytesRead += justRead;
-            }
-        } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            file.delete();
-        }
-        System.out.println("Read " + bytesRead + " bytes.");
-    }
 
     @Test(expected = IndexOutOfBoundsException.class)
     public void testBadStreamIndex() throws IOException, UnsupportedAudioFileException {
@@ -562,31 +579,58 @@ public class TestFFURLInputStream {
     }
 
     static void extractFile(final String filename, final File file) throws IOException {
-        InputStream in = null;
-        OutputStream out = null;
-        try {
-            in = TestFFURLInputStream.class.getResourceAsStream(filename);
-            out = new FileOutputStream(file);
+        try (final InputStream in = TestFFURLInputStream.class.getResourceAsStream(filename);
+             OutputStream out = new FileOutputStream(file)) {
             final byte[] buf = new byte[1024*64];
             int justRead;
             while ((justRead = in.read(buf)) != -1) {
                 out.write(buf, 0, justRead);
             }
-        } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (out != null) {
-                try {
-                    out.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
         }
+    }
+
+
+    private int readThroughFile(final String prefix, final String filename) throws IOException, UnsupportedAudioFileException {
+        final File file = File.createTempFile(prefix, filename);
+        extractFile(filename, file);
+        int bytesRead = 0;
+
+        final AudioFileFormat audioFileFormat = new FFAudioFileReader().getAudioFileFormat(file);
+
+        try (final FFAudioInputStream in = new FFAudioInputStream(new FFURLInputStream(file.toURI().toURL()), audioFileFormat.getFormat(), audioFileFormat.getFrameLength())) {
+            int justRead;
+            final byte[] buf = new byte[1024];
+            while ((justRead = in.read(buf)) != -1) {
+                assertTrue(justRead > 0);
+                bytesRead += justRead;
+            }
+        } finally {
+            file.delete();
+        }
+        System.out.println("Read " + bytesRead + " bytes.");
+        return bytesRead;
+    }
+
+    private int skipThroughFile(final String prefix, final String filename) throws IOException, UnsupportedAudioFileException {
+        final File file = File.createTempFile(prefix, filename);
+        extractFile(filename, file);
+        int bytesSkipped = 0;
+
+        final AudioFileFormat audioFileFormat = new FFAudioFileReader().getAudioFileFormat(file);
+        long bytesToSkip = 1024 * 32;
+        if (audioFileFormat.getFormat().getFrameSize() > 0) {
+            bytesToSkip = audioFileFormat.getFormat().getFrameSize() * 100L;
+        }
+
+        try (final FFAudioInputStream in = new FFAudioInputStream(new FFURLInputStream(file.toURI().toURL()), audioFileFormat.getFormat(), audioFileFormat.getFrameLength())) {
+            long justSkipped;
+            while ((justSkipped = in.skip(bytesToSkip)) != 0) {
+                bytesSkipped += justSkipped;
+            }
+        } finally {
+            file.delete();
+        }
+        System.out.println("Skipped " + bytesSkipped + " bytes.");
+        return bytesSkipped;
     }
 }

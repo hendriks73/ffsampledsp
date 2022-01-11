@@ -49,7 +49,7 @@ import static com.tagtraum.ffsampledsp.FFGlobalLock.LOCK;
  */
 public class FFCodecInputStream extends FFNativePeerInputStream {
 
-    private FFNativePeerInputStream wrappedStream;
+    private final FFNativePeerInputStream wrappedStream;
 
     public FFCodecInputStream(final AudioFormat targetFormat, final FFAudioInputStream stream) throws IOException, UnsupportedAudioFileException {
 

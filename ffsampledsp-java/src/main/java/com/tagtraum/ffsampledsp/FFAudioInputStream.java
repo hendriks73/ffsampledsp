@@ -22,6 +22,7 @@ package com.tagtraum.ffsampledsp;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -34,9 +35,10 @@ import java.util.concurrent.TimeUnit;
  */
 public class FFAudioInputStream extends AudioInputStream {
 
-    private FFNativePeerInputStream nativePeerInputStream;
+    private final FFNativePeerInputStream nativePeerInputStream;
+    private final long ffFrameLength;
 
-    public FFAudioInputStream(final FFNativePeerInputStream nativePeerInputStream, final AudioFormat format, final long length) {
+    public FFAudioInputStream(final FFNativePeerInputStream nativePeerInputStream, final AudioFormat format, final long frameLength) {
         super(nativePeerInputStream, new AudioFormat(
                 format.getEncoding(),
                 format.getSampleRate(),
@@ -46,12 +48,29 @@ public class FFAudioInputStream extends AudioInputStream {
                 format.getFrameRate(),
                 format.isBigEndian(),
                 createProperties(format.properties())
-                ), length);
+                ), getFrameLength(format, frameLength));
         this.nativePeerInputStream = nativePeerInputStream;
+        // Core Audio may give us the correct frameLength, but we don't
+        // pass it to AudioInputStream, because of https://bugs.openjdk.java.net/browse/JDK-8279338
+        this.ffFrameLength = frameLength;
+    }
+
+    @Override
+    public long getFrameLength() {
+        return this.ffFrameLength;
+    }
+
+    private static long getFrameLength(final AudioFormat format, final long frameLength) {
+        // NOTE: Because of https://bugs.openjdk.java.net/browse/JDK-8279338
+        // we need to set frameLength to NOT_SPECIFIED, if the frameSize is unknown.
+        // Otherwise, the AudioInputStream does not let us read to the end of the stream
+        return frameLength > 0 && format.getFrameSize() > 0
+            ? frameLength
+            : AudioSystem.NOT_SPECIFIED;
     }
 
     private static Map<String, Object> createProperties(final Map<String, Object> p) {
-        final Map<String, Object> properties = new HashMap<String, Object>(p);
+        final Map<String, Object> properties = new HashMap<>(p);
         properties.put(FFAudioFormat.PROVIDER, FFAudioFormat.FFSAMPLEDSP);
         return properties;
     }

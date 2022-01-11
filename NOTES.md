@@ -1,5 +1,7 @@
 - 0.9.44
-  - Report `UnsupportedAudioFileException`, if stream with index `0` cannot be found 
+  - Report `UnsupportedAudioFileException`, if stream with index `0` cannot be found.
+  - Workaround for [JDK-8279338](https://bugs.openjdk.java.net/browse/JDK-8279338).
+  - Fixed reporting of frame-related values.
 
 
 - 0.9.42 - 0.9.43

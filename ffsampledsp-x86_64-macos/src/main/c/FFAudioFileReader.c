@@ -52,7 +52,7 @@ static void init_ids(JNIEnv *env) {
 #endif
 
         limit_MID = (*env)->GetMethodID(env, bufferClass, "limit", "()I");
-        ffAudioFileFormat_MID = (*env)->GetMethodID(env, ffAudioFileFormat_class, "<init>", "(Ljava/lang/String;IFIIIFZJILjava/lang/Boolean;Z)V");
+        ffAudioFileFormat_MID = (*env)->GetMethodID(env, ffAudioFileFormat_class, "<init>", "(Ljava/lang/String;IFIIIFIZJILjava/lang/Boolean;Z)V");
 #ifdef DEBUG
         if (!limit_MID) fprintf(stderr, "Failed to find limit method\n");
         if (!ffAudioFileFormat_MID) fprintf(stderr, "Failed to find constructor of AudioFileFormat\n");
@@ -130,9 +130,15 @@ static int is_pcm(enum AVCodecID id) {
         case AV_CODEC_ID_PCM_F64BE:
         case AV_CODEC_ID_PCM_F64LE:
             res = 1;
+#ifdef DEBUG
+            fprintf(stderr, "is PCM\n");
+#endif
             break;
         default:
             res = 0;
+#ifdef DEBUG
+            fprintf(stderr, "is NOT PCM\n");
+#endif
     }
     return res;
 }
@@ -150,11 +156,23 @@ static jlong duration(AVFormatContext *format_context, AVStream *stream) {
     if (format_context->duration != AV_NOPTS_VALUE) {
         int64_t micro_seconds_base = AV_TIME_BASE / 1000000; // this should be=1
         duration_in_microseconds = (jlong)(format_context->duration / micro_seconds_base);
+#ifdef DEBUG
+        fprintf(stderr, "format_context->duration: %i\n", format_context->duration);
+        fprintf(stderr, "duration_in_microseconds 0: %li\n", duration_in_microseconds);
+#endif
     }
 
     if (stream->nb_frames != 0 && duration_in_microseconds <=0 && stream->codecpar->sample_rate > 0) {
         duration_in_microseconds = stream->nb_frames * 1000000L / stream->codecpar->sample_rate;
+#ifdef DEBUG
+        fprintf(stderr, "stream->nb_frames: %i\n", stream->nb_frames);
+        fprintf(stderr, "stream->codecpar->sample_rate: %f\n", stream->codecpar->sample_rate);
+        fprintf(stderr, "duration_in_microseconds 1: %i\n", duration_in_microseconds);
+#endif
     }
+#ifdef DEBUG
+    fprintf(stderr, "duration_in_microseconds final: %i\n", duration_in_microseconds);
+#endif
     return duration_in_microseconds;
 }
 
@@ -176,7 +194,7 @@ static jfloat get_frame_rate(AVStream *stream, jlong duration) {
         frame_rate = (jfloat)stream->codecpar->sample_rate/(jfloat)stream->codecpar->frame_size;
     }
 
-    if (frame_rate <=0 && stream->codecpar->frame_size == 0 && stream->codecpar->sample_rate > 0) {
+    if (frame_rate <=0 && stream->codecpar->frame_size == 0 && is_pcm(stream->codecpar->codec_id) && stream->codecpar->sample_rate > 0) {
         frame_rate = (jfloat)stream->codecpar->sample_rate;
     }
 
@@ -189,7 +207,7 @@ static jfloat get_frame_rate(AVStream *stream, jlong duration) {
         fprintf(stderr, "2 frame rate : %f\n", (jfloat)stream->codecpar->sample_rate/(jfloat)stream->codecpar->frame_size);
         fprintf(stderr, "frame_size : %f, sample_rate : %f\n", (jfloat)stream->codecpar->frame_size, (jfloat)stream->codecpar->sample_rate);
     }
-    if (stream->codecpar->frame_size == 0 && stream->codecpar->sample_rate > 0) {
+    if (stream->codecpar->frame_size == 0 && is_pcm(stream->codecpar->codec_id) && stream->codecpar->sample_rate > 0) {
         fprintf(stderr, "3 frame rate : %f\n", (jfloat)stream->codecpar->sample_rate);
     }
 #endif
@@ -202,30 +220,33 @@ static jfloat get_frame_rate(AVStream *stream, jlong duration) {
  *
  * @return freshly instantiated FFAudioFileFormat or NULL in case of an error
  */
-static jobject create_ffaudiofileformat(JNIEnv *env, jstring url, jint codecId, jfloat sampleRate, jint sampleSize,
-                                         jint channels, jint frame_size, jfloat frame_rate, jboolean big_endian, jlong duration,
-                                         jint bitRate, jobject vbr, jboolean encrypted) {
+static jobject create_ffaudiofileformat(JNIEnv *env, jstring url, jint codecId, jfloat sampleRate,
+                                        jint sampleSize, jint channels, jint frame_size, jfloat frame_rate,
+                                        jint frame_length, jboolean big_endian, jlong duration,
+                                        jint bitRate, jobject vbr, jboolean encrypted) {
     jclass ffAudioFileFormat_class = NULL;
 
     ffAudioFileFormat_class = (*env)->FindClass(env, "com/tagtraum/ffsampledsp/FFAudioFileFormat");
 
     /* Construct an FFAudioFileFormat object */
     return (*env)->NewObject(env, ffAudioFileFormat_class, ffAudioFileFormat_MID, url, codecId, sampleRate, sampleSize,
-                channels, frame_size, frame_rate, big_endian, duration, bitRate, vbr, encrypted);
+                channels, frame_size, frame_rate, frame_length, big_endian, duration, bitRate, vbr, encrypted);
 }
 
 static int create_ffaudiofileformats(JNIEnv *env, AVFormatContext *format_context, jobjectArray *array, jstring url) {
     int res = 0;
+    int pcm = 0;
     jlong duration_in_microseconds = -1;
     jfloat frame_rate = -1;
-    jobject vbr = NULL;
-    jboolean big_endian = 1;
-    jobject audio_format = NULL;
     jint frame_size = -1;
     jint sample_size = -1;
+    jint frame_length = -1;
     int audio_stream_count = 0;
     int audio_stream_number = 0;
     jboolean encrypted = 0;
+    jobject vbr = NULL;
+    jboolean big_endian = 1;
+    jobject audio_format = NULL;
 
     // count possible audio streams
     int i;
@@ -271,9 +292,23 @@ static int create_ffaudiofileformats(JNIEnv *env, AVFormatContext *format_contex
             duration_in_microseconds = duration(format_context, stream);
             frame_rate = get_frame_rate(stream, duration_in_microseconds);
             big_endian = ff_big_endian(stream->codecpar->codec_id);
-            if (is_pcm(stream->codecpar->codec_id)) {
+            pcm = is_pcm(stream->codecpar->codec_id);
+
+            if (pcm) {
                 frame_size = (stream->codecpar->bits_per_coded_sample / 8) * stream->codecpar->channels;
             }
+
+            // get frame_length, if available and perhaps use it to adjust duration
+            if (stream->nb_frames > 0) {
+                frame_length = stream->nb_frames;
+            } else if (duration_in_microseconds > 0 && pcm && stream->codecpar->sample_rate > 0) {
+                frame_length = (jint) round(duration_in_microseconds * stream->codecpar->sample_rate / 1000. / 1000.);
+            } else if (duration_in_microseconds > 0 && stream->codecpar->frame_size > 0 && stream->codecpar->sample_rate > 0) {
+                frame_length = (jint) round(duration_in_microseconds * stream->codecpar->sample_rate / stream->codecpar->frame_size / 1000. / 1000.);
+                // re-estimat duration, based on non-PCM frame_size
+                duration_in_microseconds = (jlong)(1000. * 1000. * frame_length * stream->codecpar->frame_size / stream->codecpar->sample_rate);
+            }
+
             // TODO: Support VBR.
 
             sample_size = stream->codecpar->bits_per_raw_sample
@@ -290,33 +325,38 @@ static int create_ffaudiofileformats(JNIEnv *env, AVFormatContext *format_contex
                 fprintf(stderr, "stream->codecpar->bits_per_raw_sample  : %i\n", stream->codecpar->bits_per_raw_sample);
                 fprintf(stderr, "stream->codecpar->bit_rate             : %lli\n", stream->codecpar->bit_rate);
                 fprintf(stderr, "stream->codecpar->codec_tag=drms       : %i\n", encrypted);
-                fprintf(stderr, "format_context->packet_size         : %i\n", format_context->packet_size);
-                fprintf(stderr, "frames     : %" PRId64 "\n", stream->nb_frames);
-                fprintf(stderr, "sample_rate: %i\n", stream->codecpar->sample_rate);
-                fprintf(stderr, "sampleSize : %i\n", sample_size);
-                fprintf(stderr, "channels   : %i\n", stream->codecpar->channels);
-                fprintf(stderr, "frame_size : %i\n", (int)frame_size);
-                fprintf(stderr, "codec_id   : %i\n", stream->codecpar->codec_id);
-                fprintf(stderr, "duration   : %" PRId64 "\n", (int64_t)duration_in_microseconds);
-                fprintf(stderr, "frame_rate : %f\n", frame_rate);
+                fprintf(stderr, "format_context->packet_size            : %i\n", format_context->packet_size);
+                fprintf(stderr, "sample_rate : %i\n", stream->codecpar->sample_rate);
+                fprintf(stderr, "sampleSize  : %i\n", sample_size);
+                fprintf(stderr, "channels    : %i\n", stream->codecpar->channels);
+                fprintf(stderr, "frame_size  : %i\n", (int)frame_size);
+                fprintf(stderr, "frame_rate  : %f\n", frame_rate);
+                fprintf(stderr, "frame_length: %i\n", frame_length);
+                fprintf(stderr, "codec_id    : %i\n", stream->codecpar->codec_id);
+                fprintf(stderr, "duration    : %li\n", duration_in_microseconds);
                 if (big_endian) {
                     fprintf(stderr, "big_endian  : true\n");
                 } else {
                     fprintf(stderr, "big_endian  : false\n");
                 }
             #endif
-            audio_format = create_ffaudiofileformat(env, url,
-                                                           stream->codecpar->codec_id,
-                                                           (jfloat)stream->codecpar->sample_rate,
-                                                           sample_size,
-                                                           stream->codecpar->channels,
-                                                           frame_size,
-                                                           frame_rate,
-                                                           big_endian,
-                                                           duration_in_microseconds,
-                                                           stream->codecpar->bit_rate,
-                                                           vbr,
-                                                           encrypted);
+
+            audio_format = create_ffaudiofileformat(
+                env,
+                url,
+                stream->codecpar->codec_id,
+                (jfloat)stream->codecpar->sample_rate,
+                sample_size,
+                stream->codecpar->channels,
+                frame_size,
+                frame_rate,
+                frame_length,
+                big_endian,
+                duration_in_microseconds,
+                stream->codecpar->bit_rate,
+                vbr,
+                encrypted
+            );
 
             (*env)->SetObjectArrayElement(env, *array, audio_stream_number, audio_format);
             audio_stream_number++;

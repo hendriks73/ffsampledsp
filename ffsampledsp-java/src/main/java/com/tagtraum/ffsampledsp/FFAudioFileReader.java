@@ -54,7 +54,7 @@ public class FFAudioFileReader extends AudioFileReader {
 
     private static final boolean WINDOWS = System.getProperty("os.name").toLowerCase().contains("win");
 
-    private static Map<URL, AudioFileFormat[]> cache = Collections.synchronizedMap(new LinkedHashMap<URL, AudioFileFormat[]>() {
+    private static final Map<URL, AudioFileFormat[]> cache = Collections.synchronizedMap(new LinkedHashMap<URL, AudioFileFormat[]>() {
         private static final int MAX_ENTRIES = 20;
 
         @Override

@@ -29,6 +29,8 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 /**
  * First tries to load a library the default way using {@link System#loadLibrary(String)},
  * upon failure falls back to the base directory of the given class package or the jar the class
@@ -245,7 +247,7 @@ public final class FFNativeLibraryLoader {
                 filename = libs[0].toString();
             }
             return filename;
-        } catch (UnsupportedEncodingException | MalformedURLException e) {
+        } catch (MalformedURLException e) {
             final FileNotFoundException fnfe = new FileNotFoundException(name + ": " + e);
             fnfe.initCause(e);
             throw fnfe;
@@ -301,7 +303,7 @@ public final class FFNativeLibraryLoader {
      * @param s url
      * @return decoded URL
      */
-    static String decodeURL(final String s) throws UnsupportedEncodingException {
+    static String decodeURL(final String s) {
         boolean needToChange = false;
         final int numChars = s.length();
         final StringBuilder sb = new StringBuilder(numChars > 500 ? numChars / 2 : numChars);
@@ -349,7 +351,7 @@ public final class FFNativeLibraryLoader {
                         throw new IllegalArgumentException("FFNativeLibraryLoader: Incomplete trailing escape (%) pattern");
                     }
 
-                    sb.append(new String(bytes, 0, pos, "UTF-8"));
+                    sb.append(new String(bytes, 0, pos, UTF_8));
                 } catch (NumberFormatException e) {
                     throw new IllegalArgumentException("FFNativeLibraryLoader: Illegal hex characters in escape (%) pattern - " + e.getMessage());
                 }

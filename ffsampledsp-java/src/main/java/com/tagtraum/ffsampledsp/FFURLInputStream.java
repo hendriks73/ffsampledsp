@@ -36,7 +36,7 @@ import static com.tagtraum.ffsampledsp.FFGlobalLock.LOCK;
 public class FFURLInputStream extends FFNativePeerInputStream {
 
     private final boolean seekable;
-    private URL url;
+    private final URL url;
 
     public FFURLInputStream(final URL url) throws IOException, UnsupportedAudioFileException {
         this(url, 0);
@@ -94,9 +94,11 @@ public class FFURLInputStream extends FFNativePeerInputStream {
      * @param url url
      * @param streamIndex index of the stream in the file, typically 0, but may differ for STEMS
      * @return pointer to native peer
-     * @throws IOException
+     * @throws IOException if something IO-related goes wrong
+     * @throws UnsupportedAudioFileException if the file is not supported
+     * @throws IndexOutOfBoundsException if the stream index is not valid
      */
-    private long lockedOpen(final String url, final int streamIndex) throws IOException {
+    private long lockedOpen(final String url, final int streamIndex) throws IOException, UnsupportedAudioFileException {
         LOCK.lock();
         try {
             return open(url, streamIndex);
@@ -108,7 +110,7 @@ public class FFURLInputStream extends FFNativePeerInputStream {
     private native boolean isSeekable(final long pointer);
     private native void seek(final long pointer, final long microseconds) throws IOException;
     private native void fillNativeBuffer(final long pointer) throws IOException;
-    private native long open(final String url, final int streamIndex) throws IOException;
+    private native long open(final String url, final int streamIndex) throws IOException, UnsupportedAudioFileException;
     protected native void close(final long pointer) throws IOException;
 
 }

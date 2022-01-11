@@ -46,9 +46,9 @@ public class FFAudioFormat extends AudioFormat {
     public static final String FFSAMPLEDSP = "ffsampledsp";
 
     public FFAudioFormat(final int codecId, final float sampleRate, final int sampleSize, final int channels,
-                         final int packetSize, final float frameRate, final boolean bigEndian, final int bitRate,
+                         final int frameSize, final float frameRate, final boolean bigEndian, final int bitRate,
                          final Boolean vbr, final boolean encrypted) {
-        super(FFEncoding.getInstance(codecId), sampleRate, sampleSize, channels, packetSize, frameRate, bigEndian, createProperties(bitRate, vbr, encrypted));
+        super(FFEncoding.getInstance(codecId), sampleRate, sampleSize, channels, frameSize, frameRate, bigEndian, createProperties(bitRate, vbr, encrypted));
     }
 
     private static Map<String, Object> createProperties(final int bitRate, final Boolean vbr, final boolean encrypted) {
@@ -399,14 +399,14 @@ public class FFAudioFormat extends AudioFormat {
 
             private FFEncoding encoding;
             private boolean pcm;
-            private String name;
-            private int id;
+            private final String name;
+            private final int id;
 
             /**
              * @param name name
              * @param id AVCodecID (should <em>not</em> be a PCM codec)
              */
-            private Codec(final String name, final int id) {
+            Codec(final String name, final int id) {
                 this.name = name;
                 this.id = id;
             }
@@ -416,7 +416,7 @@ public class FFAudioFormat extends AudioFormat {
              * @param id AVCodecID
              * @param pcm indicates whether this codec is a PCM codec like e.g. PCM_S8_PLANAR
              */
-            private Codec(final String name, final int id, final boolean pcm) {
+            Codec(final String name, final int id, final boolean pcm) {
                 this.name = name;
                 this.id = id;
                 this.pcm = pcm;
@@ -443,10 +443,10 @@ public class FFAudioFormat extends AudioFormat {
 
         }
 
-        private static Map<Integer, Codec> CODEC_ID_MAP = new HashMap<Integer, Codec>();
-        private static Map<String, Codec> NAME_MAP = new HashMap<String, Codec>();
-        private static Map<String, Codec> PCM_MAP = new HashMap<String, Codec>();
-        private static Set<FFEncoding> SUPPORTED_ENCODINGS = new HashSet<FFEncoding>();
+        private static final Map<Integer, Codec> CODEC_ID_MAP = new HashMap<>();
+        private static final Map<String, Codec> NAME_MAP = new HashMap<>();
+        private static final Map<String, Codec> PCM_MAP = new HashMap<>();
+        private static final Set<FFEncoding> SUPPORTED_ENCODINGS = new HashSet<>();
 
         private static String toPCMKey(final AudioFormat audioFormat) {
             final StringBuilder sb = new StringBuilder();
@@ -494,7 +494,7 @@ public class FFAudioFormat extends AudioFormat {
             NAME_MAP.put(FFEncoding.Codec.PCM_FLOAT.getEncoding().toString(), Codec.PCM_FLOAT);
         }
 
-        private int codecId;
+        private final int codecId;
 
         public FFEncoding(final Codec codec) {
             super(codec.getName());

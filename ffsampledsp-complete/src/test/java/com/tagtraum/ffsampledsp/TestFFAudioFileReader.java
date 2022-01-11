@@ -26,13 +26,13 @@ import org.junit.Test;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Random;
 
+import static javax.sound.sampled.AudioSystem.NOT_SPECIFIED;
 import static org.junit.Assert.*;
 
 /**
@@ -88,7 +88,7 @@ public class TestFFAudioFileReader {
             assertEquals(33, fileFormat.getFrameLength());
 
             final AudioFormat format = fileFormat.getFormat();
-            assertEquals(-1, format.getFrameSize());
+            assertEquals(NOT_SPECIFIED, format.getFrameSize());
             assertEquals(16, format.getSampleSizeInBits());
             assertEquals(2, format.getChannels());
             final Long duration = (Long)fileFormat.getProperty("duration");
@@ -117,7 +117,7 @@ public class TestFFAudioFileReader {
                 assertEquals(33, fileFormat.getFrameLength());
 
                 final AudioFormat format = fileFormat.getFormat();
-                assertEquals(-1, format.getFrameSize());
+                assertEquals(NOT_SPECIFIED, format.getFrameSize());
                 assertEquals(2, format.getChannels());
                 assertEquals(16, format.getSampleSizeInBits());
                 final Long duration = (Long) fileFormat.getProperty("duration");
@@ -145,12 +145,12 @@ public class TestFFAudioFileReader {
             assertEquals(117, fileFormat.getFrameLength());
 
             final AudioFormat format = fileFormat.getFormat();
-            assertEquals(-1, format.getSampleSizeInBits());
-            assertEquals(-1, format.getFrameSize());
+            assertEquals(NOT_SPECIFIED, format.getSampleSizeInBits());
+            assertEquals(NOT_SPECIFIED, format.getFrameSize());
             assertEquals(2, format.getChannels());
             final Long duration = (Long)fileFormat.getProperty("duration");
             assertNotNull(duration);
-            assertEquals(3056333, (long)duration);
+            assertEquals(3056326, (long)duration);
             assertEquals(38.28125f, format.getFrameRate(), 0.001f);
             final Integer bitrate = (Integer)format.getProperty("bitrate");
             assertNotNull(bitrate);
@@ -217,16 +217,16 @@ public class TestFFAudioFileReader {
 
             assertEquals("flac", fileFormat.getType().getExtension());
             assertEquals(file.length(), fileFormat.getByteLength());
-            assertEquals(133632, fileFormat.getFrameLength());
+            assertEquals(NOT_SPECIFIED, fileFormat.getFrameLength());
 
             final AudioFormat format = fileFormat.getFormat();
-            assertEquals(-1, format.getFrameSize());
+            assertEquals(NOT_SPECIFIED, format.getFrameSize());
             assertEquals(16, format.getSampleSizeInBits());
             assertEquals(2, format.getChannels());
             final Long duration = (Long)fileFormat.getProperty("duration");
             assertNotNull(duration);
             assertEquals(3030204, (long)duration);
-            assertEquals(44100.0f, format.getFrameRate(), 0.001f);
+            assertEquals(NOT_SPECIFIED, format.getFrameRate(), 0.001f);
             final Integer bitrate = (Integer)format.getProperty("bitrate");
             assertNull("Expected bitrate to be missing, but it is not: " + bitrate, bitrate);
         } finally {
@@ -246,15 +246,15 @@ public class TestFFAudioFileReader {
 
             assertEquals("ogg", fileFormat.getType().getExtension());
             assertEquals(file.length(), fileFormat.getByteLength());
-            assertEquals(133632, fileFormat.getFrameLength());
+            assertEquals(NOT_SPECIFIED, fileFormat.getFrameLength());
 
             final AudioFormat format = fileFormat.getFormat();
-            assertEquals(-1, format.getFrameSize());
+            assertEquals(NOT_SPECIFIED, format.getFrameSize());
             assertEquals(2, format.getChannels());
             final Long duration = (Long)fileFormat.getProperty("duration");
             assertNotNull(duration);
             assertEquals(3030204, (long)duration);
-            assertEquals(44100.0f, format.getFrameRate(), 0.001f);
+            assertEquals(NOT_SPECIFIED, format.getFrameRate(), 0.001f);
             final Integer bitrate = (Integer)format.getProperty("bitrate");
             assertNotNull("Bitrate missing", bitrate);
             assertEquals(112000, (int)bitrate);
@@ -274,15 +274,15 @@ public class TestFFAudioFileReader {
 
             assertEquals("ogg", fileFormat.getType().getExtension());
             assertEquals(file.length(), fileFormat.getByteLength());
-            assertEquals(133632, fileFormat.getFrameLength());
+            assertEquals(NOT_SPECIFIED, fileFormat.getFrameLength());
 
             final AudioFormat format = fileFormat.getFormat();
-            assertEquals(-1, format.getFrameSize());
+            assertEquals(NOT_SPECIFIED, format.getFrameSize());
             assertEquals(2, format.getChannels());
             final Long duration = (Long)fileFormat.getProperty("duration");
             assertNotNull(duration);
             assertEquals(3030204, (long)duration);
-            assertEquals(44100.0f, format.getFrameRate(), 0.001f);
+            assertEquals((float)NOT_SPECIFIED, format.getFrameRate(), 0.001f);
             final Integer bitrate = (Integer)format.getProperty("bitrate");
             assertNotNull("Bitrate missing", bitrate);
             assertEquals(112000, (int)bitrate);
@@ -303,15 +303,15 @@ public class TestFFAudioFileReader {
 
             assertEquals("ogg", fileFormat.getType().getExtension());
             assertEquals(file.length(), fileFormat.getByteLength());
-            assertEquals(133632, fileFormat.getFrameLength());
+            assertEquals(NOT_SPECIFIED, fileFormat.getFrameLength());
 
             final AudioFormat format = fileFormat.getFormat();
-            assertEquals(-1, format.getFrameSize());
+            assertEquals(NOT_SPECIFIED, format.getFrameSize());
             assertEquals(2, format.getChannels());
             final Long duration = (Long)fileFormat.getProperty("duration");
             assertNotNull(duration);
             assertEquals(3030204, (long)duration);
-            assertEquals(44100.0f, format.getFrameRate(), 0.001f);
+            assertEquals((float)NOT_SPECIFIED, format.getFrameRate(), 0.001f);
             final Integer bitrate = (Integer)format.getProperty("bitrate");
             assertNotNull("Bitrate missing", bitrate);
             assertEquals(112000, (int) bitrate);
@@ -331,15 +331,15 @@ public class TestFFAudioFileReader {
             System.out.println(fileFormat);
 
             assertEquals("ogg", fileFormat.getType().getExtension());
-            assertEquals(AudioSystem.NOT_SPECIFIED, fileFormat.getByteLength());
-            assertEquals(AudioSystem.NOT_SPECIFIED, fileFormat.getFrameLength());
+            assertEquals(NOT_SPECIFIED, fileFormat.getByteLength());
+            assertEquals(NOT_SPECIFIED, fileFormat.getFrameLength());
 
             final AudioFormat format = fileFormat.getFormat();
             assertEquals(2, format.getChannels());
             assertEquals(-1, format.getFrameSize());
             final Long duration = (Long)fileFormat.getProperty("duration");
             assertNull(duration);
-            assertEquals(44100.0f, format.getFrameRate(), 0.00001f);
+            assertEquals(NOT_SPECIFIED, format.getFrameRate(), 0.00001f);
         } finally {
             file.delete();
         }
@@ -393,30 +393,12 @@ public class TestFFAudioFileReader {
     }
 
     private void extractFile(final String filename, final File file) throws IOException {
-        InputStream in = null;
-        OutputStream out = null;
-        try {
-            in = getClass().getResourceAsStream(filename);
-            out = new FileOutputStream(file);
+        try (final InputStream in = getClass().getResourceAsStream(filename);
+             OutputStream out = new FileOutputStream(file)) {
             final byte[] buf = new byte[1024*64];
             int justRead;
             while ((justRead = in.read(buf)) != -1) {
                 out.write(buf, 0, justRead);
-            }
-        } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (out != null) {
-                try {
-                    out.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
             }
         }
     }
@@ -467,7 +449,7 @@ public class TestFFAudioFileReader {
 
             assertEquals("flac", fileFormat.getType().getExtension());
             assertEquals(file.length(), fileFormat.getByteLength());
-            assertEquals(133632, fileFormat.getFrameLength());
+            assertEquals(NOT_SPECIFIED, fileFormat.getFrameLength());
             final AudioFormat format = fileFormat.getFormat();
             assertEquals("FLAC", format.getEncoding().toString());
             assertEquals(-1, format.getFrameSize());
@@ -477,7 +459,7 @@ public class TestFFAudioFileReader {
             assertNotNull(duration);
             assertEquals(3030204, (long)duration);
             assertEquals(44100f, format.getSampleRate(), 0.001f);
-            assertEquals(44100f, format.getFrameRate(), 0.001f);
+            assertEquals(NOT_SPECIFIED, format.getFrameRate(), 0.001f);
             assertEquals(24, format.getSampleSizeInBits());
             final Integer bitrate = (Integer)format.getProperty("bitrate");
             assertNull("Expected bitrate to be missing, but it is not: " + bitrate, bitrate);

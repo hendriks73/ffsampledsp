@@ -49,7 +49,7 @@ public class FFAudioFileFormat extends AudioFileFormat {
     private static final Type FLAC = new Type("Flac", "flac");
     private static final Type VORBIS = new Type("Vorbis", "ogg");
 
-    private static Map<Integer, Type> TYPE_MAP = new HashMap<Integer, Type>();
+    private static final Map<Integer, Type> TYPE_MAP = new HashMap<>();
 
     static {
         TYPE_MAP.put(FFAudioFormat.FFEncoding.Codec.MP1.getEncoding().getCodecId(), FFAudioFileFormat.MP1);
@@ -64,18 +64,21 @@ public class FFAudioFileFormat extends AudioFileFormat {
     private final HashMap<String, Object> properties;
 
     public FFAudioFileFormat(final String url, final int codecId,
-                             final float sampleRate, final int sampleSize, final int channels, final int packetSize,
-                             final float frameRate, final boolean bigEndian, final long durationInMicroSeconds,
+                             final float sampleRate, final int sampleSize, final int channels, final int frameSize,
+                             final float frameRate, final int frameLength, final boolean bigEndian,
+                             final long durationInMicroSeconds,
                              final int bitRate, final Boolean vbr, final boolean encrypted)
             throws UnsupportedAudioFileException {
 
         super(getAudioFileFormatType(url, codecId), getLength(url),
-                new FFAudioFormat(codecId, sampleRate, sampleSize, channels, packetSize,
+                new FFAudioFormat(codecId, sampleRate, sampleSize, channels, frameSize,
                         determineFrameRate(codecId, sampleRate, frameRate), bigEndian, bitRate, vbr, encrypted),
-                        determineFrameLength(determineFrameRate(codecId, sampleRate, frameRate), durationInMicroSeconds)
+                        frameLength
         );
-        this.properties = new HashMap<java.lang.String,java.lang.Object>();
-        if (durationInMicroSeconds > 0) this.properties.put("duration", durationInMicroSeconds);
+        this.properties = new HashMap<>();
+        if (durationInMicroSeconds > 0) {
+            this.properties.put("duration", durationInMicroSeconds);
+        }
     }
 
     private static int getLength(final String urlString) {
@@ -94,7 +97,7 @@ public class FFAudioFileFormat extends AudioFileFormat {
         if (frameRate * durationInMicroSeconds <= 0) {
             return AudioSystem.NOT_SPECIFIED;
         } else {
-            return (int) Math.round((frameRate * (double)durationInMicroSeconds) / 1000000.0);
+            return (int) Math.ceil((frameRate * (double)durationInMicroSeconds) / 1000000.0);
         }
     }
 

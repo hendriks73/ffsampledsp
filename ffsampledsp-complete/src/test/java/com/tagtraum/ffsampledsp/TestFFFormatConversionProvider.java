@@ -34,8 +34,7 @@ import java.util.Set;
 
 import static com.tagtraum.ffsampledsp.FFFormatConversionProvider.*;
 import static com.tagtraum.ffsampledsp.TestFFURLInputStream.extractFile;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * TestFFFormatConversionProvider.
@@ -43,6 +42,21 @@ import static org.junit.Assert.assertTrue;
  * @author <a href="mailto:hs@tagtraum.com">Hendrik Schreiber</a>
  */
 public class TestFFFormatConversionProvider {
+
+    @Test
+    public void testGetSourceEncodings() {
+        final Set<AudioFormat.Encoding> sourceEncodings = new HashSet<>(Arrays.asList(new FFFormatConversionProvider().getSourceEncodings()));
+        assertTrue(sourceEncodings.contains(FFAudioFormat.FFEncoding.getInstance("GSM")));
+    }
+    
+    @Test
+    public void testGetTargetEncodings() {
+        final Set<AudioFormat.Encoding> targetEncodings = new HashSet<>(Arrays.asList(new FFFormatConversionProvider().getTargetEncodings()));
+        assertFalse(targetEncodings.contains(FFAudioFormat.FFEncoding.getInstance("GSM")));
+        assertTrue(targetEncodings.contains(FFAudioFormat.FFEncoding.getInstance("PCM_UNSIGNED")));
+        assertTrue(targetEncodings.contains(FFAudioFormat.FFEncoding.getInstance("PCM_SIGNED")));
+        assertTrue(targetEncodings.contains(FFAudioFormat.FFEncoding.getInstance("PCM_FLOAT")));
+    }
 
     @Test
     public void testGetTargetFormatsSigned() {

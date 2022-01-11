@@ -102,6 +102,18 @@ public class TestFFCodecInputStream {
     }
 
     @Test(expected = IllegalArgumentException.class)
+    public void testIllegal0Channels() throws IOException, UnsupportedAudioFileException {
+        final AudioFormat targetFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 44100f, 8, 0, 2, 44100f, false);
+        new FFCodecInputStream(targetFormat, null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testIllegal3Channels() throws IOException, UnsupportedAudioFileException {
+        final AudioFormat targetFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 44100f, 8, 3, 2, 44100f, false);
+        new FFCodecInputStream(targetFormat, null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
     public void testIllegalFrameSizeSample8() throws IOException, UnsupportedAudioFileException {
         final AudioFormat targetFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 44100f, 8, 2, 5, 44100f, false);
         new FFCodecInputStream(targetFormat, null);
@@ -732,6 +744,78 @@ public class TestFFCodecInputStream {
         }
         System.out.println("Read " + bytesRead + " bytes.");
         assertEquals(534528, bytesRead);
+    }
+
+    @Test
+    public void testReadConvertWaveStreamToUnsignedPCM() throws IOException, UnsupportedAudioFileException {
+        final String filename = "test.wav";
+        final File file = File.createTempFile("testReadConvertWaveStreamToUnsignedPCM", filename);
+        extractFile(filename, file);
+        int bytesRead = 0;
+        FFCodecInputStream pcmStream = null;
+        try (final AudioInputStream mp3Stream = new FFAudioFileReader().getAudioInputStream(new BufferedInputStream(new FileInputStream(file)))) {
+            final AudioFormat targetFormat = new AudioFormat(FFAudioFormat.FFEncoding.PCM_UNSIGNED, 44100, 16, 2, 4, 44100, false);
+            System.err.println("wave: " + mp3Stream.getFormat());
+            System.err.println("pcm: " + targetFormat);
+            pcmStream = new FFCodecInputStream(targetFormat, (FFAudioInputStream) mp3Stream);
+
+            //AudioSystem.write(new FFAudioInputStream(pcmStream, targetFormat, -1), AudioFileFormat.Type.WAVE, new File("writtentest.wav"));
+            int justRead;
+            final byte[] buf = new byte[1024];
+            while ((justRead = pcmStream.read(buf)) != -1) {
+                assertTrue(justRead > 0);
+                bytesRead += justRead;
+            }
+
+
+        } finally {
+            if (pcmStream != null) {
+                try {
+                    pcmStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            file.delete();
+        }
+        System.out.println("Read " + bytesRead + " bytes.");
+        assertEquals(534528, bytesRead);
+    }
+
+    @Test
+    public void testReadConvertWaveStreamToFloatPCM() throws IOException, UnsupportedAudioFileException {
+        final String filename = "test.wav";
+        final File file = File.createTempFile("testReadConvertWaveStreamToUnsignedPCM", filename);
+        extractFile(filename, file);
+        int bytesRead = 0;
+        FFCodecInputStream pcmStream = null;
+        try (final AudioInputStream mp3Stream = new FFAudioFileReader().getAudioInputStream(new BufferedInputStream(new FileInputStream(file)))) {
+            final AudioFormat targetFormat = new AudioFormat(FFAudioFormat.FFEncoding.PCM_FLOAT, 44100, 32, 2, 8, 44100, false);
+            System.err.println("wave: " + mp3Stream.getFormat());
+            System.err.println("pcm: " + targetFormat);
+            pcmStream = new FFCodecInputStream(targetFormat, (FFAudioInputStream) mp3Stream);
+
+            //AudioSystem.write(new FFAudioInputStream(pcmStream, targetFormat, -1), AudioFileFormat.Type.WAVE, new File("writtentest.wav"));
+            int justRead;
+            final byte[] buf = new byte[1024];
+            while ((justRead = pcmStream.read(buf)) != -1) {
+                assertTrue(justRead > 0);
+                bytesRead += justRead;
+            }
+
+
+        } finally {
+            if (pcmStream != null) {
+                try {
+                    pcmStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            file.delete();
+        }
+        System.out.println("Read " + bytesRead + " bytes.");
+        assertEquals(1069056, bytesRead);
     }
 
     @Test

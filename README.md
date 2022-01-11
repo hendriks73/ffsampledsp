@@ -100,10 +100,6 @@ on all supported platforms. In fact, the very same sources *are* compiled in the
 for other platforms.
 
 
-## Warranty
+## Release Notes
 
-This library comes with absolutely no support, warranty etc. you name it.
-Please see [LICENSE](LICENSE.txt) for licensing details.
-
-
-Enjoy
+You can find the release notes/history [here](NOTES.md).

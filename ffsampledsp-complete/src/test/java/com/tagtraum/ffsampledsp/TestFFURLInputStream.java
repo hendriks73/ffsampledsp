@@ -115,6 +115,28 @@ public class TestFFURLInputStream {
         new FFURLInputStream(new URL("file://somefile.m4p"));
     }
 
+    @Test
+    public void testSeekAfterEOF() throws IOException, UnsupportedAudioFileException {
+        final String filename = "test.wav";
+        final File file = File.createTempFile("testSeekAfterEOF", filename);
+        extractFile(filename, file);
+
+        final byte[] buf = new byte[534528]; // 10sec
+        try (final FFURLInputStream in = new FFURLInputStream(file.toURI().toURL())) {
+            int justRead = in.read(buf);
+            assertEquals(534528, justRead);
+            justRead = in.read(buf);
+            assertEquals(-1, justRead);
+            in.seek(2, TimeUnit.SECONDS);
+            justRead = in.read(buf);
+            assertTrue(justRead > 0);
+            final int twoSecondsInBytes = 44100 * 2 * 4;
+            assertEquals(buf.length - twoSecondsInBytes, justRead);
+            in.seek(1, TimeUnit.SECONDS);
+        } finally {
+            file.delete();
+        }
+    }
 
     @Test(expected = IndexOutOfBoundsException.class)
     public void testBadStreamIndex() throws IOException, UnsupportedAudioFileException {

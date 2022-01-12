@@ -108,7 +108,6 @@ public abstract class FFNativePeerInputStream extends InputStream {
         }
         // we're at the end
         if (!nativeBuffer.hasRemaining()) {
-            close();
             return -1;
         }
         return nativeBuffer.get() & 0xff;
@@ -126,14 +125,19 @@ public abstract class FFNativePeerInputStream extends InputStream {
             if (!nativeBuffer.hasRemaining()) {
                 fillNativeBuffer();
                 if (!nativeBuffer.hasRemaining()) {
-                    // we're at the end
-                    close();
+                    // nothing more to read
                     break;
                 }
             }
             final int chunkSize = Math.min(len-bytesRead, nativeBuffer.remaining());
             nativeBuffer.get(b, off+bytesRead, chunkSize);
             bytesRead += chunkSize;
+        }
+        if (!nativeBuffer.hasRemaining()) {
+            fillNativeBuffer();
+            if (!nativeBuffer.hasRemaining()) {
+                // we're at the end
+            }
         }
         return bytesRead == 0 ? -1 : bytesRead;
     }

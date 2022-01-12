@@ -1,3 +1,7 @@
+- 0.9.45
+  - Support seeking even after end of file has been reached.
+
+
 - 0.9.44
   - Report `UnsupportedAudioFileException`, if stream with index `0` cannot be found.
   - Workaround for [JDK-8279338](https://bugs.openjdk.java.net/browse/JDK-8279338).

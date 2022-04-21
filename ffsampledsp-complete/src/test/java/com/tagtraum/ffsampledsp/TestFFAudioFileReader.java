@@ -262,11 +262,17 @@ public class TestFFAudioFileReader {
             file.delete();
         }
     }
+
     @Test
     public void testGetAudioFileFormatSpacesUmlautsPunctuation() throws IOException, UnsupportedAudioFileException {
         // first copy the file from resources to actual location in temp
         final String filename = "test.ogg";
-        final File file = File.createTempFile("testGetAudioFileFormatSpacesAndUmlauts-t\u00fcst file [;:&= @[]?]", filename);
+        final File file;
+        if (System.getProperty("os.name").toLowerCase().contains("win")) {
+            file = File.createTempFile("testGetAudioFileFormatSpacesAndUmlauts-t\u00fcst file [;&= @[]]", filename);
+        } else {
+            file = File.createTempFile("testGetAudioFileFormatSpacesAndUmlauts-t\u00fcst file [;:&= @[]?]", filename);
+        }
         extractFile(filename, file);
         try {
             final AudioFileFormat fileFormat = new FFAudioFileReader().getAudioFileFormat(file);

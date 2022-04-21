@@ -2,7 +2,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.tagtraum</groupId>
-    <version>0.9.45</version>
+    <version>0.9.46</version>
     <artifactId>ffsampledsp</artifactId>
     <packaging>pom</packaging>
     <name>FFSampledSP</name>
@@ -405,7 +405,7 @@
         <!-- overwritten by modules -->
         <arch>x86_64</arch>
         <host>macos</host>
-        <ffmpeg.version>4.0.3</ffmpeg.version>
+        <ffmpeg.version>4.0.5</ffmpeg.version>
         <doxygen>doxygen</doxygen>
         <ffmpegversion>${ffmpeg.version}</ffmpegversion>
     </properties>

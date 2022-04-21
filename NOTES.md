@@ -1,6 +1,6 @@
 - 0.9.46
   - Added signature for native macOS libs
-
+  - Moved to FFmpeg 4.0.5
 
 - 0.9.45
   - Support seeking even after end of file has been reached.

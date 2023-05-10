@@ -1,6 +1,7 @@
 - 0.9.47
   - Added missing signature for x86 macOS lib
   - Updated GitHub runners
+  - Changed compiler source/target to 1.8 
 
 
 - 0.9.46

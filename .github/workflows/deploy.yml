@@ -153,7 +153,7 @@ jobs:
 
   linux-x64-build:
 
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
 
     steps:
       - name: Set up Doxygen
@@ -206,7 +206,7 @@ jobs:
 
   macos-aarch64-build:
 
-    runs-on: macos-10.15
+    runs-on: macos-latest
 
     steps:
       - name: Set up Doxygen
@@ -269,7 +269,7 @@ jobs:
   macos-build:
 
     needs: [ windows-x86-build, windows-x64-build, macos-aarch64-build, linux-x64-build ]
-    runs-on: macos-10.15
+    runs-on: macos-latest
 
     steps:
       - name: Set up Doxygen
@@ -280,6 +280,12 @@ jobs:
         run: |
           cat <(echo -e "${{ secrets.OSSRH_GPG_SECRET_KEY }}") | gpg --batch --import
           gpg --list-secret-keys --keyid-format LONG
+          echo "${{ secrets.MACOS_CERTIFICATE }}" | base64 --decode > certificate.p12
+          security create-keychain -p my_secret build.keychain
+          security default-keychain -s build.keychain
+          security unlock-keychain -p my_secret build.keychain
+          security import certificate.p12 -k build.keychain -P "${{ secrets.MACOS_CERTIFICATE_PWD }}" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k my_secret build.keychain
 
       - uses: actions/checkout@v2
 
@@ -324,6 +330,8 @@ jobs:
       - id: publish-to-central
         name: Publish to Central Repository
         env:
+          MACOS_CERTIFICATE: ${{ secrets.MACOS_CERTIFICATE }}
+          MACOS_CERTIFICATE_PWD: ${{ secrets.MACOS_CERTIFICATE_PWD }}
           MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
           GPG_TTY: $(tty)

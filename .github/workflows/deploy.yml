@@ -238,7 +238,7 @@ jobs:
           cache: 'maven'
 
       - name: Build/test code with Maven
-        run: mvn --activate-profiles ffsampledsp-aarch64-macos --batch-mode install --file pom.xml -Dmaven.test.skip=true
+        run: mvn --activate-profiles ffsampledsp-aarch64-macos,sign --batch-mode install --file pom.xml -Dmaven.test.skip=true
 
       - run: mkdir nativelibs && cp ffsampledsp-aarch64-macos/target/*.dylib nativelibs
       - uses: actions/upload-artifact@v2
@@ -261,7 +261,7 @@ jobs:
             --no-transfer-progress \
             --batch-mode \
             -Dgpg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }} \
-            --activate-profiles release,ffsampledsp-aarch64-macos \
+            --activate-profiles release,sign,ffsampledsp-aarch64-macos \
             --file pom.xml \
             deploy -Dmaven.test.skip=true
 
@@ -340,7 +340,7 @@ jobs:
             --no-transfer-progress \
             --batch-mode \
             -Dgpg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }} \
-            --activate-profiles release,ffsampledsp-x86_64-macos \
+            --activate-profiles release,sign,ffsampledsp-x86_64-macos \
             deploy --file pom.xml
 
       # deploy javadocs to github pages

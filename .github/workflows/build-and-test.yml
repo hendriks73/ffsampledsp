@@ -66,7 +66,7 @@ jobs:
     strategy:
       matrix:
         arch: [x64, x86]
-        java: [ '8', '9', '11', '15', '17', '20' ]
+        java: [ '8', '9', '11', '15', '17' ]
         include:
           - arch: x64
             jarch: x86_64

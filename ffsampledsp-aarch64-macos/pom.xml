@@ -161,7 +161,7 @@
 
     <profiles>
         <profile>
-            <id>release</id>
+            <id>sign</id>
             <activation>
                 <property>
                     <name>performRelease</name>

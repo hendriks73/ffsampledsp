@@ -1,3 +1,7 @@
+- 0.9.50
+  - Fixed signature for macOS aarch64.
+
+
 - 0.9.49
   - Added codesigning debug info to build.
 

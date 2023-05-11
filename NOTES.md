@@ -1,3 +1,7 @@
+- 0.9.49
+  - Added codesigning debug info to build.
+
+
 - 0.9.48
   - Force signatures for macOS to be timestamped
 

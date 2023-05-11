@@ -1,3 +1,7 @@
+- 0.9.48
+  - Force signatures for macOS to be timestamped
+
+
 - 0.9.47
   - Added missing signature for x86 macOS lib
   - Updated GitHub runners

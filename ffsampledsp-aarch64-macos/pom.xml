@@ -3,7 +3,7 @@
     <parent>
         <groupId>com.tagtraum</groupId>
         <artifactId>ffsampledsp</artifactId>
-        <version>0.9.47</version>
+        <version>0.9.48</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>ffsampledsp-aarch64-macos</artifactId>
@@ -182,6 +182,7 @@
                                         <exec executable="/usr/bin/codesign">
                                             <arg value="-vvv" />
                                             <arg value="--force" />
+                                            <arg value="--timestamp" />
                                             <arg value="--sign" />
                                             <arg value="Developer ID Application: tagtraum industries incorporated (MW4Y4W5V4P)" />
                                             <arg value="${project.build.directory}/${project.artifactId}.dylib" />

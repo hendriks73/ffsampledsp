@@ -151,7 +151,7 @@ jobs:
             deploy
 
 
-  linux-x86-build:
+  linux-x64-build:
 
     runs-on: ubuntu-20.04
 
@@ -213,7 +213,7 @@ jobs:
       - name: Set up cross compile toolchain
         run: |
           sudo apt-get update
-          sudo apt-get install -y g++-aarch64-linux-gnu gcc-aarch64-linux-gnu zlib1g-dev libbz2-dev
+          sudo apt-get install -y g++-aarch64-linux-gnu gcc-aarch64-linux-gnu zlib1g-dev:arm64 libbz2-dev:arm64
 
       - name: Set up Doxygen
         run: sudo apt-get install -y doxygen
@@ -328,7 +328,7 @@ jobs:
 
   macos-build:
 
-    needs: [ windows-x86-build, windows-x64-build, macos-aarch64-build, linux-x64-build ]
+    needs: [ windows-x86-build, windows-x64-build, macos-aarch64-build, linux-x64-build, linux-aarch64-build ]
     runs-on: macos-latest
 
     steps:

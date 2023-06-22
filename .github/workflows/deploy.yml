@@ -151,7 +151,7 @@ jobs:
             deploy
 
 
-  linux-x64-build:
+  linux-x86-build:
 
     runs-on: ubuntu-20.04
 
@@ -203,6 +203,66 @@ jobs:
             --activate-profiles release,ffsampledsp-x86_64-unix \
             --file pom.xml  \
             deploy
+
+
+  linux-aarch64-build:
+
+    runs-on: ubuntu-20.04
+
+    steps:
+      - name: Set up cross compile toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y g++-aarch64-linux-gnu gcc-aarch64-linux-gnu
+
+      - name: Set up Doxygen
+        run: sudo apt-get install -y doxygen
+
+      - uses: actions/checkout@v2
+
+      - id: install-secret-key
+        name: Install gpg secret key
+        run: |
+          cat <(echo -e "${{ secrets.OSSRH_GPG_SECRET_KEY }}") | gpg --batch --import
+          gpg --list-secret-keys --keyid-format LONG
+
+      - name: Set up publication to Maven Central
+        uses: actions/setup-java@v2
+        with:
+          java-version: '8'
+          architecture: x64
+          server-id: ossrh
+          server-username: MAVEN_USERNAME
+          server-password: MAVEN_PASSWORD
+          distribution: 'zulu'
+          cache: 'maven'
+
+      - name: Build/test code with Maven
+        run: mvn --activate-profiles ffsampledsp-aarch64-unix --no-transfer-progress --batch-mode install  --file pom.xml
+
+      - run: mkdir nativelibs && cp ffsampledsp-aarch64-unix/target/*.so nativelibs
+      - uses: actions/upload-artifact@v2
+        with:
+          name: nativelibs-aarch64-unix
+          path: nativelibs
+          retention-days: 1
+
+      - id: publish-native-lib-to-central
+        name: Publish to Central Repository
+        env:
+          MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
+          GPG_TTY: $(tty)
+        run: |
+          mvn \
+            --projects ffsampledsp-aarch64-unix \
+            --no-transfer-progress \
+            --batch-mode \
+            -Dgpg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }} \
+            --activate-profiles release,ffsampledsp-aarch64-unix \
+            --file pom.xml  \
+            deploy
+
 
   macos-aarch64-build:
 
@@ -303,10 +363,16 @@ jobs:
       - name: create target/classes for ffsampledsp-complete
         run: mkdir -p ffsampledsp-complete/target/classes/
 
-      - name: Get Linux native lib
+      - name: Get Linux x86 native lib
         uses: actions/download-artifact@v2
         with:
           name: nativelibs-x86-unix
+          path: ffsampledsp-complete/target/classes/
+
+      - name: Get Linux arm64 native lib
+        uses: actions/download-artifact@v2
+        with:
+          name: nativelibs-aarch64-unix
           path: ffsampledsp-complete/target/classes/
 
       - name: Get macOS aarch64 native lib

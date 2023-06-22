@@ -123,12 +123,19 @@ jobs:
       matrix:
         os: [ ubuntu-20.04, ubuntu-latest ]
         java: [ '8', '9', '11', '15', '17', '20' ]
-        arch: [ x64 ]
+        arch: [ x64, aarch64 ]
         include:
           - arch: x64
             jarch: x86_64
+          - arch: aarch64
+            jarch: aarch64
 
     steps:
+      - name: Set up cross compile toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y g++-aarch64-linux-gnu gcc-aarch64-linux-gnu
+
       - name: Set up Doxygen
         run: sudo apt-get install -y doxygen
         

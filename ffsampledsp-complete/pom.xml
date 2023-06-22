@@ -199,7 +199,7 @@
             </build>
         </profile>
 
-        <!-- Unix-specific Config -->
+        <!-- Unix x86-specific Config -->
         <profile>
             <id>ffsampledsp-x86_64-unix</id>
             <dependencies>
@@ -233,6 +233,50 @@
                                             <overWrite>true</overWrite>
                                             <outputDirectory>${project.build.directory}/classes</outputDirectory>
                                             <destFileName>ffsampledsp-x86_64-unix.so</destFileName>
+                                        </artifactItem>
+                                    </artifactItems>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!-- Unix arm64-specific Config -->
+        <profile>
+            <id>ffsampledsp-aarch64-unix</id>
+            <dependencies>
+                <dependency>
+                    <groupId>com.tagtraum</groupId>
+                    <artifactId>ffsampledsp-aarch64-unix</artifactId>
+                    <version>${project.version}</version>
+                    <type>so</type>
+                    <scope>provided</scope>
+                </dependency>
+            </dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>copy</id>
+                                <phase>generate-sources</phase>
+                                <goals>
+                                    <goal>copy</goal>
+                                </goals>
+                                <configuration>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>com.tagtraum</groupId>
+                                            <artifactId>ffsampledsp-aarch64-unix</artifactId>
+                                            <version>${project.version}</version>
+                                            <type>so</type>
+                                            <overWrite>true</overWrite>
+                                            <outputDirectory>${project.build.directory}/classes</outputDirectory>
+                                            <destFileName>ffsampledsp-aarch64-unix.so</destFileName>
                                         </artifactItem>
                                     </artifactItems>
                                 </configuration>

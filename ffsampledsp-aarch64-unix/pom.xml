@@ -1,0 +1,163 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.tagtraum</groupId>
+        <artifactId>ffsampledsp</artifactId>
+        <version>0.9.50-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    <artifactId>ffsampledsp-aarch64-unix</artifactId>
+    <packaging>so</packaging>
+    <name>FFSampledSP Native Library unix (arm64)</name>
+    <description>Unix ARM64 binary library for FFSampledSP.</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.tagtraum</groupId>
+            <artifactId>ffsampledsp-java</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.tagtraum</groupId>
+            <artifactId>ffmpeg-${arch}-${host}</artifactId>
+            <version>${ffmpeg.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.tagtraum</groupId>
+            <artifactId>ffmpeg-${arch}-${host}</artifactId>
+            <version>${ffmpeg.version}</version>
+            <type>tar.bz2</type>
+            <classifier>ffmpeg-sources</classifier>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+    <properties>
+        <arch>aarch64</arch>
+        <host>unix</host>
+        <maven.javadoc.skip>true</maven.javadoc.skip>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <configuration>
+                            <target>
+                                <mkdir dir="${project.build.directory}/classes" />
+                            </target>
+                        </configuration>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>upstream-sources</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/native</outputDirectory>
+                            <overwrite>true</overwrite>
+                            <resources>
+                                <resource>
+                                    <directory>../ffsampledsp-java/target/native/</directory>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>unpack</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>com.tagtraum</groupId>
+                                    <artifactId>ffmpeg-${arch}-${host}</artifactId>
+                                    <version>${ffmpeg.version}</version>
+                                    <type>jar</type>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                                    <includes>**/*.a</includes>
+                                    <!-- our own z/bz2 don't seem to work for some reason -->
+                                    <excludes>**/libbz2.a,**/libz.a</excludes>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>com.tagtraum</groupId>
+                                    <artifactId>ffmpeg-${arch}-${host}</artifactId>
+                                    <version>${ffmpeg.version}</version>
+                                    <type>tar.bz2</type>
+                                    <classifier>ffmpeg-sources</classifier>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${project.build.directory}/native/include</outputDirectory>
+                                    <includes>**/*.h</includes>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>native-maven-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+
+                    <compilerProvider>generic</compilerProvider>
+
+                    <compilerStartOptions>
+                        <compilerStartOption>${compiler.startoptions}</compilerStartOption>
+                    </compilerStartOptions>
+
+                    <javahOS>${headers.os}</javahOS>
+                    <jdkIncludePath>${headers.jni}</jdkIncludePath>
+
+                    <sources>
+                        <source>
+                            <directory>../ffsampledsp-x86_64-macos/src/main/c</directory>
+                            <includes>
+                                <include>*.c</include>
+                            </includes>
+                        </source>
+                        <!-- additional include path -->
+                        <source>
+                            <directory>../ffsampledsp-java/target/native/include</directory>
+                            <directory>${project.build.directory}/native/include</directory>
+                        </source>
+                    </sources>
+
+                    <linkerStartOptions>
+                        <linkerStartOption>${linker.startoptions}</linkerStartOption>
+                    </linkerStartOptions>
+                    <linkerEndOptions>
+                        <linkerEndOption>${linker.endoptions}</linkerEndOption>
+                    </linkerEndOptions>
+                </configuration>
+
+            </plugin>
+        </plugins>
+    </build>
+</project>

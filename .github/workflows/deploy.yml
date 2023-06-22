@@ -213,7 +213,7 @@ jobs:
       - name: Set up cross compile toolchain
         run: |
           sudo apt-get update
-          sudo apt-get install -y g++-aarch64-linux-gnu gcc-aarch64-linux-gnu zlib1g-dev:arm64 libbz2-dev:arm64
+          sudo apt-get install -y g++-aarch64-linux-gnu gcc-aarch64-linux-gnu
 
       - name: Set up Doxygen
         run: sudo apt-get install -y doxygen

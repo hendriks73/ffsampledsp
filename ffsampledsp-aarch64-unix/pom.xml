@@ -101,8 +101,7 @@
                                     <overWrite>true</overWrite>
                                     <outputDirectory>${project.build.directory}/lib</outputDirectory>
                                     <includes>**/*.a</includes>
-                                    <!-- our own z/bz2 don't seem to work for some reason -->
-                                    <excludes>**/libbz2.a,**/libz.a</excludes>
+                                    <!-- <excludes>**/libbz2.a,**/libz.a</excludes> -->
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>com.tagtraum</groupId>

@@ -127,6 +127,8 @@
                 <configuration>
 
                     <compilerProvider>generic</compilerProvider>
+                    <compilerExecutable>${ccompiler}</compilerExecutable>
+                    <linkerExecutable>${ccompiler}</linkerExecutable>
 
                     <compilerStartOptions>
                         <compilerStartOption>${compiler.startoptions}</compilerStartOption>

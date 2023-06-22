@@ -2,6 +2,7 @@
   - Added support for Linux arm64/aarch64.
   - Moved to FFmpeg 4.0.6, tagtraum package 4.0.9.
 
+
 - 0.9.50
   - Fixed signature for macOS aarch64.
 

@@ -133,8 +133,9 @@ jobs:
     steps:
       - name: Set up cross compile toolchain
         run: |
+          sudo dpkg --add-architecture arm64
           sudo apt-get update
-          sudo apt-get install -y g++-aarch64-linux-gnu gcc-aarch64-linux-gnu crossbuild-essential-arm64
+          sudo apt-get install -y g++-aarch64-linux-gnu gcc-aarch64-linux-gnu crossbuild-essential-arm64 zlib1g-dev:arm64 libbz2-dev:arm64
 
       - name: Set up Doxygen
         run: sudo apt-get install -y doxygen

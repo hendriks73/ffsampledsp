@@ -405,7 +405,7 @@
         <!-- overwritten by modules -->
         <arch>x86_64</arch>
         <host>macos</host>
-        <ffmpeg.version>4.0.8</ffmpeg.version>
+        <ffmpeg.version>4.0.10</ffmpeg.version>
         <doxygen>doxygen</doxygen>
         <ffmpegversion>${ffmpeg.version}</ffmpegversion>
     </properties>

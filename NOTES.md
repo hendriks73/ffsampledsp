@@ -1,4 +1,4 @@
-- 0.9.51
+- 0.9.52
   - Added support for Linux arm64/aarch64 (not CI/CD tested due to lack of GH Linux arm64 runner).
   - Moved to FFmpeg 4.0.6, tagtraum package 4.0.10.
 

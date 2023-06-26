@@ -2,7 +2,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.tagtraum</groupId>
-    <version>0.9.50</version>
+    <version>0.9.51</version>
     <artifactId>ffsampledsp</artifactId>
     <packaging>pom</packaging>
     <name>FFSampledSP</name>

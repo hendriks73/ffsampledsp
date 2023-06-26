@@ -13,8 +13,8 @@ Introduction
     <<<javax.sound.sampled>>> libraries.
 
     Its main purpose is to decode audio from various formats at high speed using
-    {{{https://www.ffmpeg.org}FFmpeg ${ffmpegversion}}}.
-    To do so, it uses the {{{https://www.tagtraum.com/ffmpeg/}tagtraum FFmpeg package}}, which offers
+    {{{https://www.ffmpeg.org}FFmpeg }}.
+    To do so, it uses the {{{https://www.tagtraum.com/ffmpeg/}tagtraum FFmpeg package ${ffmpegversion}}}, which offers
     FFmpeg binaries configured to decode audio while avoiding codecs with patent problems. In other words,
     it supports formats like OGG, FLAC, GSM, MP3... well, while leaving MPEG-4 unsupported.
     In order to decode those, please see {{{#Alternatives}alternatives}} below.
@@ -45,7 +45,7 @@ Introduction
 
     On macOS, <FFSampledSP> requires OS X/macOS 10.10 or later and an Intel processor. Starting with v0.9.29, only 64 bit is supported.
     On Windows, <FFSampledSP> should run with Windows XP or higher. Both 32 bit and 64 bit are supported.
-    On Linux/Debian, <FFSampledSP> should run with Ubuntu 18 or higher. Only 64 bit is supported.
+    On Linux/Debian, <FFSampledSP> should run with Ubuntu 20 or higher (x86/arm64). Only 64 bit is supported.
 
 * Stems Support
 

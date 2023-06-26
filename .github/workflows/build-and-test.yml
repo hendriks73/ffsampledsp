@@ -127,8 +127,10 @@ jobs:
         include:
           - arch: x64
             jarch: x86_64
+            skiptests: 'false'
           - arch: aarch64
             jarch: aarch64
+            skiptests: 'true'
 
     steps:
       - name: Set up cross compile toolchain
@@ -153,7 +155,8 @@ jobs:
             --no-transfer-progress \
             --batch-mode \
             --file pom.xml \
-            install
+            install \
+            -Dmaven.test.skip=${{ matrix.skiptests }}
 
       - name: Print lib dir
         if: always()

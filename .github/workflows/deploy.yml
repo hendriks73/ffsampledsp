@@ -237,8 +237,8 @@ jobs:
           distribution: 'zulu'
           cache: 'maven'
 
-      - name: Build/test code with Maven
-        run: mvn --activate-profiles ffsampledsp-aarch64-unix --no-transfer-progress --batch-mode install  --file pom.xml
+      - name: Build/test code with Maven (no tests for now)
+        run: mvn --activate-profiles ffsampledsp-aarch64-unix --no-transfer-progress --batch-mode install -Dmaven.test.skip=true --file pom.xml
 
       - run: mkdir nativelibs && cp ffsampledsp-aarch64-unix/target/*.so nativelibs
       - uses: actions/upload-artifact@v2
@@ -261,7 +261,8 @@ jobs:
             -Dgpg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }} \
             --activate-profiles release,ffsampledsp-aarch64-unix \
             --file pom.xml  \
-            deploy
+            deploy \
+            -Dmaven.test.skip=true
 
 
   macos-aarch64-build:

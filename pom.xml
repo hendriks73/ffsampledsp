@@ -405,7 +405,7 @@
         <!-- overwritten by modules -->
         <arch>x86_64</arch>
         <host>macos</host>
-        <ffmpeg.version>4.0.5</ffmpeg.version>
+        <ffmpeg.version>4.0.10</ffmpeg.version>
         <doxygen>doxygen</doxygen>
         <ffmpegversion>${ffmpeg.version}</ffmpegversion>
     </properties>
@@ -579,7 +579,7 @@
             </properties>
         </profile>
 
-        <!-- Linux-specific Config -->
+        <!-- Linux-specific x86 Config -->
         <profile>
             <!-- must be explicitly activated! -->
             <id>ffsampledsp-x86_64-unix</id>
@@ -593,6 +593,23 @@
                 <headers.os>linux</headers.os>
                 <compiler.startoptions>${cflags} ${gcc.code} -fPIC -Wall -x c -Wno-multichar -D_JNI_IMPLEMENTATION_ -O3</compiler.startoptions>
                 <linker.startoptions>-v ${gcc.code} -shared -s</linker.startoptions>
+                <linker.endoptions>-L${project.build.directory}/lib -lavformat -lavcodec -lavutil -lswresample -lz -lbz2</linker.endoptions>
+            </properties>
+        </profile>
+
+        <!-- Linux-specific arm64 Config -->
+        <profile>
+            <!-- must be explicitly activated! -->
+            <id>ffsampledsp-aarch64-unix</id>
+            <modules>
+                <module>ffsampledsp-aarch64-unix</module>
+            </modules>
+            <properties>
+                <ccompiler>aarch64-linux-gnu-gcc</ccompiler>
+                <headers.jni>${env.JAVA_HOME}/include/</headers.jni>
+                <headers.os>linux</headers.os>
+                <compiler.startoptions>${cflags} -fPIC -Wall -x c -Wno-multichar -D_JNI_IMPLEMENTATION_ -O3</compiler.startoptions>
+                <linker.startoptions>-v -shared -s</linker.startoptions>
                 <linker.endoptions>-L${project.build.directory}/lib -lavformat -lavcodec -lavutil -lswresample -lz -lbz2</linker.endoptions>
             </properties>
         </profile>

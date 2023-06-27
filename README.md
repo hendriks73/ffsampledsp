@@ -20,7 +20,7 @@ Supported platforms are currently:
 
 - macOS x64 (>=10.8) and aarch64 (>=11)
 - Windows i686 and x64
-- Linux (Ubuntu 20) x64
+- Linux (Ubuntu 20) x64 and aarch64 (arm64)
 
 FFSampledSP makes use of the [tagtraum FFmpeg package](https://www.tagtraum.com/ffmpeg).
 

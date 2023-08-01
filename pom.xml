@@ -13,7 +13,7 @@
     <licenses>
         <license>
             <name>LGPL 2.1</name>
-            <url>http://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt</url>
+            <url>https://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt</url>
             <comments>LGPL 2.1</comments>
         </license>
     </licenses>
@@ -399,7 +399,7 @@
         <!-- <cflags>-DDEBUG</cflags> -->
         <cflags/>
 
-        <!-- alias, because of http://maven.apache.org/plugins/maven-site-plugin/examples/creating-content.html#Filtering -->
+        <!-- alias, because of https://maven.apache.org/plugins/maven-site-plugin/examples/creating-content.html#Filtering -->
         <projectversion>${project.version}</projectversion>
         
         <!-- overwritten by modules -->

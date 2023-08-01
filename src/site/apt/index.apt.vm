@@ -8,7 +8,7 @@
 Introduction
 
     <FFSampledSP> is a free service provider implementation of the
-    {{{http://docs.oracle.com/javase/10/docs/api/javax/sound/sampled/spi/package-summary.html}javax.sound.sampled.spi}}
+    {{{https://docs.oracle.com/javase/10/docs/api/javax/sound/sampled/spi/package-summary.html}javax.sound.sampled.spi}}
     interfaces. It is part of the {{{https://www.tagtraum.com/sampledsp.html}SampledSP}} collection of
     <<<javax.sound.sampled>>> libraries.
 
@@ -23,9 +23,9 @@ Introduction
 * Getting Started
 
     The easiest way to use <FFSampledSP> (other than simply using the
-    {{{http://central.maven.org/maven2/com/tagtraum/ffsampledsp-complete/${projectversion}/ffsampledsp-complete-${projectversion}.jar}jar}}
+    {{{https://mvnrepository.com/artifact/com.tagtraum/ffsampledsp-complete/${projectversion}/ffsampledsp-complete-${projectversion}.jar}jar}}
     is to start a
-    {{{http://maven.apache.org/}Maven}} project and introduce a <FFSampledSP> dependency.
+    {{{https://maven.apache.org/}Maven}} project and introduce a <FFSampledSP> dependency.
 
     To do so, add something like this to the dependencies section of your pom:
 
@@ -38,7 +38,7 @@ Introduction
 +-------------------------------+
 
     To use the library, simply use the
-    {{{http://docs.oracle.com/javase/10/docs/api/javax/sound/sampled/package-summary.html}javax.sound.sampled}}
+    {{{https://docs.oracle.com/javase/10/docs/api/javax/sound/sampled/package-summary.html}javax.sound.sampled}}
     classes like you normally would.
 
 * Requirements
@@ -49,9 +49,9 @@ Introduction
 
 * Stems Support
 
-    <FFSampledSP> supports {{{http://www.stems-music.com/}Stems}} via a non-standard extension to the original
+    <FFSampledSP> supports {{{https://www.stems-music.com/}Stems}} via a non-standard extension to the original
     Java API. Via {{{./apidocs/com/tagtraum/ffsampledsp/FFAudioFileReader.html#getAudioFileFormats-java.net.URL-}getAudioFileFormats(URL)}}
-    you can obtain an array of {{{http://docs.oracle.com/javase/10/docs/api/javax/sound/sampled/AudioFileFormat.html}AudioFileFormats}}.
+    you can obtain an array of {{{https://docs.oracle.com/javase/10/docs/api/javax/sound/sampled/AudioFileFormat.html}AudioFileFormats}}.
     To open a specific stream, you can call for example <<<new FFAudioFileReader().getAudioInputStream(file, streamIndex);>>>
     In this case, <<<file>>> has to be a <<<File>>> object and <<<streamIndex>>> has to be a valid index. For
     a regular <Stem> file this would be a number \>=0 and \<5. The indices in the audio file format array and in the
@@ -69,7 +69,8 @@ Introduction
     This provider also supports many codecs with patent problems.
 
     For a cross platform (OS X/Windows) 32 bit service provider based on QuickTime, check out
-    {{{https://www.tagtraum.com/qtsampledsp/}QTSampledSP}}. Note that QuickTime has been deprecated.
+    {{{https://www.tagtraum.com/qtsampledsp/}QTSampledSP}}. Note that the QuickTime API has been removed
+    from newer versions of macOS.
     So it's probably not a good idea to start a project with it.
 
 
@@ -77,16 +78,16 @@ Introduction
 
     There are numerous other Java-FFmpeg projects. Here's the short list, of the projects I'm aware of:
 
-        * {{{http://www.xuggle.com}Xuggle}} - Java wrapper around FFmpeg using JNI.
+        * {{{https://www.xuggle.com}Xuggle}} - Java wrapper around FFmpeg using JNI.
 
         * {{{https://github.com/MisterRager/jjmpeg}jjmpeg}} - thin Java wrapper around FFmpeg using JNI.
 
-        * {{{http://www.sauronsoftware.it/projects/jave/}JAVE}} - Java wrapper around FFmpeg executables.
+        * {{{https://www.sauronsoftware.it/projects/jave/}JAVE}} - Java wrapper around FFmpeg executables.
 
         * {{{http://fmj-sf.net/ffmpeg-java/getting_started.php}FFMPEG-Java}} - Java wrapper around FFmpeg,
         using {{{https://github.com/twall/jna}JNA}}. Apparently abandoned in 2007.
 
-        * {{{http://jffmpeg.sourceforge.net/index.html}Jffmpeg}} - Plugins for the Java Media Framework (JMF).
+        * {{{https://jffmpeg.sourceforge.net/index.html}Jffmpeg}} - Plugins for the Java Media Framework (JMF).
         Apparently abandoned in 2006.
 
     As far as I am aware, except for the abandoned <Jffmpeg>, all these wrappers require you to learn either

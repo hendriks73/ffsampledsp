@@ -109,7 +109,7 @@ public class FFAudioFileReader extends AudioFileReader {
      * @return one or more {@link AudioFileFormat}s for the given URL
      * @throws UnsupportedAudioFileException if the audio is not supported
      * @throws IOException if an IO error occurs
-     * @see <a href="http://www.stems-music.com">www.stems-music.com</a>
+     * @see <a href="https://www.stems-music.com">www.stems-music.com</a>
      * @see #getAudioFileFormat(File)
      */
     public AudioFileFormat[] getAudioFileFormats(final File file) throws UnsupportedAudioFileException, IOException {
@@ -162,7 +162,7 @@ public class FFAudioFileReader extends AudioFileReader {
      * @return one or more {@link AudioFileFormat}s for the given URL
      * @throws UnsupportedAudioFileException if the audio is not supported
      * @throws IOException if an IO error occurs
-     * @see <a href="http://www.stems-music.com">www.stems-music.com</a>
+     * @see <a href="https://www.stems-music.com">www.stems-music.com</a>
      * @see #getAudioFileFormat(URL)
      */
     public AudioFileFormat[] getAudioFileFormats(final URL url) throws UnsupportedAudioFileException, IOException {
@@ -212,7 +212,7 @@ public class FFAudioFileReader extends AudioFileReader {
 
     /**
      * Allows you to open a specific audio stream from the given stream.
-     * Useful for <a href="http://www.stems-music.com">Stems</a>.
+     * Useful for <a href="https://www.stems-music.com">Stems</a>.
      *
      * @param stream stream
      * @param streamIndex audio stream index
@@ -231,7 +231,7 @@ public class FFAudioFileReader extends AudioFileReader {
 
     /**
      * Allows you to open a specific audio stream from the given URL.
-     * Useful for <a href="http://www.stems-music.com">Stems</a>.
+     * Useful for <a href="https://www.stems-music.com">Stems</a>.
      *
      * @param url url
      * @param streamIndex audio stream index
@@ -250,7 +250,7 @@ public class FFAudioFileReader extends AudioFileReader {
 
     /**
      * Allows you to open a specific audio stream from the given file.
-     * Useful for <a href="http://www.stems-music.com">Stems</a>.
+     * Useful for <a href="https://www.stems-music.com">Stems</a>.
      *
      * @param file file
      * @param streamIndex audio stream index

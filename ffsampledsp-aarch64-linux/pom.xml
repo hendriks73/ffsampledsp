@@ -8,7 +8,7 @@
     </parent>
     <artifactId>ffsampledsp-aarch64-linux</artifactId>
     <packaging>so</packaging>
-    <name>FFSampledSP Native Library linux (arm64)</name>
+    <name>FFSampledSP Native Library Linux (arm64)</name>
     <description>Linux ARM64 binary library for FFSampledSP.</description>
 
     <dependencies>

@@ -7,7 +7,7 @@
 # FFSampledSP
 
 *FFSampledSP* is an implementation of the
-[javax.sound.sampled](http://docs.oracle.com/javase/10/docs/api/javax/sound/sampled/spi/package-summary.html)
+[javax.sound.sampled](https://docs.oracle.com/javase/10/docs/api/javax/sound/sampled/spi/package-summary.html)
 service provider interfaces based on [FFmpeg](https://www.ffmpeg.org), a complete, cross-platform solution to record,
 convert and stream audio and video.
 FFSampledSP is part of the [SampledSP](https://www.tagtraum.com/sampledsp.html) collection of `javax.sound.sampled`
@@ -45,7 +45,7 @@ You can install it via the following dependency:
 ## Usage
 
 To use the library, simply use
-[javax.sound.sampled](http://docs.oracle.com/javase/10/docs/api/javax/sound/sampled/spi/package-summary.html)
+[javax.sound.sampled](https://docs.oracle.com/javase/10/docs/api/javax/sound/sampled/spi/package-summary.html)
 like you normally would.
 
 Note that opening an `AudioInputStream` of compressed audio (e.g. mp3), does
@@ -88,12 +88,12 @@ The GitHub-based build also adds native libraries for other platforms.
 
 To do so, you also need:
 
-- [Maven](http://maven.apache.org/)
+- [Maven](https://maven.apache.org/)
 - For macOS: [Apple Command Line Tools](https://developer.apple.com/)
   or [XCode](https://developer.apple.com/xcode/)
 - For Windows: [MSYS2](https://www.msys2.org) with GCC etc.
 - a JDK (to run Maven and get the JNI headers)
-- [Doxygen](http://www.doxygen.org), available via [MacPorts](https://www.macports.org), [HomeBrew](https://brew.sh) or [MSYS2](https://www.msys2.org).
+- [Doxygen](https://www.doxygen.nl), available via [MacPorts](https://www.macports.org), [HomeBrew](https://brew.sh) or [MSYS2](https://www.msys2.org).
 
 Note, that the C sources in the `ffsampledsp-x86_64-macos` module are expected to compile
 on all supported platforms. In fact, the very same sources *are* compiled in the modules

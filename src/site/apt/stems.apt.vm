@@ -7,7 +7,7 @@
 
 Stems
 
-    <FFSampledSP> allows the splitting of {{{http://www.stems-music.com/}Stems}}
+    <FFSampledSP> allows the splitting of {{{https://www.stems-music.com/}Stems}}
     (or any other file with multiple audio streams) into their respective parts.
 
     Here's how you do it:

@@ -179,12 +179,12 @@ jobs:
           cache: 'maven'
 
       - name: Build/test code with Maven
-        run: mvn --activate-profiles ffsampledsp-x86_64-unix --no-transfer-progress --batch-mode install  --file pom.xml
+        run: mvn --activate-profiles ffsampledsp-x86_64-linux --no-transfer-progress --batch-mode install  --file pom.xml
 
-      - run: mkdir nativelibs && cp ffsampledsp-x86_64-unix/target/*.so nativelibs
+      - run: mkdir nativelibs && cp ffsampledsp-x86_64-linux/target/*.so nativelibs
       - uses: actions/upload-artifact@v2
         with:
-          name: nativelibs-x86-unix
+          name: nativelibs-x86-linux
           path: nativelibs
           retention-days: 1
 
@@ -196,11 +196,11 @@ jobs:
           GPG_TTY: $(tty)
         run: |
           mvn \
-            --projects ffsampledsp-x86_64-unix \
+            --projects ffsampledsp-x86_64-linux \
             --no-transfer-progress \
             --batch-mode \
             -Dgpg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }} \
-            --activate-profiles release,ffsampledsp-x86_64-unix \
+            --activate-profiles release,ffsampledsp-x86_64-linux \
             --file pom.xml  \
             deploy
 
@@ -238,12 +238,12 @@ jobs:
           cache: 'maven'
 
       - name: Build/test code with Maven (no tests for now)
-        run: mvn --activate-profiles ffsampledsp-aarch64-unix --no-transfer-progress --batch-mode install -Dmaven.test.skip=true --file pom.xml
+        run: mvn --activate-profiles ffsampledsp-aarch64-linux --no-transfer-progress --batch-mode install -Dmaven.test.skip=true --file pom.xml
 
-      - run: mkdir nativelibs && cp ffsampledsp-aarch64-unix/target/*.so nativelibs
+      - run: mkdir nativelibs && cp ffsampledsp-aarch64-linux/target/*.so nativelibs
       - uses: actions/upload-artifact@v2
         with:
-          name: nativelibs-aarch64-unix
+          name: nativelibs-aarch64-linux
           path: nativelibs
           retention-days: 1
 
@@ -255,11 +255,11 @@ jobs:
           GPG_TTY: $(tty)
         run: |
           mvn \
-            --projects ffsampledsp-aarch64-unix \
+            --projects ffsampledsp-aarch64-linux \
             --no-transfer-progress \
             --batch-mode \
             -Dgpg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }} \
-            --activate-profiles release,ffsampledsp-aarch64-unix \
+            --activate-profiles release,ffsampledsp-aarch64-linux \
             --file pom.xml  \
             deploy \
             -Dmaven.test.skip=true
@@ -367,13 +367,13 @@ jobs:
       - name: Get Linux x86 native lib
         uses: actions/download-artifact@v2
         with:
-          name: nativelibs-x86-unix
+          name: nativelibs-x86-linux
           path: ffsampledsp-complete/target/classes/
 
       - name: Get Linux arm64 native lib
         uses: actions/download-artifact@v2
         with:
-          name: nativelibs-aarch64-unix
+          name: nativelibs-aarch64-linux
           path: ffsampledsp-complete/target/classes/
 
       - name: Get macOS aarch64 native lib

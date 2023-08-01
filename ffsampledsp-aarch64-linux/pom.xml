@@ -6,10 +6,10 @@
         <version>0.9.53-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <artifactId>ffsampledsp-x86_64-unix</artifactId>
+    <artifactId>ffsampledsp-aarch64-linux</artifactId>
     <packaging>so</packaging>
-    <name>FFSampledSP Native Library unix (64bit)</name>
-    <description>Unix 64bit binary library for FFSampledSP.</description>
+    <name>FFSampledSP Native Library linux (arm64)</name>
+    <description>Linux ARM64 binary library for FFSampledSP.</description>
 
     <dependencies>
         <dependency>
@@ -33,8 +33,8 @@
     </dependencies>
 
     <properties>
-        <arch>x86_64</arch>
-        <host>unix</host>
+        <arch>aarch64</arch>
+        <host>linux</host>
         <maven.javadoc.skip>true</maven.javadoc.skip>
     </properties>
 
@@ -101,8 +101,7 @@
                                     <overWrite>true</overWrite>
                                     <outputDirectory>${project.build.directory}/lib</outputDirectory>
                                     <includes>**/*.a</includes>
-                                    <!-- our own z/bz2 don't seem to work for some reason -->
-                                    <excludes>**/libbz2.a,**/libz.a</excludes>
+                                    <!-- <excludes>**/libbz2.a,**/libz.a</excludes> -->
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>com.tagtraum</groupId>
@@ -127,6 +126,8 @@
                 <configuration>
 
                     <compilerProvider>generic</compilerProvider>
+                    <compilerExecutable>${ccompiler}</compilerExecutable>
+                    <linkerExecutable>${ccompiler}</linkerExecutable>
 
                     <compilerStartOptions>
                         <compilerStartOption>${compiler.startoptions}</compilerStartOption>

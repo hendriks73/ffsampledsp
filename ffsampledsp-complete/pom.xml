@@ -199,13 +199,13 @@
             </build>
         </profile>
 
-        <!-- Unix x86-specific Config -->
+        <!-- Linux x86-specific Config -->
         <profile>
-            <id>ffsampledsp-x86_64-unix</id>
+            <id>ffsampledsp-x86_64-linux</id>
             <dependencies>
                 <dependency>
                     <groupId>com.tagtraum</groupId>
-                    <artifactId>ffsampledsp-x86_64-unix</artifactId>
+                    <artifactId>ffsampledsp-x86_64-linux</artifactId>
                     <version>${project.version}</version>
                     <type>so</type>
                     <scope>provided</scope>
@@ -227,12 +227,12 @@
                                     <artifactItems>
                                         <artifactItem>
                                             <groupId>com.tagtraum</groupId>
-                                            <artifactId>ffsampledsp-x86_64-unix</artifactId>
+                                            <artifactId>ffsampledsp-x86_64-linux</artifactId>
                                             <version>${project.version}</version>
                                             <type>so</type>
                                             <overWrite>true</overWrite>
                                             <outputDirectory>${project.build.directory}/classes</outputDirectory>
-                                            <destFileName>ffsampledsp-x86_64-unix.so</destFileName>
+                                            <destFileName>ffsampledsp-x86_64-linux.so</destFileName>
                                         </artifactItem>
                                     </artifactItems>
                                 </configuration>
@@ -243,13 +243,13 @@
             </build>
         </profile>
 
-        <!-- Unix arm64-specific Config -->
+        <!-- Linux arm64-specific Config -->
         <profile>
-            <id>ffsampledsp-aarch64-unix</id>
+            <id>ffsampledsp-aarch64-linux</id>
             <dependencies>
                 <dependency>
                     <groupId>com.tagtraum</groupId>
-                    <artifactId>ffsampledsp-aarch64-unix</artifactId>
+                    <artifactId>ffsampledsp-aarch64-linux</artifactId>
                     <version>${project.version}</version>
                     <type>so</type>
                     <scope>provided</scope>
@@ -271,12 +271,12 @@
                                     <artifactItems>
                                         <artifactItem>
                                             <groupId>com.tagtraum</groupId>
-                                            <artifactId>ffsampledsp-aarch64-unix</artifactId>
+                                            <artifactId>ffsampledsp-aarch64-linux</artifactId>
                                             <version>${project.version}</version>
                                             <type>so</type>
                                             <overWrite>true</overWrite>
                                             <outputDirectory>${project.build.directory}/classes</outputDirectory>
-                                            <destFileName>ffsampledsp-aarch64-unix.so</destFileName>
+                                            <destFileName>ffsampledsp-aarch64-linux.so</destFileName>
                                         </artifactItem>
                                     </artifactItems>
                                 </configuration>

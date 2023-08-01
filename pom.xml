@@ -582,9 +582,9 @@
         <!-- Linux-specific x86 Config -->
         <profile>
             <!-- must be explicitly activated! -->
-            <id>ffsampledsp-x86_64-unix</id>
+            <id>ffsampledsp-x86_64-linux</id>
             <modules>
-                <module>ffsampledsp-x86_64-unix</module>
+                <module>ffsampledsp-x86_64-linux</module>
             </modules>
             <properties>
                 <gcc.code>-m64</gcc.code>
@@ -600,9 +600,9 @@
         <!-- Linux-specific arm64 Config -->
         <profile>
             <!-- must be explicitly activated! -->
-            <id>ffsampledsp-aarch64-unix</id>
+            <id>ffsampledsp-aarch64-linux</id>
             <modules>
-                <module>ffsampledsp-aarch64-unix</module>
+                <module>ffsampledsp-aarch64-linux</module>
             </modules>
             <properties>
                 <ccompiler>aarch64-linux-gnu-gcc</ccompiler>

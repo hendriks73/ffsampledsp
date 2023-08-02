@@ -3,13 +3,13 @@
     <parent>
         <groupId>com.tagtraum</groupId>
         <artifactId>ffsampledsp</artifactId>
-        <version>0.9.52</version>
+        <version>0.9.53</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <artifactId>ffsampledsp-aarch64-unix</artifactId>
+    <artifactId>ffsampledsp-aarch64-linux</artifactId>
     <packaging>so</packaging>
-    <name>FFSampledSP Native Library unix (arm64)</name>
-    <description>Unix ARM64 binary library for FFSampledSP.</description>
+    <name>FFSampledSP Native Library Linux (arm64)</name>
+    <description>Linux ARM64 binary library for FFSampledSP.</description>
 
     <dependencies>
         <dependency>
@@ -34,7 +34,7 @@
 
     <properties>
         <arch>aarch64</arch>
-        <host>unix</host>
+        <host>linux</host>
         <maven.javadoc.skip>true</maven.javadoc.skip>
     </properties>
 

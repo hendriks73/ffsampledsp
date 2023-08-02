@@ -47,7 +47,7 @@ public final class FFNativeLibraryLoader {
     private static final String CLASS_FILE_EXTENSION = ".class";
     private static final String OS_NAME = System.getProperty("os.name").toLowerCase();
     private static final String HOST = OS_NAME.contains("mac")
-            ? "macos" : (OS_NAME.contains("win") ? "win" : "unix");
+            ? "macos" : (OS_NAME.contains("win") ? "win" : "linux");
     private static final String ARCH = arch();
     private static final String VERSION = readProjectVersion();
 

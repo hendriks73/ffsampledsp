@@ -2,7 +2,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.tagtraum</groupId>
-    <version>0.9.52</version>
+    <version>0.9.53</version>
     <artifactId>ffsampledsp</artifactId>
     <packaging>pom</packaging>
     <name>FFSampledSP</name>
@@ -13,7 +13,7 @@
     <licenses>
         <license>
             <name>LGPL 2.1</name>
-            <url>http://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt</url>
+            <url>https://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt</url>
             <comments>LGPL 2.1</comments>
         </license>
     </licenses>
@@ -399,13 +399,13 @@
         <!-- <cflags>-DDEBUG</cflags> -->
         <cflags/>
 
-        <!-- alias, because of http://maven.apache.org/plugins/maven-site-plugin/examples/creating-content.html#Filtering -->
+        <!-- alias, because of https://maven.apache.org/plugins/maven-site-plugin/examples/creating-content.html#Filtering -->
         <projectversion>${project.version}</projectversion>
         
         <!-- overwritten by modules -->
         <arch>x86_64</arch>
         <host>macos</host>
-        <ffmpeg.version>4.0.10</ffmpeg.version>
+        <ffmpeg.version>4.0.11</ffmpeg.version>
         <doxygen>doxygen</doxygen>
         <ffmpegversion>${ffmpeg.version}</ffmpegversion>
     </properties>
@@ -582,9 +582,9 @@
         <!-- Linux-specific x86 Config -->
         <profile>
             <!-- must be explicitly activated! -->
-            <id>ffsampledsp-x86_64-unix</id>
+            <id>ffsampledsp-x86_64-linux</id>
             <modules>
-                <module>ffsampledsp-x86_64-unix</module>
+                <module>ffsampledsp-x86_64-linux</module>
             </modules>
             <properties>
                 <gcc.code>-m64</gcc.code>
@@ -600,9 +600,9 @@
         <!-- Linux-specific arm64 Config -->
         <profile>
             <!-- must be explicitly activated! -->
-            <id>ffsampledsp-aarch64-unix</id>
+            <id>ffsampledsp-aarch64-linux</id>
             <modules>
-                <module>ffsampledsp-aarch64-unix</module>
+                <module>ffsampledsp-aarch64-linux</module>
             </modules>
             <properties>
                 <ccompiler>aarch64-linux-gnu-gcc</ccompiler>

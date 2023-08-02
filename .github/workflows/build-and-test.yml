@@ -151,7 +151,7 @@ jobs:
 
       - name: Build/test code with Maven
         run: |
-          mvn --activate-profiles ffsampledsp-${{ matrix.jarch }}-unix \
+          mvn --activate-profiles ffsampledsp-${{ matrix.jarch }}-linux \
             --no-transfer-progress \
             --batch-mode \
             --file pom.xml \
@@ -160,4 +160,4 @@ jobs:
 
       - name: Print lib dir
         if: always()
-        run: ls -la ffsampledsp-${{ matrix.jarch }}-unix/target/lib
+        run: ls -la ffsampledsp-${{ matrix.jarch }}-linux/target/lib

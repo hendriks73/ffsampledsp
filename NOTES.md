@@ -1,3 +1,7 @@
+- 0.9.54
+  - Updated Maven project report skin (fixing the *Fork Me*-banner).  
+
+ 
 - 0.9.53
   - Renamed ill-named linux binaries to `linux` (was `unix`).
   - Minor doc fixes.

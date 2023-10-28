@@ -6,6 +6,10 @@ on:
     branches:
       - dev
       - main
+  # Run this every month, so that we at least become aware,
+  # if/when it breaks somehow
+  schedule:
+    - cron: "0 0 1 * *"
 
 
 jobs:

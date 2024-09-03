@@ -365,31 +365,31 @@ jobs:
         run: mkdir -p ffsampledsp-complete/target/classes/
 
       - name: Get Linux x86 native lib
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4.1.7
         with:
           name: nativelibs-x86-linux
           path: ffsampledsp-complete/target/classes/
 
       - name: Get Linux arm64 native lib
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4.1.7
         with:
           name: nativelibs-aarch64-linux
           path: ffsampledsp-complete/target/classes/
 
       - name: Get macOS aarch64 native lib
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4.1.7
         with:
           name: nativelibs-aarch64-macos
           path: ffsampledsp-complete/target/classes/
 
       - name: Get Windows x86 native lib
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4.1.7
         with:
           name: nativelibs-x86-win
           path: ffsampledsp-complete/target/classes/
 
       - name: Get Windows x64 native lib
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4.1.7
         with:
           name: nativelibs-x64-win
           path: ffsampledsp-complete/target/classes/

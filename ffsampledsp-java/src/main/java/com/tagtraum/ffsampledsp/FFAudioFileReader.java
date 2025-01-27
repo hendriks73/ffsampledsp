@@ -144,11 +144,11 @@ public class FFAudioFileReader extends AudioFileReader {
         if (url == null) return null;
         final String s = url.toString();
         if (WINDOWS && s.matches("file\\:/[^\\/].*")) {
-            return s.replace("file:/", "file:");
+            return s.replace("file:/", "file:").replace("%20", " ");
         }
         // deal with UNC paths
         if (WINDOWS && s.matches("file\\:////[^\\/].*")) {
-            return s.replace("file://", "file:");
+            return s.replace("file://", "file:").replace("%20", " ");
         }
         return s;
     }

@@ -140,16 +140,21 @@ public class FFAudioFileReader extends AudioFileReader {
      * Make sure that file URLs on Windows follow the super special libav style, e.g. "file:C:/path/file.ext"
      * or "file://UNCServerName/path/file.ext".
      */
-    static String urlToString(final URL url) {
+    static String urlToString(final URL url) throws UnsupportedEncodingException {
         if (url == null) return null;
-        final String s = url.toString();
-        if (WINDOWS && s.matches("file\\:/[^\\/].*")) {
-            return s.replace("file:/", "file:").replace("%20", " ");
+
+        String s = url.toString();
+
+        if (WINDOWS) {
+            s = URLDecoder.decode(s, "UTF-8");
+
+            if (s.matches("file\\:/[^\\/].*")) {
+                s = s.replace("file:/", "file:"); // (file:/) -> (file:)
+            } else if (s.matches("file\\:////[^\\/].*")) {
+                s = s.replace("file://", "file:"); // For UNC paths (file:////) -> (file://)
+            }
         }
-        // deal with UNC paths
-        if (WINDOWS && s.matches("file\\:////[^\\/].*")) {
-            return s.replace("file://", "file:").replace("%20", " ");
-        }
+
         return s;
     }
 

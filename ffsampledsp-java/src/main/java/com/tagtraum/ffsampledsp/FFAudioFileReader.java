@@ -27,6 +27,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.sound.sampled.spi.AudioFileReader;
 import java.io.*;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.ByteBuffer;
@@ -126,14 +127,9 @@ public class FFAudioFileReader extends AudioFileReader {
      * @throws MalformedURLException if the URL is malformed
      */
     static URL fileToURL(final File file) throws MalformedURLException {
-        try {
-            String encoded = file.toURI().toString().replace("+", "%2B");
-            return new URL(URLDecoder.decode(encoded, "UTF-8"));
-        } catch (UnsupportedEncodingException e) {
-            final MalformedURLException malformedURLException = new MalformedURLException();
-            malformedURLException.initCause(e);
-            throw malformedURLException;
-        }
+        String encoded = file.toURI().toString();
+        encoded = encoded.replace("+", "%2B");
+        return URI.create(encoded).toURL();
     }
 
     /**
@@ -146,8 +142,11 @@ public class FFAudioFileReader extends AudioFileReader {
         String s = url.toString();
 
         if (WINDOWS) {
-            s = URLDecoder.decode(s, "UTF-8");
 
+            // Encode "+" character
+            s = s.replace("+", "%2B");
+
+            s = URLDecoder.decode(s, "UTF-8");
             if (s.matches("file\\:/[^\\/].*")) {
                 s = s.replace("file:/", "file:"); // (file:/) -> (file:)
             } else if (s.matches("file\\:////[^\\/].*")) {

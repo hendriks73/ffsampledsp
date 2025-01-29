@@ -127,8 +127,7 @@ public class FFAudioFileReader extends AudioFileReader {
      * @throws MalformedURLException if the URL is malformed
      */
     static URL fileToURL(final File file) throws MalformedURLException {
-        String encoded = file.toURI().toString();
-        encoded = encoded.replace("+", "%2B");
+        String encoded = file.toURI().toString().replace("+", "%2B");
         return URI.create(encoded).toURL();
     }
 

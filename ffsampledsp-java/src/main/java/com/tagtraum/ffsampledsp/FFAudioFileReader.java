@@ -149,9 +149,9 @@ public class FFAudioFileReader extends AudioFileReader {
             s = URLDecoder.decode(s, "UTF-8");
 
             if (s.matches("file\\:/[^\\/].*")) {
-                s = s.replace("file:/", "file:");
-            } else if (s.matches("file\\:////[^\\/].*")) { // For UNC paths
-                s = s.replace("file://", "file:");
+                s = s.replace("file:/", "file:"); // (file:/) -> (file:)
+            } else if (s.matches("file\\:////[^\\/].*")) {
+                s = s.replace("file://", "file:"); // For UNC paths (file:////) -> (file://)
             }
         }
 

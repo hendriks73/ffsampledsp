@@ -144,8 +144,6 @@ public class FFAudioFileReader extends AudioFileReader {
         s = s.replace("+", "%2B");
         s = URLDecoder.decode(s, "UTF-8");
 
-        System.out.println(s);
-
         if (WINDOWS) {
             if (s.matches("file\\:/[^\\/].*")) {
                 s = s.replace("file:/", "file:"); // (file:/) -> (file:)

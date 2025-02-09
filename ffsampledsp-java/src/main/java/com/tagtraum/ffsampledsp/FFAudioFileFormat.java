@@ -116,6 +116,8 @@ public class FFAudioFileFormat extends AudioFileFormat {
     }
 
     private static Type getAudioFileFormatType(final String url, final int codecId) throws UnsupportedAudioFileException {
+
+        System.out.println("TYPEMAP: " + TYPE_MAP.get(codecId));
         if (url == null) {
             final AudioFormat.Encoding encoding = FFAudioFormat.FFEncoding.getInstance(codecId);
             final Type type = TYPE_MAP.get(codecId);
@@ -149,7 +151,11 @@ public class FFAudioFileFormat extends AudioFileFormat {
                 fileType = new Type(extension.toUpperCase(), extension);
             }
         } else {
-            throw new UnsupportedAudioFileException("Unknown target audio url type: " + url);
+            //throw new UnsupportedAudioFileException("Unknown target audio url type: " + url);
+            final AudioFormat.Encoding encoding = FFAudioFormat.FFEncoding.getInstance(codecId);
+            final Type type = TYPE_MAP.get(codecId);
+            if (type != null) return type;
+            return new Type(encoding.toString().toUpperCase(), encoding.toString());
         }
         return fileType;
     }

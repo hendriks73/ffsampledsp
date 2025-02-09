@@ -41,6 +41,8 @@ public class Main {
         String tempStr_4 = "file:/media/cameron/Data/Program%20Files/osu!/Songs/991222%20FictionJunction%20feat%20LiSA%20-%20from%20the%20edge%20(TV%20Size)/audio.mp3";
         URL url_2 = URI.create(tempStr_4).toURL();
 
+        String tempStr_5 = "/media/cameron/Data/Program Files/osu!-lazer/files/b/bd/bd01fa3e57f7880ea2ddce1fca1c27cfe4e6c02e494b96be3b91fb6abb82639a";
+
 
         try {
             // WINDOWS TESTS ---------------------------------------------------------------------
@@ -72,6 +74,8 @@ public class Main {
             System.out.println("Result: " + reader.getAudioFileFormat(url_1));
             System.out.println("URL 2");
             System.out.println("Result: " + reader.getAudioFileFormat(url_2));
+            System.out.println("File 3");
+            System.out.println("Result: " + reader.getAudioFileFormat(new File(tempStr_5)));
         } catch (UnsupportedAudioFileException | IOException e) {
             e.printStackTrace();
         }

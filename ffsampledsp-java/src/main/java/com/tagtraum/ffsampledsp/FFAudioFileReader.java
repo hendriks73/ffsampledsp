@@ -140,12 +140,13 @@ public class FFAudioFileReader extends AudioFileReader {
 
         String s = url.toString();
 
+        // Encode "+" character
+        s = s.replace("+", "%2B");
+        s = URLDecoder.decode(s, "UTF-8");
+
+        System.out.println(s);
+
         if (WINDOWS) {
-
-            // Encode "+" character
-            s = s.replace("+", "%2B");
-
-            s = URLDecoder.decode(s, "UTF-8");
             if (s.matches("file\\:/[^\\/].*")) {
                 s = s.replace("file:/", "file:"); // (file:/) -> (file:)
             } else if (s.matches("file\\:////[^\\/].*")) {

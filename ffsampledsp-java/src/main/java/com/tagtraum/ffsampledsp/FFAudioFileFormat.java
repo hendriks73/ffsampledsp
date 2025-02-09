@@ -117,7 +117,6 @@ public class FFAudioFileFormat extends AudioFileFormat {
 
     private static Type getAudioFileFormatType(final String url, final int codecId) throws UnsupportedAudioFileException {
 
-        System.out.println("TYPEMAP: " + TYPE_MAP.get(codecId));
         if (url == null) {
             final AudioFormat.Encoding encoding = FFAudioFormat.FFEncoding.getInstance(codecId);
             final Type type = TYPE_MAP.get(codecId);
@@ -152,6 +151,7 @@ public class FFAudioFileFormat extends AudioFileFormat {
             }
         } else {
             //throw new UnsupportedAudioFileException("Unknown target audio url type: " + url);
+            // FIXME - added to support audio files without extension, but are still supported.
             final AudioFormat.Encoding encoding = FFAudioFormat.FFEncoding.getInstance(codecId);
             final Type type = TYPE_MAP.get(codecId);
             if (type != null) return type;

@@ -150,8 +150,7 @@ public class FFAudioFileFormat extends AudioFileFormat {
                 fileType = new Type(extension.toUpperCase(), extension);
             }
         } else {
-            //throw new UnsupportedAudioFileException("Unknown target audio url type: " + url);
-            // FIXME - added to support audio files without extension, but are still supported.
+            // For audio files without explicit extension in file name.
             final AudioFormat.Encoding encoding = FFAudioFormat.FFEncoding.getInstance(codecId);
             final Type type = TYPE_MAP.get(codecId);
             if (type != null) return type;

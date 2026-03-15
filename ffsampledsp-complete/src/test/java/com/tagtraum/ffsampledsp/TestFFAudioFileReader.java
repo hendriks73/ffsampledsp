@@ -327,6 +327,35 @@ public class TestFFAudioFileReader {
     }
 
     @Test
+    public void testGetAudioFileFormatURLWithEmojis() throws IOException, UnsupportedAudioFileException {
+        // first copy the file from resources to actual location in temp
+        final String filename = "test🔥.ogg";
+        final File file = File.createTempFile("testGetAudioFileFormatURL", filename);
+        extractFile(filename, file);
+        try {
+            final AudioFileFormat fileFormat = new FFAudioFileReader().getAudioFileFormat(file.toURI().toURL());
+            System.out.println(fileFormat);
+
+            assertEquals("ogg", fileFormat.getType().getExtension());
+            assertEquals(file.length(), fileFormat.getByteLength());
+            assertEquals(NOT_SPECIFIED, fileFormat.getFrameLength());
+
+            final AudioFormat format = fileFormat.getFormat();
+            assertEquals(NOT_SPECIFIED, format.getFrameSize());
+            assertEquals(2, format.getChannels());
+            final Long duration = (Long)fileFormat.getProperty("duration");
+            assertNotNull(duration);
+            assertEquals(3030204, (long)duration);
+            assertEquals((float)NOT_SPECIFIED, format.getFrameRate(), 0.001f);
+            final Integer bitrate = (Integer)format.getProperty("bitrate");
+            assertNotNull("Bitrate missing", bitrate);
+            assertEquals(112000, (int) bitrate);
+        } finally {
+            file.delete();
+        }
+    }
+
+    @Test
     public void testGetAudioFileFormatInputStream() throws IOException, UnsupportedAudioFileException {
         // first copy the file from resources to actual location in temp
         final String filename = "test.ogg";

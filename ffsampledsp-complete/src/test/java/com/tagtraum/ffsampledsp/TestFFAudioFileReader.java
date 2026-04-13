@@ -415,6 +415,23 @@ public class TestFFAudioFileReader {
     }
 
     @Test
+    public void testGetAudioFileFormatURLWithSpaces() throws IOException, UnsupportedAudioFileException {
+        // Tests that getAudioFileFormat(URL) handles spaces in the file path.
+        // file.toURI().toURL() encodes spaces as %20; urlToString() must decode
+        // them before passing to FFmpeg, which does not percent-decode file: paths.
+        final String filename = "test.ogg";
+        final File file = File.createTempFile("test with spaces", filename);
+        extractFile(filename, file);
+        try {
+            final AudioFileFormat fileFormat = new FFAudioFileReader().getAudioFileFormat(file.toURI().toURL());
+            assertEquals("ogg", fileFormat.getType().getExtension());
+            assertEquals(2, fileFormat.getFormat().getChannels());
+        } finally {
+            file.delete();
+        }
+    }
+
+    @Test
     public void testGetAudioFileFormatInputStream() throws IOException, UnsupportedAudioFileException {
         // first copy the file from resources to actual location in temp
         final String filename = "test.ogg";

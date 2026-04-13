@@ -139,10 +139,21 @@ public class FFAudioFileReader extends AudioFileReader {
     /**
      * Make sure that file URLs on Windows follow the super special libav style, e.g. "file:C:/path/file.ext"
      * or "file://UNCServerName/path/file.ext".
+     * For file: URLs on all platforms, percent-encoded sequences (e.g. %20 for space) are decoded
+     * because FFmpeg's file: protocol handler passes the path directly to the OS without decoding.
      */
     static String urlToString(final URL url) {
         if (url == null) return null;
-        final String s = url.toString();
+        String s = url.toString();
+        if (s.startsWith("file:")) {
+            // FFmpeg's file: protocol handler does not percent-decode paths, so decode here.
+            // Protect '+' first so URLDecoder does not convert it to a space.
+            try {
+                s = URLDecoder.decode(s.replace("+", "%2B"), "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                // UTF-8 is always available; cannot happen
+            }
+        }
         if (WINDOWS && s.matches("file\\:/[^\\/].*")) {
             return s.replace("file:/", "file:");
         }

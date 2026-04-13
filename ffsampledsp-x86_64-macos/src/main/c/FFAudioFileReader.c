@@ -396,7 +396,16 @@ bail:
 
     init_ids(env);
 
-    const char *input_url = (*env)->GetStringUTFChars(env, url, NULL);
+    // Use ff_jstring_to_utf8 instead of GetStringUTFChars: the JNI function returns
+    // Modified UTF-8 (CESU-8), which encodes supplementary characters (U+10000+, e.g.
+    // emoji) as 6 bytes rather than the standard UTF-8 4-byte sequence.  File systems
+    // use standard UTF-8, so avformat_open_input would fail to find such files.
+    char *input_url = ff_jstring_to_utf8(env, url);
+    if (!input_url) {
+        throwIOExceptionIfError(env, AVERROR(ENOMEM), "Failed to convert URL to UTF-8");
+        goto bail;
+    }
+
     res = ff_open_format_context(env, &format_context, input_url);
     if (res) {
         goto bail;
@@ -411,7 +420,7 @@ bail:
     if (format_context) {
         avformat_close_input(&format_context);
     }
-    (*env)->ReleaseStringUTFChars(env, url, input_url);
+    free(input_url);
 
     return array;
 }

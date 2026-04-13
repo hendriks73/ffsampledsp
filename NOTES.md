@@ -1,5 +1,6 @@
 - 0.9.54
-  - Updated Maven project report skin (fixing the *Fork Me*-banner).  
+  - Updated Maven project report skin (fixing the *Fork Me*-banner).
+  - Support emojis and %20 in paths.
 
  
 - 0.9.53

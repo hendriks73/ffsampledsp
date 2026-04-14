@@ -26,6 +26,7 @@ import org.junit.Test;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.*;
 import java.net.MalformedURLException;
@@ -321,6 +322,110 @@ public class TestFFAudioFileReader {
             final Integer bitrate = (Integer)format.getProperty("bitrate");
             assertNotNull("Bitrate missing", bitrate);
             assertEquals(112000, (int) bitrate);
+        } finally {
+            file.delete();
+        }
+    }
+
+    @Test
+    public void testGetAudioFileFormatURLWithEmojis() throws IOException, UnsupportedAudioFileException {
+        // first copy the file from resources to actual location in temp
+        final String filename = "test.ogg";
+        final File file = File.createTempFile("testGetAudioFileFormatURLWithEmojis🔥", filename);
+        extractFile(filename, file);
+        try {
+            final AudioFileFormat fileFormat = new FFAudioFileReader().getAudioFileFormat(file.toURI().toURL());
+            System.out.println(fileFormat);
+
+            assertEquals("ogg", fileFormat.getType().getExtension());
+            assertEquals(file.length(), fileFormat.getByteLength());
+            assertEquals(NOT_SPECIFIED, fileFormat.getFrameLength());
+
+            final AudioFormat format = fileFormat.getFormat();
+            assertEquals(NOT_SPECIFIED, format.getFrameSize());
+            assertEquals(2, format.getChannels());
+            final Long duration = (Long)fileFormat.getProperty("duration");
+            assertNotNull(duration);
+            assertEquals(3030204, (long)duration);
+            assertEquals((float)NOT_SPECIFIED, format.getFrameRate(), 0.001f);
+            final Integer bitrate = (Integer)format.getProperty("bitrate");
+            assertNotNull("Bitrate missing", bitrate);
+            assertEquals(112000, (int) bitrate);
+        } finally {
+            file.delete();
+        }
+    }
+
+    @Test
+    public void testGetAudioFileFormatFileWithEmojis() throws IOException, UnsupportedAudioFileException {
+        // Tests that getAudioFileFormat(File) handles emoji in the file name.
+        // This path goes through fileToURL(), which must keep emoji percent-encoded
+        // so JNI's GetStringUTFChars does not produce CESU-8 (Modified UTF-8) bytes
+        // that differ from the standard UTF-8 bytes used by the file system.
+        final String filename = "test.ogg";
+        final File file = File.createTempFile("testGetAudioFileFormatFileWithEmojis🔥", filename);
+        extractFile(filename, file);
+        try {
+            final AudioFileFormat fileFormat = new FFAudioFileReader().getAudioFileFormat(file);
+            System.out.println(fileFormat);
+            assertEquals("ogg", fileFormat.getType().getExtension());
+            assertEquals(2, fileFormat.getFormat().getChannels());
+        } finally {
+            file.delete();
+        }
+    }
+
+    @Test
+    public void testGetAudioInputStreamFileWithEmojis() throws IOException, UnsupportedAudioFileException {
+        // Tests that getAudioInputStream(File) can open and read a file whose
+        // name contains emoji. Exercises the FFURLInputStream.open() JNI call.
+        final String filename = "test.ogg";
+        final File file = File.createTempFile("testGetAudioInputStreamFileWithEmojis🎵", filename);
+        extractFile(filename, file);
+        try {
+            final AudioInputStream stream = new FFAudioFileReader().getAudioInputStream(file);
+            try {
+                final byte[] buf = new byte[1024];
+                assertTrue("Expected to read audio bytes from emoji-named file", stream.read(buf) > 0);
+            } finally {
+                stream.close();
+            }
+        } finally {
+            file.delete();
+        }
+    }
+
+    @Test
+    public void testFileWithEmojiToURL() throws MalformedURLException {
+        // fileToURL() must produce a valid file: URL for paths containing emoji.
+        // The native code uses ff_jstring_to_utf8() (String.getBytes("UTF-8")) rather than
+        // GetStringUTFChars so that supplementary characters like emoji are correctly encoded
+        // as standard UTF-8 bytes — matching the bytes stored on disk — regardless of whether
+        // the URL string contains the emoji as a raw character or percent-encoded.
+        Assume.assumeTrue(File.separator.equals("/"));
+        final File file = new File("/someDir/test🔥/name.ogg");
+        final URL url = FFAudioFileReader.fileToURL(file);
+        assertTrue("URL must use file: protocol: " + url, url.toString().startsWith("file:"));
+        // The emoji must be represented in the URL in some form (raw or percent-encoded).
+        assertTrue("URL must contain emoji path component: " + url,
+                url.toString().contains("test🔥") || url.toString().contains("%F0%9F%94%A5") || url.toString().contains("%f0%9f%94%a5"));
+        // The path decoded from the URL must end with the original file name.
+        assertTrue("Decoded path must contain original file name: " + url,
+                url.getFile().contains("test") && url.getFile().contains("name.ogg"));
+    }
+
+    @Test
+    public void testGetAudioFileFormatURLWithSpaces() throws IOException, UnsupportedAudioFileException {
+        // Tests that getAudioFileFormat(URL) handles spaces in the file path.
+        // file.toURI().toURL() encodes spaces as %20; urlToString() must decode
+        // them before passing to FFmpeg, which does not percent-decode file: paths.
+        final String filename = "test.ogg";
+        final File file = File.createTempFile("test with spaces", filename);
+        extractFile(filename, file);
+        try {
+            final AudioFileFormat fileFormat = new FFAudioFileReader().getAudioFileFormat(file.toURI().toURL());
+            assertEquals("ogg", fileFormat.getType().getExtension());
+            assertEquals(2, fileFormat.getFormat().getChannels());
         } finally {
             file.delete();
         }

@@ -58,11 +58,14 @@ JNIEXPORT jlong JNICALL Java_com_tagtraum_ffsampledsp_FFURLInputStream_open(JNIE
     int res = 0;
     FFAudioIO *aio = NULL;
 
-    // copy URL to local char*
-    const char *input_url = (*env)->GetStringUTFChars(env, url, NULL);
+    // Use ff_jstring_to_utf8 instead of GetStringUTFChars: the JNI function returns
+    // Modified UTF-8 (CESU-8), which encodes supplementary characters (U+10000+, e.g.
+    // emoji) as 6 bytes rather than the standard UTF-8 4-byte sequence.  File systems
+    // use standard UTF-8, so avformat_open_input would fail to find such files.
+    char *input_url = ff_jstring_to_utf8(env, url);
     if (!input_url) {
         res = AVERROR(ENOMEM);
-        throwIOExceptionIfError(env, res, "Failed to get url");
+        throwIOExceptionIfError(env, res, "Failed to convert URL to UTF-8");
         goto bail;
     }
 
@@ -97,8 +100,8 @@ JNIEXPORT jlong JNICALL Java_com_tagtraum_ffsampledsp_FFURLInputStream_open(JNIE
 bail:
 
     if (res) ff_audioio_free(aio);
-    (*env)->ReleaseStringUTFChars(env, url, input_url);
-    
+    free(input_url);
+
     return (jlong)(intptr_t)aio;
 }
 

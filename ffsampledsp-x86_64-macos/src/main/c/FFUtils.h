@@ -116,4 +116,23 @@ int ff_init_encoder(JNIEnv*, FFAudioIO*, AVCodec*);
 
 int ff_big_endian(enum AVCodecID);
 
+/**
+ * Converts a Java string to a standard UTF-8 C string.
+ *
+ * JNI's GetStringUTFChars returns Modified UTF-8 (CESU-8), which encodes supplementary
+ * characters (U+10000 and above, e.g. emoji) as two 3-byte sequences (6 bytes total)
+ * instead of the single 4-byte sequence used by standard UTF-8. File systems on macOS
+ * and Linux use standard UTF-8 for file names, so paths containing emoji passed through
+ * GetStringUTFChars will not match the file on disk.
+ *
+ * This function calls java.lang.String.getBytes("UTF-8") via JNI, which always returns
+ * standard UTF-8 bytes regardless of the characters involved.
+ *
+ * The caller must free() the returned buffer when no longer needed.
+ *
+ * @param env           JNI environment
+ * @param java_string   Java String object
+ * @return              Newly allocated null-terminated standard UTF-8 C string, or NULL on error
+ */
+char *ff_jstring_to_utf8(JNIEnv *env, jstring java_string);
 

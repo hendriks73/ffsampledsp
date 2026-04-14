@@ -137,9 +137,9 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y g++-aarch64-linux-gnu gcc-aarch64-linux-gnu crossbuild-essential-arm64
 
-      - name: Set up Doxygen
-        run: sudo apt-get install -y doxygen
-        
+      - name: Set up Doxygen and native build dependencies
+        run: sudo apt-get install -y doxygen libbz2-dev zlib1g-dev
+
       - uses: actions/checkout@v6
       - name: Set up Java
         uses: actions/setup-java@v5

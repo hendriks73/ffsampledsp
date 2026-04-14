@@ -153,7 +153,7 @@ jobs:
 
   linux-x64-build:
 
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Set up Doxygen and native build dependencies

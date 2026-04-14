@@ -61,7 +61,7 @@ jobs:
 
   windows-build:
 
-    runs-on: windows-2019
+    runs-on: windows-latest
     strategy:
       matrix:
         arch: [x64, x86]

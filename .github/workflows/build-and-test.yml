@@ -62,30 +62,30 @@ jobs:
   windows-build:
 
     runs-on: windows-latest
-  strategy:
-    matrix:
-      arch: [x64, x86]
-      java: ['8', '11', '15', '17', '25']
+    strategy:
+      matrix:
+        arch: [x64, x86]
+        java: ['8', '11', '15', '17', '25']
 
-      include:
-        - arch: x64
-          jarch: x86_64
-          sys: mingw64
-          env: x86_64
+        include:
+          - arch: x64
+            jarch: x86_64
+            sys: mingw64
+            env: x86_64
 
-        - arch: x86
-          jarch: i386
-          sys: mingw32
-          env: i686
+          - arch: x86
+            jarch: i386
+            sys: mingw32
+            env: i686
 
-      exclude:
-        # ❌ 32-bit Windows + modern Java is not supported
-        - arch: x86
-          java: '15'
-        - arch: x86
-          java: '17'
-        - arch: x86
-          java: '25'
+        exclude:
+          # ❌ 32-bit Windows + modern Java is not supported
+          - arch: x86
+            java: '15'
+          - arch: x86
+            java: '17'
+          - arch: x86
+            java: '25'
 
     defaults:
       run:

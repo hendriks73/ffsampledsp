@@ -13,23 +13,22 @@ on:
 
 jobs:
 
-
   macos-build:
 
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         jarch: [ aarch64, x86_64 ]
-        os: [ macos-12, macos-latest ]
-        java: [ '8', '9', '11', '15', '17', '20' ]
+        os: [ macos-15, macos-latest ]
+        java: [ '8', '11', '15', '17', '20', '25' ]
 
     steps:
       - name: Set up Doxygen
         run: brew install doxygen
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v6
       - name: Set up Java
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v5
         with:
           java-version: ${{ matrix.java }}
           architecture: x64
@@ -48,34 +47,45 @@ jobs:
         uses: codecov/codecov-action@v2
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-        if: matrix.os == 'macos-12' && matrix.java == '9' && matrix.jarch == 'x86_64'
+        if: matrix.os == 'macos-15' && matrix.java == '9' && matrix.jarch == 'x86_64'
 
       - name: Build tagtraum site
         run: |
           mvn --no-transfer-progress \
             --batch-mode \
-            --activate-profiles ffsampledsp-x86_64-macos \
+            --activate-profiles ffsampledsp-aarch64-macos \
             --file pom.xml  \
             clean install site:site
-        if: matrix.os == 'macos-12' && matrix.java == '9' && matrix.jarch == 'x86_64'
+        if: matrix.os == 'macos-15' && matrix.java == '9' && matrix.jarch == 'x86_64'
 
 
   windows-build:
 
-    runs-on: windows-2019
+    runs-on: windows-latest
     strategy:
       matrix:
         arch: [x64, x86]
-        java: [ '8', '9', '11', '15', '17' ]
+        java: ['8', '11', '15', '17', '25']
+
         include:
           - arch: x64
             jarch: x86_64
             sys: mingw64
             env: x86_64
+
           - arch: x86
             jarch: i386
             sys: mingw32
             env: i686
+
+        exclude:
+          # ❌ 32-bit Windows + modern Java is not supported
+          - arch: x86
+            java: '15'
+          - arch: x86
+            java: '17'
+          - arch: x86
+            java: '25'
 
     defaults:
       run:
@@ -87,14 +97,14 @@ jobs:
           install: mingw-w64-${{ matrix.env }}-toolchain
           path-type: inherit
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v6
 
       - name: Set up Doxygen
         run: |
           pacman --noconfirm -S mingw-w64-${{ matrix.env}}-doxygen
 
       - name: Set up Java
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v5
         with:
           java-version: ${{ matrix.java }}
           architecture: ${{ matrix.arch }}
@@ -121,8 +131,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ ubuntu-20.04, ubuntu-latest ]
-        java: [ '8', '9', '11', '15', '17', '20' ]
+        os: [ ubuntu-22.04, ubuntu-latest ]
+        java: [ '8', '11', '15', '17', '20', '25' ]
         arch: [ x64, aarch64 ]
         include:
           - arch: x64
@@ -138,12 +148,12 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y g++-aarch64-linux-gnu gcc-aarch64-linux-gnu crossbuild-essential-arm64
 
-      - name: Set up Doxygen
-        run: sudo apt-get install -y doxygen
-        
-      - uses: actions/checkout@v2
+      - name: Set up Doxygen and native build dependencies
+        run: sudo apt-get install -y doxygen libbz2-dev zlib1g-dev
+
+      - uses: actions/checkout@v6
       - name: Set up Java
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v5
         with:
           java-version: ${{ matrix.java }}
           distribution: 'zulu'

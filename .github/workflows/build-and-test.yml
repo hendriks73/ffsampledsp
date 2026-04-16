@@ -164,7 +164,7 @@ jobs:
     runs-on: ubuntu-24.04-arm
     strategy:
       matrix:
-        java: [ '8', '9', '11', '15', '17', '20' ]
+        java: [ '8', '11', '15', '17', '20', '25' ]
 
     steps:
       - name: Set up Doxygen

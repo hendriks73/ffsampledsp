@@ -1,6 +1,8 @@
 - 0.9.54
   - Updated Maven project report skin (fixing the *Fork Me*-banner).
   - Support emojis and %20 in paths.
+  - Updated Maven plugins and CI/CD.
+  - Build and test on Ubuntu ARM.
 
  
 - 0.9.53

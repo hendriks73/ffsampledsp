@@ -197,4 +197,4 @@ jobs:
 
       - name: Print lib dir
         if: always()
-        run: ls -la ffsampledsp-aarch64-linux/target/lib
+        run: ls -la ffsampledsp-aarch64-linux/target/lib || nm ffsampledsp-aarch64-linux/target/lib/libavcodec.so | grep ff_idctdsp_init_aarch64

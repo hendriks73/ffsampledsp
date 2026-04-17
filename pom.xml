@@ -221,6 +221,11 @@
                     <artifactId>maven-release-plugin</artifactId>
                     <version>3.3.1</version>
                 </plugin>
+                <plugin>
+                    <groupId>com.diffplug.spotless</groupId>
+                    <artifactId>spotless-maven-plugin</artifactId>
+                    <version>3.4.0</version>
+                </plugin>
             </plugins>
         </pluginManagement>
 
@@ -345,6 +350,65 @@
                         <id>attach-sources</id>
                         <goals>
                             <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
+                <configuration>
+                    <java>
+                        <excludes>
+                            <exclude>**/*.c</exclude>
+                            <exclude>**/*.h</exclude>
+                            <exclude>**/*.cpp</exclude>
+                            <exclude>**/*.cc</exclude>
+                            <exclude>**/*.cxx</exclude>
+                            <exclude>**/*.m</exclude>
+                            <exclude>**/*.mm</exclude>
+                        </excludes>
+                        <googleJavaFormat/>
+                    </java>
+                    <yaml>
+                        <includes>
+                            <include>**/*.yaml</include>
+                            <include>**/*.yml</include>
+                        </includes>
+                        <jackson/>
+                    </yaml>
+                    <formats>
+                        <format>
+                            <includes>
+                                <include>src/**/*.html</include>
+                            </includes>
+                            <eclipseWtp>
+                                <type>HTML</type>
+                            </eclipseWtp>
+                        </format>
+                        <format>
+                            <includes>
+                                <include>src/**/*.css</include>
+                            </includes>
+                            <eclipseWtp>
+                                <type>CSS</type>
+                            </eclipseWtp>
+                        </format>
+                        <format>
+                            <includes>
+                                <include>src/**/*.xml</include>
+                            </includes>
+                            <eclipseWtp>
+                                <type>XML</type>
+                            </eclipseWtp>
+                        </format>
+                    </formats>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>check</goal>
                         </goals>
                     </execution>
                 </executions>

@@ -168,7 +168,7 @@ jobs:
 
     steps:
       - name: Set up Doxygen and native build dependencies
-        run: sudo apt-get install -y doxygen libbz2-dev zlib1g-dev gcc-aarch64-linux-gnu
+        run: sudo apt-get install -y doxygen libbz2-dev zlib1g-dev
 
       - uses: actions/checkout@v6
       - name: Set up Java
@@ -185,7 +185,7 @@ jobs:
           ls -la "$JAVA_HOME/bin/java"
           java -version
           which java
-          aarch64-linux-gnu-gcc --version
+          gcc --version
 
       - name: Build/test code with Maven
         run: |

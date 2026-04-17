@@ -70,7 +70,7 @@
                         </goals>
                         <configuration>
                             <outputDirectory>${project.build.directory}/native</outputDirectory>
-                            <overwrite>true</overwrite>
+
                             <resources>
                                 <resource>
                                     <directory>../ffsampledsp-java/target/native/</directory>
@@ -98,7 +98,7 @@
                                     <artifactId>ffmpeg-${arch}-${host}</artifactId>
                                     <version>${ffmpeg.version}</version>
                                     <type>jar</type>
-                                    <overWrite>true</overWrite>
+
                                     <outputDirectory>${project.build.directory}/lib</outputDirectory>
                                     <includes>**/*.a</includes>
                                     <!-- our own z/bz2 don't seem to work for some reason -->
@@ -110,7 +110,7 @@
                                     <version>${ffmpeg.version}</version>
                                     <type>tar.bz2</type>
                                     <classifier>ffmpeg-sources</classifier>
-                                    <overWrite>true</overWrite>
+
                                     <outputDirectory>${project.build.directory}/native/include</outputDirectory>
                                     <includes>**/*.h</includes>
                                 </artifactItem>

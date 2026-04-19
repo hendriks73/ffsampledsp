@@ -159,7 +159,7 @@
                 <plugin>
                     <groupId>org.jacoco</groupId>
                     <artifactId>jacoco-maven-plugin</artifactId>
-                    <version>0.8.6</version>
+                    <version>0.8.13</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -469,7 +469,7 @@
         <!-- overwritten by modules -->
         <arch>x86_64</arch>
         <host>macos</host>
-        <ffmpeg.version>4.0.11</ffmpeg.version>
+        <ffmpeg.version>8.1.0</ffmpeg.version>
         <doxygen>doxygen</doxygen>
         <ffmpegversion>${ffmpeg.version}</ffmpegversion>
     </properties>

@@ -293,8 +293,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <release>8</release>
                     <compilerArgs>
                         <arg>-h</arg>
                         <arg>${project.build.directory}/native/include</arg>
@@ -669,7 +668,7 @@
                 <module>ffsampledsp-aarch64-linux</module>
             </modules>
             <properties>
-                <ccompiler>aarch64-linux-gnu-gcc</ccompiler>
+                <ccompiler>gcc</ccompiler>
                 <headers.jni>${env.JAVA_HOME}/include/</headers.jni>
                 <headers.os>linux</headers.os>
                 <compiler.startoptions>${cflags} -fPIC -Wall -x c -Wno-multichar -D_JNI_IMPLEMENTATION_ -O3</compiler.startoptions>

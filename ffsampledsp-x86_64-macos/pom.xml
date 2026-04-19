@@ -98,7 +98,7 @@
                                     <artifactId>ffmpeg-${arch}-${host}</artifactId>
                                     <version>${ffmpeg.version}</version>
                                     <type>jar</type>
-                                    <overWrite>true</overWrite>
+
                                     <outputDirectory>${project.build.directory}/lib</outputDirectory>
                                     <includes>**/*.a</includes>
                                 </artifactItem>
@@ -108,7 +108,7 @@
                                     <version>${ffmpeg.version}</version>
                                     <type>tar.bz2</type>
                                     <classifier>ffmpeg-sources</classifier>
-                                    <overWrite>true</overWrite>
+
                                     <outputDirectory>${project.build.directory}/native/include</outputDirectory>
                                     <includes>**/*.h</includes>
                                 </artifactItem>

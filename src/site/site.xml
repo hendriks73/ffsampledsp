@@ -1,57 +1,58 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <project name="FFSampledSP">
-    <skin>
-        <groupId>org.apache.maven.skins</groupId>
-        <artifactId>maven-fluido-skin</artifactId>
-        <version>1.12.0</version>
-    </skin>
-    <custom>
-        <fluidoSkin>
-            <gitHub>
-                <projectId>hendriks73/ffsampledsp</projectId>
-                <ribbonOrientation>left</ribbonOrientation>
-                <ribbonColor>gray</ribbonColor>
-            </gitHub>
-        </fluidoSkin>
-    </custom>
-    <version position="right"/>
-    <bannerLeft>
-        <name>FFSampledSP</name>
-        <href>https://www.tagtraum.com/ffsampledsp</href>
-        <src>./images/ffsampledsp-banner.png</src>
-        <width>400px</width>
-        <height>120px</height>
-    </bannerLeft>
-    <bannerRight>
-        <href>https://www.tagtraum.com/</href>
-        <src>./images/tagtraum-banner.png</src>
-        <width>90px</width>
-        <height>60px</height>
-    </bannerRight>
-    <body>
-        <head>
+	<skin>
+		<groupId>org.apache.maven.skins</groupId>
+		<artifactId>maven-fluido-skin</artifactId>
+		<version>1.12.0</version>
+	</skin>
+	<custom>
+		<fluidoSkin>
+			<gitHub>
+				<projectId>hendriks73/ffsampledsp</projectId>
+				<ribbonOrientation>left</ribbonOrientation>
+				<ribbonColor>gray</ribbonColor>
+			</gitHub>
+		</fluidoSkin>
+	</custom>
+	<version position="right" />
+	<bannerLeft>
+		<name>FFSampledSP</name>
+		<href>https://www.tagtraum.com/ffsampledsp</href>
+		<src>./images/ffsampledsp-banner.png</src>
+		<width>400px</width>
+		<height>120px</height>
+	</bannerLeft>
+	<bannerRight>
+		<href>https://www.tagtraum.com/</href>
+		<src>./images/tagtraum-banner.png</src>
+		<width>90px</width>
+		<height>60px</height>
+	</bannerRight>
+	<body>
+		<head>
             <![CDATA[
             <meta name="keyword" content="ffmpeg, audio, FFSampledSP, Maven, java, sound, javax.sound, dsp, digital signal processing, flac, ogg" />
             <link rel="icon" type="image/x-icon" href="../favicon.ico" />
             ]]>
-        </head>
-        <links>
-            <item name="tagtraum" href="https://www.tagtraum.com/"/>
-            <item name="beaTunes" href="https://www.beatunes.com/"/>
-            <item name="FFmpeg" href="https://www.ffmpeg.org/"/>
-        </links>
+		</head>
+		<links>
+			<item name="tagtraum" href="https://www.tagtraum.com/" />
+			<item name="beaTunes" href="https://www.beatunes.com/" />
+			<item name="FFmpeg" href="https://www.ffmpeg.org/" />
+		</links>
 
-        <menu name="FFSampledSP">
-            <item name="Introduction" href="index.html"/>
-            <item name="Stems" href="stems.html"/>
-            <item name="JavaDocs" href="apidocs/index.html"/>
-            <item name="C-Docs" href="doxygen/index.html"/>
-            <item name="FFmpeg" href="https://www.ffmpeg.org/"/>
-            <item name="GitHub Repo" href="https://github.com/hendriks73/ffsampledsp"/>
-        </menu>
-        <menu ref="modules" />
-        <menu ref="reports"/>
-        <menu ref="parent"/>
+		<menu name="FFSampledSP">
+			<item name="Introduction" href="index.html" />
+			<item name="Stems" href="stems.html" />
+			<item name="JavaDocs" href="apidocs/index.html" />
+			<item name="C-Docs" href="doxygen/index.html" />
+			<item name="FFmpeg" href="https://www.ffmpeg.org/" />
+			<item name="GitHub Repo"
+				href="https://github.com/hendriks73/ffsampledsp" />
+		</menu>
+		<menu ref="modules" />
+		<menu ref="reports" />
+		<menu ref="parent" />
 
-    </body>
+	</body>
 </project>

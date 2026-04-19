@@ -1,173 +1,151 @@
-name: Build and Test
-
-on:
+---
+name: "Build and Test"
+"on":
   push:
     branches:
-      - dev
-      - main
+    - "dev"
+    - "main"
   pull_request:
     branches:
-      - dev
-      - main
-
-
+    - "dev"
+    - "main"
 jobs:
-
   macos-build:
-
-    runs-on: ${{ matrix.os }}
+    runs-on: "${{ matrix.os }}"
     strategy:
       matrix:
-        jarch: [ aarch64, x86_64 ]
-        os: [ macos-15, macos-latest ]
-        java: [ '8', '11', '15', '17', '20', '25' ]
-
+        jarch:
+        - "aarch64"
+        - "x86_64"
+        os:
+        - "macos-15"
+        - "macos-latest"
+        java:
+        - "8"
+        - "11"
+        - "15"
+        - "17"
+        - "20"
+        - "25"
     steps:
-      - name: Set up Doxygen
-        run: brew install doxygen
-
-      - uses: actions/checkout@v6
-      - name: Set up Java
-        uses: actions/setup-java@v5
-        with:
-          java-version: ${{ matrix.java }}
-          architecture: x64
-          distribution: 'zulu'
-          cache: 'maven'
-
-      - name: Build/test code with Maven
-        run: |
-          mvn --activate-profiles ffsampledsp-${{ matrix.jarch }}-macos \
-            --no-transfer-progress \
-            --batch-mode \
-            --file pom.xml \
-            install
-
-      - name: Upload CodeCov Report
-        uses: codecov/codecov-action@v2
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-        if: matrix.os == 'macos-15' && matrix.java == '9' && matrix.jarch == 'x86_64'
-
-      - name: Build tagtraum site
-        run: |
-          mvn --no-transfer-progress \
-            --batch-mode \
-            --activate-profiles ffsampledsp-aarch64-macos \
-            --file pom.xml  \
-            clean install site:site
-        if: matrix.os == 'macos-15' && matrix.java == '9' && matrix.jarch == 'x86_64'
-
-
+    - name: "Set up Doxygen"
+      run: "brew install doxygen"
+    - uses: "actions/checkout@v6"
+    - name: "Set up Java"
+      uses: "actions/setup-java@v5"
+      with:
+        java-version: "${{ matrix.java }}"
+        architecture: "x64"
+        distribution: "zulu"
+        cache: "maven"
+    - name: "Build/test code with Maven"
+      run: "mvn --activate-profiles ffsampledsp-${{ matrix.jarch }}-macos \\\n  --no-transfer-progress\
+        \ \\\n  --batch-mode \\\n  --file pom.xml \\\n  install\n"
+    - name: "Upload CodeCov Report"
+      uses: "codecov/codecov-action@v2"
+      with:
+        token: "${{ secrets.CODECOV_TOKEN }}"
+      if: "matrix.os == 'macos-15' && matrix.java == '9' && matrix.jarch == 'x86_64'"
+    - name: "Build tagtraum site"
+      run: "mvn --no-transfer-progress \\\n  --batch-mode \\\n  --activate-profiles\
+        \ ffsampledsp-aarch64-macos \\\n  --file pom.xml  \\\n  clean install site:site\n"
+      if: "matrix.os == 'macos-15' && matrix.java == '9' && matrix.jarch == 'x86_64'"
   windows-build:
-
-    runs-on: windows-latest
+    runs-on: "windows-latest"
     strategy:
       matrix:
-        arch: [x64, x86]
-        java: ['8', '11', '15', '17', '25']
-
+        arch:
+        - "x64"
+        - "x86"
+        java:
+        - "8"
+        - "11"
+        - "15"
+        - "17"
+        - "25"
         include:
-          - arch: x64
-            jarch: x86_64
-            sys: mingw64
-            env: x86_64
-
-          - arch: x86
-            jarch: i386
-            sys: mingw32
-            env: i686
-
+        - arch: "x64"
+          jarch: "x86_64"
+          sys: "mingw64"
+          env: "x86_64"
+        - arch: "x86"
+          jarch: "i386"
+          sys: "mingw32"
+          env: "i686"
         exclude:
-          # ❌ 32-bit Windows + modern Java is not supported
-          - arch: x86
-            java: '15'
-          - arch: x86
-            java: '17'
-          - arch: x86
-            java: '25'
-
+        - arch: "x86"
+          java: "15"
+        - arch: "x86"
+          java: "17"
+        - arch: "x86"
+          java: "25"
     defaults:
       run:
-        shell: msys2 {0}
+        shell: "msys2 {0}"
     steps:
-      - uses: msys2/setup-msys2@v2
-        with:
-          msystem: ${{ matrix.sys }}
-          install: mingw-w64-${{ matrix.env }}-toolchain
-          path-type: inherit
-
-      - uses: actions/checkout@v6
-
-      - name: Set up Doxygen
-        run: |
-          pacman --noconfirm -S mingw-w64-${{ matrix.env}}-doxygen
-
-      - name: Set up Java
-        uses: actions/setup-java@v5
-        with:
-          java-version: ${{ matrix.java }}
-          architecture: ${{ matrix.arch }}
-          distribution: 'zulu'
-          cache: 'maven'
-
-      - name: Build/test code with Maven
-        run: |
-          mvn --activate-profiles ffsampledsp-${{ matrix.jarch }}-win \
-            --no-transfer-progress \
-            --batch-mode \
-            --file pom.xml \
-            install 
-
-      - name: Print lib/include dir
-        if: always()
-        run: |
-          ls -la ffsampledsp-${{ matrix.jarch }}-win\\target\\lib
-          ls -la ffsampledsp-${{ matrix.jarch }}-win\\target\\native\\include
-
-
+    - uses: "msys2/setup-msys2@v2"
+      with:
+        msystem: "${{ matrix.sys }}"
+        install: "mingw-w64-${{ matrix.env }}-toolchain"
+        path-type: "inherit"
+    - uses: "actions/checkout@v6"
+    - name: "Set up Doxygen"
+      run: "pacman --noconfirm -S mingw-w64-${{ matrix.env}}-doxygen\n"
+    - name: "Set up Java"
+      uses: "actions/setup-java@v5"
+      with:
+        java-version: "${{ matrix.java }}"
+        architecture: "${{ matrix.arch }}"
+        distribution: "zulu"
+        cache: "maven"
+    - name: "Build/test code with Maven"
+      run: "mvn --activate-profiles ffsampledsp-${{ matrix.jarch }}-win \\\n  --no-transfer-progress\
+        \ \\\n  --batch-mode \\\n  --file pom.xml \\\n  install \n"
+    - name: "Print lib/include dir"
+      if: "always()"
+      run: "ls -la ffsampledsp-${{ matrix.jarch }}-win\\\\target\\\\lib\nls -la ffsampledsp-${{\
+        \ matrix.jarch }}-win\\\\target\\\\native\\\\include\n"
   linux-build:
-
-    runs-on: ${{ matrix.os }}
+    runs-on: "${{ matrix.os }}"
     strategy:
       matrix:
-        os: [ ubuntu-22.04, ubuntu-latest ]
-        java: [ '8', '11', '15', '17', '20', '25' ]
-        arch: [ x64, aarch64 ]
+        os:
+        - "ubuntu-22.04"
+        - "ubuntu-latest"
+        java:
+        - "8"
+        - "11"
+        - "15"
+        - "17"
+        - "20"
+        - "25"
+        arch:
+        - "x64"
+        - "aarch64"
         include:
-          - arch: x64
-            jarch: x86_64
-            skiptests: 'false'
-          - arch: aarch64
-            jarch: aarch64
-            skiptests: 'true'
-
+        - arch: "x64"
+          jarch: "x86_64"
+          skiptests: "false"
+        - arch: "aarch64"
+          jarch: "aarch64"
+          skiptests: "true"
     steps:
-      - name: Set up cross compile toolchain
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y g++-aarch64-linux-gnu gcc-aarch64-linux-gnu crossbuild-essential-arm64
-
-      - name: Set up Doxygen and native build dependencies
-        run: sudo apt-get install -y doxygen libbz2-dev zlib1g-dev
-
-      - uses: actions/checkout@v6
-      - name: Set up Java
-        uses: actions/setup-java@v5
-        with:
-          java-version: ${{ matrix.java }}
-          distribution: 'zulu'
-          cache: 'maven'
-
-      - name: Build/test code with Maven
-        run: |
-          mvn --activate-profiles ffsampledsp-${{ matrix.jarch }}-linux \
-            --no-transfer-progress \
-            --batch-mode \
-            --file pom.xml \
-            install \
-            -Dmaven.test.skip=${{ matrix.skiptests }}
-
-      - name: Print lib dir
-        if: always()
-        run: ls -la ffsampledsp-${{ matrix.jarch }}-linux/target/lib
+    - name: "Set up cross compile toolchain"
+      run: "sudo apt-get update\nsudo apt-get install -y g++-aarch64-linux-gnu gcc-aarch64-linux-gnu\
+        \ crossbuild-essential-arm64\n"
+    - name: "Set up Doxygen and native build dependencies"
+      run: "sudo apt-get install -y doxygen libbz2-dev zlib1g-dev"
+    - uses: "actions/checkout@v6"
+    - name: "Set up Java"
+      uses: "actions/setup-java@v5"
+      with:
+        java-version: "${{ matrix.java }}"
+        distribution: "zulu"
+        cache: "maven"
+    - name: "Build/test code with Maven"
+      run: "mvn --activate-profiles ffsampledsp-${{ matrix.jarch }}-linux \\\n  --no-transfer-progress\
+        \ \\\n  --batch-mode \\\n  --file pom.xml \\\n  install \\\n  -Dmaven.test.skip=${{\
+        \ matrix.skiptests }}\n"
+    - name: "Print lib dir"
+      if: "always()"
+      run: "ls -la ffsampledsp-${{ matrix.jarch }}-linux/target/lib"

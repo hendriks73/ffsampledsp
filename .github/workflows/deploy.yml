@@ -1,440 +1,319 @@
-name: Deploy
-
-# NOTE
-# secrets.OSSRH_GPG_SECRET_KEY was created with
-#    gpg --export-secret-keys -a <key-id> > secret.txt
-# then all newlines were replaced with literal '\n'
-# see also https://gist.github.com/sualeh/ae78dc16123899d7942bc38baba5203c
-
-
-# README
-# This script
-#  - builds native libs for the supported platforms (except macOS)
-#  - uploads the native libs as GitHub artifacts
-#  - deploys the native libs to Sonatype
-#  - downloads all native libs artifacts
-#  - injects the artifacts into the macOS build (-> complete)
-#  - deploys the all macOS products
-
-on:
+---
+name: "Deploy"
+"on":
   push:
     branches:
-      - main
-
-
+    - "main"
 jobs:
-
   windows-x64-build:
-
-    runs-on: windows-latest
+    runs-on: "windows-latest"
     defaults:
       run:
-        shell: msys2 {0}
+        shell: "msys2 {0}"
     steps:
-      - uses: msys2/setup-msys2@v2
-        with:
-          msystem: mingw64
-          install: mingw-w64-x86_64-toolchain
-          path-type: inherit
-
-      - name: Set up Doxygen
-        run: pacman --noconfirm -S mingw-w64-x86_64-doxygen
-
-      - id: install-secret-key
-        name: Install gpg secret key
-        run: |
-          cat <(echo -e "${{ secrets.OSSRH_GPG_SECRET_KEY }}") | gpg --batch --import
-          gpg --list-secret-keys --keyid-format LONG
-
-      - uses: actions/checkout@v6
-
-      - name: Set up publication to Maven Central
-        uses: actions/setup-java@v5
-        with:
-          java-version: '8'
-          architecture: x64
-          server-id: central
-          server-username: SONATYPE_USERNAME
-          server-password: SONATYPE_PASSWORD
-          distribution: 'zulu'
-          cache: 'maven'
-
-      - name: Build/test code with Maven
-        run: |
-          which mvn
-          mvn --activate-profiles ffsampledsp-x86_64-win --batch-mode install --file pom.xml
-
-      - run: mkdir nativelibs && cp ffsampledsp-x86_64-win/target/*.dll nativelibs
-      - uses: actions/upload-artifact@v7
-        with:
-          name: nativelibs-x64-win
-          path: nativelibs
-          retention-days: 1
-
-      - id: publish-native-lib-to-central
-        name: Publish to Central Repository
-        env:
-          SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
-          SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
-          GPG_TTY: $(tty)
-        run: |
-          mvn \
-            --projects ffsampledsp-x86_64-win \
-            --no-transfer-progress \
-            --batch-mode \
-            -Dgpg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }} \
-            --activate-profiles release,ffsampledsp-x86_64-win \
-            --file pom.xml \
-            deploy
-
-
+    - uses: "msys2/setup-msys2@v2"
+      with:
+        msystem: "mingw64"
+        install: "mingw-w64-x86_64-toolchain"
+        path-type: "inherit"
+    - name: "Set up Doxygen"
+      run: "pacman --noconfirm -S mingw-w64-x86_64-doxygen"
+    - id: "install-secret-key"
+      name: "Install gpg secret key"
+      run: "cat <(echo -e \"${{ secrets.OSSRH_GPG_SECRET_KEY }}\") | gpg --batch --import\n\
+        gpg --list-secret-keys --keyid-format LONG\n"
+    - uses: "actions/checkout@v6"
+    - name: "Set up publication to Maven Central"
+      uses: "actions/setup-java@v5"
+      with:
+        java-version: "8"
+        architecture: "x64"
+        server-id: "central"
+        server-username: "SONATYPE_USERNAME"
+        server-password: "SONATYPE_PASSWORD"
+        distribution: "zulu"
+        cache: "maven"
+    - name: "Build/test code with Maven"
+      run: "which mvn\nmvn --activate-profiles ffsampledsp-x86_64-win --batch-mode\
+        \ install --file pom.xml\n"
+    - run: "mkdir nativelibs && cp ffsampledsp-x86_64-win/target/*.dll nativelibs"
+    - uses: "actions/upload-artifact@v7"
+      with:
+        name: "nativelibs-x64-win"
+        path: "nativelibs"
+        retention-days: 1
+    - id: "publish-native-lib-to-central"
+      name: "Publish to Central Repository"
+      env:
+        SONATYPE_USERNAME: "${{ secrets.SONATYPE_USERNAME }}"
+        SONATYPE_PASSWORD: "${{ secrets.SONATYPE_PASSWORD }}"
+        GPG_TTY: "$(tty)"
+      run: "mvn \\\n  --projects ffsampledsp-x86_64-win \\\n  --no-transfer-progress\
+        \ \\\n  --batch-mode \\\n  -Dgpg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD\
+        \ }} \\\n  --activate-profiles release,ffsampledsp-x86_64-win \\\n  --file\
+        \ pom.xml \\\n  deploy\n"
   windows-x86-build:
-
-    runs-on: windows-latest
+    runs-on: "windows-latest"
     defaults:
       run:
-        shell: msys2 {0}
+        shell: "msys2 {0}"
     steps:
-      - uses: msys2/setup-msys2@v2
-        with:
-          msystem: mingw32
-          install: mingw-w64-i686-toolchain
-          path-type: inherit
-
-      - name: Set up Doxygen
-        run: pacman --noconfirm -S mingw-w64-i686-doxygen
-
-      - id: install-secret-key
-        name: Install gpg secret key
-        run: |
-          cat <(echo -e "${{ secrets.OSSRH_GPG_SECRET_KEY }}") | gpg --batch --import
-          gpg --list-secret-keys --keyid-format LONG
-
-      - uses: actions/checkout@v6
-
-      - name: Set up publication to Maven Central
-        uses: actions/setup-java@v5
-        with:
-          java-version: '8'
-          architecture: x86
-          server-id: central
-          server-username: SONATYPE_USERNAME
-          server-password: SONATYPE_PASSWORD
-          distribution: 'zulu'
-          cache: 'maven'
-
-      - name: Build/test code with Maven
-        run: |
-          mvn --activate-profiles ffsampledsp-i386-win --no-transfer-progress --batch-mode install --file pom.xml
-
-      - run: mkdir nativelibs && cp ffsampledsp-i386-win/target/*.dll nativelibs
-      - uses: actions/upload-artifact@v7
-        with:
-          name: nativelibs-x86-win
-          path: nativelibs
-          retention-days: 1
-
-      - id: publish-native-lib-to-central
-        name: Publish to Central Repository
-        env:
-          SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
-          SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
-          GPG_TTY: $(tty)
-        run: |
-          mvn \
-            --projects ffsampledsp-i386-win \
-            --no-transfer-progress \
-            --batch-mode \
-            -Dgpg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }} \
-            --activate-profiles release,ffsampledsp-i386-win \
-            --file pom.xml \
-            deploy
-
-
+    - uses: "msys2/setup-msys2@v2"
+      with:
+        msystem: "mingw32"
+        install: "mingw-w64-i686-toolchain"
+        path-type: "inherit"
+    - name: "Set up Doxygen"
+      run: "pacman --noconfirm -S mingw-w64-i686-doxygen"
+    - id: "install-secret-key"
+      name: "Install gpg secret key"
+      run: "cat <(echo -e \"${{ secrets.OSSRH_GPG_SECRET_KEY }}\") | gpg --batch --import\n\
+        gpg --list-secret-keys --keyid-format LONG\n"
+    - uses: "actions/checkout@v6"
+    - name: "Set up publication to Maven Central"
+      uses: "actions/setup-java@v5"
+      with:
+        java-version: "8"
+        architecture: "x86"
+        server-id: "central"
+        server-username: "SONATYPE_USERNAME"
+        server-password: "SONATYPE_PASSWORD"
+        distribution: "zulu"
+        cache: "maven"
+    - name: "Build/test code with Maven"
+      run: "mvn --activate-profiles ffsampledsp-i386-win --no-transfer-progress --batch-mode\
+        \ install --file pom.xml\n"
+    - run: "mkdir nativelibs && cp ffsampledsp-i386-win/target/*.dll nativelibs"
+    - uses: "actions/upload-artifact@v7"
+      with:
+        name: "nativelibs-x86-win"
+        path: "nativelibs"
+        retention-days: 1
+    - id: "publish-native-lib-to-central"
+      name: "Publish to Central Repository"
+      env:
+        SONATYPE_USERNAME: "${{ secrets.SONATYPE_USERNAME }}"
+        SONATYPE_PASSWORD: "${{ secrets.SONATYPE_PASSWORD }}"
+        GPG_TTY: "$(tty)"
+      run: "mvn \\\n  --projects ffsampledsp-i386-win \\\n  --no-transfer-progress\
+        \ \\\n  --batch-mode \\\n  -Dgpg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD\
+        \ }} \\\n  --activate-profiles release,ffsampledsp-i386-win \\\n  --file pom.xml\
+        \ \\\n  deploy\n"
   linux-x64-build:
-
-    runs-on: ubuntu-22.04
-
+    runs-on: "ubuntu-22.04"
     steps:
-      - name: Set up Doxygen and native build dependencies
-        run: sudo apt-get install -y doxygen libbz2-dev zlib1g-dev
-
-      - uses: actions/checkout@v6
-
-      - id: install-secret-key
-        name: Install gpg secret key
-        run: |
-          cat <(echo -e "${{ secrets.OSSRH_GPG_SECRET_KEY }}") | gpg --batch --import
-          gpg --list-secret-keys --keyid-format LONG
-
-      - name: Set up publication to Maven Central
-        uses: actions/setup-java@v5
-        with:
-          java-version: '8'
-          architecture: x64
-          server-id: central
-          server-username: SONATYPE_USERNAME
-          server-password: SONATYPE_PASSWORD
-          distribution: 'zulu'
-          cache: 'maven'
-
-      - name: Build/test code with Maven
-        run: mvn --activate-profiles ffsampledsp-x86_64-linux --no-transfer-progress --batch-mode install  --file pom.xml
-
-      - run: mkdir nativelibs && cp ffsampledsp-x86_64-linux/target/*.so nativelibs
-      - uses: actions/upload-artifact@v7
-        with:
-          name: nativelibs-x86-linux
-          path: nativelibs
-          retention-days: 1
-
-      - id: publish-native-lib-to-central
-        name: Publish to Central Repository
-        env:
-          SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
-          SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
-          GPG_TTY: $(tty)
-        run: |
-          mvn \
-            --projects ffsampledsp-x86_64-linux \
-            --no-transfer-progress \
-            --batch-mode \
-            -Dgpg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }} \
-            --activate-profiles release,ffsampledsp-x86_64-linux \
-            --file pom.xml  \
-            deploy
-
-
+    - name: "Set up Doxygen and native build dependencies"
+      run: "sudo apt-get install -y doxygen libbz2-dev zlib1g-dev"
+    - uses: "actions/checkout@v6"
+    - id: "install-secret-key"
+      name: "Install gpg secret key"
+      run: "cat <(echo -e \"${{ secrets.OSSRH_GPG_SECRET_KEY }}\") | gpg --batch --import\n\
+        gpg --list-secret-keys --keyid-format LONG\n"
+    - name: "Set up publication to Maven Central"
+      uses: "actions/setup-java@v5"
+      with:
+        java-version: "8"
+        architecture: "x64"
+        server-id: "central"
+        server-username: "SONATYPE_USERNAME"
+        server-password: "SONATYPE_PASSWORD"
+        distribution: "zulu"
+        cache: "maven"
+    - name: "Build/test code with Maven"
+      run: "mvn --activate-profiles ffsampledsp-x86_64-linux --no-transfer-progress\
+        \ --batch-mode install  --file pom.xml"
+    - run: "mkdir nativelibs && cp ffsampledsp-x86_64-linux/target/*.so nativelibs"
+    - uses: "actions/upload-artifact@v7"
+      with:
+        name: "nativelibs-x86-linux"
+        path: "nativelibs"
+        retention-days: 1
+    - id: "publish-native-lib-to-central"
+      name: "Publish to Central Repository"
+      env:
+        SONATYPE_USERNAME: "${{ secrets.SONATYPE_USERNAME }}"
+        SONATYPE_PASSWORD: "${{ secrets.SONATYPE_PASSWORD }}"
+        GPG_TTY: "$(tty)"
+      run: "mvn \\\n  --projects ffsampledsp-x86_64-linux \\\n  --no-transfer-progress\
+        \ \\\n  --batch-mode \\\n  -Dgpg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD\
+        \ }} \\\n  --activate-profiles release,ffsampledsp-x86_64-linux \\\n  --file\
+        \ pom.xml  \\\n  deploy\n"
   linux-aarch64-build:
-
-    runs-on: ubuntu-20.04
-
+    runs-on: "ubuntu-20.04"
     steps:
-      - name: Set up cross compile toolchain
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y g++-aarch64-linux-gnu gcc-aarch64-linux-gnu crossbuild-essential-arm64
-
-      - name: Set up Doxygen
-        run: sudo apt-get install -y doxygen
-
-      - uses: actions/checkout@v6
-
-      - id: install-secret-key
-        name: Install gpg secret key
-        run: |
-          cat <(echo -e "${{ secrets.OSSRH_GPG_SECRET_KEY }}") | gpg --batch --import
-          gpg --list-secret-keys --keyid-format LONG
-
-      - name: Set up publication to Maven Central
-        uses: actions/setup-java@v5
-        with:
-          java-version: '8'
-          architecture: x64
-          server-id: central
-          server-username: SONATYPE_USERNAME
-          server-password: SONATYPE_PASSWORD
-          distribution: 'zulu'
-          cache: 'maven'
-
-      - name: Build/test code with Maven (no tests for now)
-        run: mvn --activate-profiles ffsampledsp-aarch64-linux --no-transfer-progress --batch-mode install -Dmaven.test.skip=true --file pom.xml
-
-      - run: mkdir nativelibs && cp ffsampledsp-aarch64-linux/target/*.so nativelibs
-      - uses: actions/upload-artifact@v7
-        with:
-          name: nativelibs-aarch64-linux
-          path: nativelibs
-          retention-days: 1
-
-      - id: publish-native-lib-to-central
-        name: Publish to Central Repository
-        env:
-          SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
-          SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
-          GPG_TTY: $(tty)
-        run: |
-          mvn \
-            --projects ffsampledsp-aarch64-linux \
-            --no-transfer-progress \
-            --batch-mode \
-            -Dgpg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }} \
-            --activate-profiles release,ffsampledsp-aarch64-linux \
-            --file pom.xml  \
-            deploy \
-            -Dmaven.test.skip=true
-
-
+    - name: "Set up cross compile toolchain"
+      run: "sudo apt-get update\nsudo apt-get install -y g++-aarch64-linux-gnu gcc-aarch64-linux-gnu\
+        \ crossbuild-essential-arm64\n"
+    - name: "Set up Doxygen"
+      run: "sudo apt-get install -y doxygen"
+    - uses: "actions/checkout@v6"
+    - id: "install-secret-key"
+      name: "Install gpg secret key"
+      run: "cat <(echo -e \"${{ secrets.OSSRH_GPG_SECRET_KEY }}\") | gpg --batch --import\n\
+        gpg --list-secret-keys --keyid-format LONG\n"
+    - name: "Set up publication to Maven Central"
+      uses: "actions/setup-java@v5"
+      with:
+        java-version: "8"
+        architecture: "x64"
+        server-id: "central"
+        server-username: "SONATYPE_USERNAME"
+        server-password: "SONATYPE_PASSWORD"
+        distribution: "zulu"
+        cache: "maven"
+    - name: "Build/test code with Maven (no tests for now)"
+      run: "mvn --activate-profiles ffsampledsp-aarch64-linux --no-transfer-progress\
+        \ --batch-mode install -Dmaven.test.skip=true --file pom.xml"
+    - run: "mkdir nativelibs && cp ffsampledsp-aarch64-linux/target/*.so nativelibs"
+    - uses: "actions/upload-artifact@v7"
+      with:
+        name: "nativelibs-aarch64-linux"
+        path: "nativelibs"
+        retention-days: 1
+    - id: "publish-native-lib-to-central"
+      name: "Publish to Central Repository"
+      env:
+        SONATYPE_USERNAME: "${{ secrets.SONATYPE_USERNAME }}"
+        SONATYPE_PASSWORD: "${{ secrets.SONATYPE_PASSWORD }}"
+        GPG_TTY: "$(tty)"
+      run: "mvn \\\n  --projects ffsampledsp-aarch64-linux \\\n  --no-transfer-progress\
+        \ \\\n  --batch-mode \\\n  -Dgpg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD\
+        \ }} \\\n  --activate-profiles release,ffsampledsp-aarch64-linux \\\n  --file\
+        \ pom.xml  \\\n  deploy \\\n  -Dmaven.test.skip=true\n"
   macos-aarch64-build:
-
-    runs-on: macos-latest
-
+    runs-on: "macos-latest"
     steps:
-      - name: Set up Doxygen
-        run: brew install doxygen
-
-      - id: install-secret-key
-        name: Install gpg secret key
-        run: |
-          cat <(echo -e "${{ secrets.OSSRH_GPG_SECRET_KEY }}") | gpg --batch --import
-          gpg --list-secret-keys --keyid-format LONG
-          echo "${{ secrets.MACOS_CERTIFICATE }}" | base64 --decode > certificate.p12
-          security create-keychain -p my_secret build.keychain
-          security default-keychain -s build.keychain
-          security unlock-keychain -p my_secret build.keychain
-          security import certificate.p12 -k build.keychain -P "${{ secrets.MACOS_CERTIFICATE_PWD }}" -T /usr/bin/codesign
-          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k my_secret build.keychain
-
-      - uses: actions/checkout@v6
-
-      - name: Set up publication to Maven Central
-        uses: actions/setup-java@v5
-        with:
-          java-version: '8'
-          architecture: x64
-          server-id: central
-          server-username: SONATYPE_USERNAME
-          server-password: SONATYPE_PASSWORD
-          distribution: 'zulu'
-          cache: 'maven'
-
-      - name: Build/test code with Maven
-        run: mvn --activate-profiles ffsampledsp-aarch64-macos,sign --batch-mode install --file pom.xml -Dmaven.test.skip=true
-
-      - run: mkdir nativelibs && cp ffsampledsp-aarch64-macos/target/*.dylib nativelibs
-      - uses: actions/upload-artifact@v7
-        with:
-          name: nativelibs-aarch64-macos
-          path: nativelibs
-          retention-days: 1
-
-      - id: publish-to-central
-        name: Publish to Central Repository
-        env:
-          MACOS_CERTIFICATE: ${{ secrets.MACOS_CERTIFICATE }}
-          MACOS_CERTIFICATE_PWD: ${{ secrets.MACOS_CERTIFICATE_PWD }}
-          SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
-          SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
-          GPG_TTY: $(tty)
-        run: |
-          mvn \
-            --projects ffsampledsp-aarch64-macos \
-            --no-transfer-progress \
-            --batch-mode \
-            -Dgpg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }} \
-            --activate-profiles release,sign,ffsampledsp-aarch64-macos \
-            --file pom.xml \
-            deploy -Dmaven.test.skip=true
-
-
+    - name: "Set up Doxygen"
+      run: "brew install doxygen"
+    - id: "install-secret-key"
+      name: "Install gpg secret key"
+      run: "cat <(echo -e \"${{ secrets.OSSRH_GPG_SECRET_KEY }}\") | gpg --batch --import\n\
+        gpg --list-secret-keys --keyid-format LONG\necho \"${{ secrets.MACOS_CERTIFICATE\
+        \ }}\" | base64 --decode > certificate.p12\nsecurity create-keychain -p my_secret\
+        \ build.keychain\nsecurity default-keychain -s build.keychain\nsecurity unlock-keychain\
+        \ -p my_secret build.keychain\nsecurity import certificate.p12 -k build.keychain\
+        \ -P \"${{ secrets.MACOS_CERTIFICATE_PWD }}\" -T /usr/bin/codesign\nsecurity\
+        \ set-key-partition-list -S apple-tool:,apple:,codesign: -s -k my_secret build.keychain\n"
+    - uses: "actions/checkout@v6"
+    - name: "Set up publication to Maven Central"
+      uses: "actions/setup-java@v5"
+      with:
+        java-version: "8"
+        architecture: "x64"
+        server-id: "central"
+        server-username: "SONATYPE_USERNAME"
+        server-password: "SONATYPE_PASSWORD"
+        distribution: "zulu"
+        cache: "maven"
+    - name: "Build/test code with Maven"
+      run: "mvn --activate-profiles ffsampledsp-aarch64-macos,sign --batch-mode install\
+        \ --file pom.xml -Dmaven.test.skip=true"
+    - run: "mkdir nativelibs && cp ffsampledsp-aarch64-macos/target/*.dylib nativelibs"
+    - uses: "actions/upload-artifact@v7"
+      with:
+        name: "nativelibs-aarch64-macos"
+        path: "nativelibs"
+        retention-days: 1
+    - id: "publish-to-central"
+      name: "Publish to Central Repository"
+      env:
+        MACOS_CERTIFICATE: "${{ secrets.MACOS_CERTIFICATE }}"
+        MACOS_CERTIFICATE_PWD: "${{ secrets.MACOS_CERTIFICATE_PWD }}"
+        SONATYPE_USERNAME: "${{ secrets.SONATYPE_USERNAME }}"
+        SONATYPE_PASSWORD: "${{ secrets.SONATYPE_PASSWORD }}"
+        GPG_TTY: "$(tty)"
+      run: "mvn \\\n  --projects ffsampledsp-aarch64-macos \\\n  --no-transfer-progress\
+        \ \\\n  --batch-mode \\\n  -Dgpg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD\
+        \ }} \\\n  --activate-profiles release,sign,ffsampledsp-aarch64-macos \\\n\
+        \  --file pom.xml \\\n  deploy -Dmaven.test.skip=true\n"
   macos-build:
-
-    needs: [ windows-x86-build, windows-x64-build, macos-aarch64-build, linux-x64-build, linux-aarch64-build ]
-    runs-on: macos-latest
-
+    needs:
+    - "windows-x86-build"
+    - "windows-x64-build"
+    - "macos-aarch64-build"
+    - "linux-x64-build"
+    - "linux-aarch64-build"
+    runs-on: "macos-latest"
     steps:
-      - name: Set up Doxygen
-        run: brew install doxygen
-
-      - id: install-secret-key
-        name: Install gpg secret key
-        run: |
-          cat <(echo -e "${{ secrets.OSSRH_GPG_SECRET_KEY }}") | gpg --batch --import
-          gpg --list-secret-keys --keyid-format LONG
-          echo "${{ secrets.MACOS_CERTIFICATE }}" | base64 --decode > certificate.p12
-          security create-keychain -p my_secret build.keychain
-          security default-keychain -s build.keychain
-          security unlock-keychain -p my_secret build.keychain
-          security import certificate.p12 -k build.keychain -P "${{ secrets.MACOS_CERTIFICATE_PWD }}" -T /usr/bin/codesign
-          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k my_secret build.keychain
-
-      - uses: actions/checkout@v6
-
-      - name: Set up publication to Maven Central
-        uses: actions/setup-java@v5
-        with:
-          java-version: '8'
-          architecture: x64
-          server-id: central
-          server-username: SONATYPE_USERNAME
-          server-password: SONATYPE_PASSWORD
-          distribution: 'zulu'
-          cache: 'maven'
-
-      - name: create target/classes for ffsampledsp-complete
-        run: mkdir -p ffsampledsp-complete/target/classes/
-
-      - name: Get Linux x86 native lib
-        uses: actions/download-artifact@v8
-        with:
-          name: nativelibs-x86-linux
-          path: ffsampledsp-complete/target/classes/
-
-      - name: Get Linux arm64 native lib
-        uses: actions/download-artifact@v8
-        with:
-          name: nativelibs-aarch64-linux
-          path: ffsampledsp-complete/target/classes/
-
-      - name: Get macOS aarch64 native lib
-        uses: actions/download-artifact@v8
-        with:
-          name: nativelibs-aarch64-macos
-          path: ffsampledsp-complete/target/classes/
-
-      - name: Get Windows x86 native lib
-        uses: actions/download-artifact@v8
-        with:
-          name: nativelibs-x86-win
-          path: ffsampledsp-complete/target/classes/
-
-      - name: Get Windows x64 native lib
-        uses: actions/download-artifact@v8
-        with:
-          name: nativelibs-x64-win
-          path: ffsampledsp-complete/target/classes/
-
-      - id: publish-to-central
-        name: Publish to Central Repository
-        env:
-          MACOS_CERTIFICATE: ${{ secrets.MACOS_CERTIFICATE }}
-          MACOS_CERTIFICATE_PWD: ${{ secrets.MACOS_CERTIFICATE_PWD }}
-          SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
-          SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
-          GPG_TTY: $(tty)
-        run: |
-          mvn \
-            --no-transfer-progress \
-            --batch-mode \
-            -Dgpg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }} \
-            --activate-profiles release,sign,ffsampledsp-x86_64-macos \
-            deploy --file pom.xml
-
-      # deploy javadocs to github pages
-      - name: Deploy Javadocs to GitHub Pages Branch
-        uses: JamesIves/github-pages-deploy-action@4.1.5
-        with:
-          branch: gh-pages
-          folder: ffsampledsp-complete/target/apidocs/
-
-      - name: Set up publication to tagtraum
-        uses: actions/setup-java@v5
-        with:
-          java-version: '8'
-          server-id: tagtraum-site
-          server-username: MAVEN_USERNAME
-          server-password: MAVEN_PASSWORD
-          distribution: 'zulu'
-          cache: 'maven'
-
-      - name: Publish to tagtraum
-        env:
-          MAVEN_USERNAME: ${{ secrets.TAGTRAUM_USERNAME }}
-          MAVEN_PASSWORD: ${{ secrets.TAGTRAUM_PASSWORD }}
-        run: |
-          sed -i.bak 's@tagtraum-site</id>@tagtraum-site</id><configuration><StrictHostKeyChecking>no</StrictHostKeyChecking></configuration><filePermissions>775</filePermissions><directoryPermissions>775</directoryPermissions>@' $HOME/.m2/settings.xml
-          mvn --no-transfer-progress \
-            --batch-mode \
-            --activate-profiles ffsampledsp-x86_64-macos \
-            --file pom.xml  \
-            clean install site:site site:deploy
+    - name: "Set up Doxygen"
+      run: "brew install doxygen"
+    - id: "install-secret-key"
+      name: "Install gpg secret key"
+      run: "cat <(echo -e \"${{ secrets.OSSRH_GPG_SECRET_KEY }}\") | gpg --batch --import\n\
+        gpg --list-secret-keys --keyid-format LONG\necho \"${{ secrets.MACOS_CERTIFICATE\
+        \ }}\" | base64 --decode > certificate.p12\nsecurity create-keychain -p my_secret\
+        \ build.keychain\nsecurity default-keychain -s build.keychain\nsecurity unlock-keychain\
+        \ -p my_secret build.keychain\nsecurity import certificate.p12 -k build.keychain\
+        \ -P \"${{ secrets.MACOS_CERTIFICATE_PWD }}\" -T /usr/bin/codesign\nsecurity\
+        \ set-key-partition-list -S apple-tool:,apple:,codesign: -s -k my_secret build.keychain\n"
+    - uses: "actions/checkout@v6"
+    - name: "Set up publication to Maven Central"
+      uses: "actions/setup-java@v5"
+      with:
+        java-version: "8"
+        architecture: "x64"
+        server-id: "central"
+        server-username: "SONATYPE_USERNAME"
+        server-password: "SONATYPE_PASSWORD"
+        distribution: "zulu"
+        cache: "maven"
+    - name: "create target/classes for ffsampledsp-complete"
+      run: "mkdir -p ffsampledsp-complete/target/classes/"
+    - name: "Get Linux x86 native lib"
+      uses: "actions/download-artifact@v8"
+      with:
+        name: "nativelibs-x86-linux"
+        path: "ffsampledsp-complete/target/classes/"
+    - name: "Get Linux arm64 native lib"
+      uses: "actions/download-artifact@v8"
+      with:
+        name: "nativelibs-aarch64-linux"
+        path: "ffsampledsp-complete/target/classes/"
+    - name: "Get macOS aarch64 native lib"
+      uses: "actions/download-artifact@v8"
+      with:
+        name: "nativelibs-aarch64-macos"
+        path: "ffsampledsp-complete/target/classes/"
+    - name: "Get Windows x86 native lib"
+      uses: "actions/download-artifact@v8"
+      with:
+        name: "nativelibs-x86-win"
+        path: "ffsampledsp-complete/target/classes/"
+    - name: "Get Windows x64 native lib"
+      uses: "actions/download-artifact@v8"
+      with:
+        name: "nativelibs-x64-win"
+        path: "ffsampledsp-complete/target/classes/"
+    - id: "publish-to-central"
+      name: "Publish to Central Repository"
+      env:
+        MACOS_CERTIFICATE: "${{ secrets.MACOS_CERTIFICATE }}"
+        MACOS_CERTIFICATE_PWD: "${{ secrets.MACOS_CERTIFICATE_PWD }}"
+        SONATYPE_USERNAME: "${{ secrets.SONATYPE_USERNAME }}"
+        SONATYPE_PASSWORD: "${{ secrets.SONATYPE_PASSWORD }}"
+        GPG_TTY: "$(tty)"
+      run: "mvn \\\n  --no-transfer-progress \\\n  --batch-mode \\\n  -Dgpg.passphrase=${{\
+        \ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }} \\\n  --activate-profiles release,sign,ffsampledsp-x86_64-macos\
+        \ \\\n  deploy --file pom.xml\n"
+    - name: "Deploy Javadocs to GitHub Pages Branch"
+      uses: "JamesIves/github-pages-deploy-action@4.1.5"
+      with:
+        branch: "gh-pages"
+        folder: "ffsampledsp-complete/target/apidocs/"
+    - name: "Set up publication to tagtraum"
+      uses: "actions/setup-java@v5"
+      with:
+        java-version: "8"
+        server-id: "tagtraum-site"
+        server-username: "MAVEN_USERNAME"
+        server-password: "MAVEN_PASSWORD"
+        distribution: "zulu"
+        cache: "maven"
+    - name: "Publish to tagtraum"
+      env:
+        MAVEN_USERNAME: "${{ secrets.TAGTRAUM_USERNAME }}"
+        MAVEN_PASSWORD: "${{ secrets.TAGTRAUM_PASSWORD }}"
+      run: "sed -i.bak 's@tagtraum-site</id>@tagtraum-site</id><configuration><StrictHostKeyChecking>no</StrictHostKeyChecking></configuration><filePermissions>775</filePermissions><directoryPermissions>775</directoryPermissions>@'\
+        \ $HOME/.m2/settings.xml\nmvn --no-transfer-progress \\\n  --batch-mode \\\
+        \n  --activate-profiles ffsampledsp-x86_64-macos \\\n  --file pom.xml  \\\n\
+        \  clean install site:site site:deploy\n"

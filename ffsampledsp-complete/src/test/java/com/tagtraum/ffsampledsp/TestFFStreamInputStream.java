@@ -20,16 +20,15 @@
  */
 package com.tagtraum.ffsampledsp;
 
-import org.junit.Test;
+import static org.junit.Assert.*;
 
-import javax.sound.sampled.AudioFileFormat;
-import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.*;
 import java.net.URL;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
-
-import static org.junit.Assert.*;
+import javax.sound.sampled.AudioFileFormat;
+import javax.sound.sampled.UnsupportedAudioFileException;
+import org.junit.Test;
 
 /**
  * TestFFStreamInputStream.
@@ -38,337 +37,338 @@ import static org.junit.Assert.*;
  */
 public class TestFFStreamInputStream {
 
-    @Test
-    public void testReadThroughMP3File() throws IOException, UnsupportedAudioFileException {
-        final String filename = "test.mp3";
-        final File file = File.createTempFile("testReadThroughMP3File", filename);
-        extractFile(filename, file);
+  @Test
+  public void testReadThroughMP3File() throws IOException, UnsupportedAudioFileException {
+    final String filename = "test.mp3";
+    final File file = File.createTempFile("testReadThroughMP3File", filename);
+    extractFile(filename, file);
+    int bytesRead = 0;
+    FFStreamInputStream in = null;
+    try {
+      in = new FFStreamInputStream(new FileInputStream(file));
+      int justRead;
+      final byte[] buf = new byte[1024 * 8];
+      while ((justRead = in.read(buf)) != -1) {
+        assertTrue(justRead > 0);
+        bytesRead += justRead;
+      }
+    } finally {
+      if (in != null) {
+        try {
+          in.close();
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+      }
+      file.delete();
+    }
+    System.out.println("Read " + bytesRead + " bytes.");
+    assertTrue(bytesRead != 0);
+  }
+
+  @Test
+  public void testReadThroughOggFile() throws IOException, UnsupportedAudioFileException {
+    final String filename = "test.ogg";
+    final File file = File.createTempFile("testReadThroughOggFile", filename);
+    extractFile(filename, file);
+    int bytesRead = 0;
+    FFStreamInputStream in = null;
+    try {
+      in = new FFStreamInputStream(new FileInputStream(file));
+      int justRead;
+      final byte[] buf = new byte[1024 * 8];
+      while ((justRead = in.read(buf)) != -1) {
+        assertTrue(justRead > 0);
+        bytesRead += justRead;
+      }
+    } finally {
+      if (in != null) {
+        try {
+          in.close();
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+      }
+      file.delete();
+    }
+    System.out.println("Read " + bytesRead + " bytes.");
+    assertTrue(bytesRead != 0);
+  }
+
+  @Test(expected = IndexOutOfBoundsException.class)
+  public void testBadStreamIndex() throws IOException, UnsupportedAudioFileException {
+    final String filename = "test.stem.mp4";
+    final File file = File.createTempFile("testReadThroughStemMP4File", filename);
+    extractFile(filename, file);
+    try {
+      final URL url = file.toURI().toURL();
+      final AudioFileFormat[] audioFileFormats = new FFAudioFileReader().getAudioFileFormats(url);
+      System.out.println("Found " + audioFileFormats.length + " streams.");
+      new FFStreamInputStream(new FileInputStream(file), audioFileFormats.length);
+    } finally {
+      file.delete();
+    }
+  }
+
+  @Test
+  public void testReadThroughStemMP4File() throws IOException, UnsupportedAudioFileException {
+    final String filename = "test.stem.mp4";
+    final File file = File.createTempFile("testReadThroughStemMP4File", filename);
+    extractFile(filename, file);
+    try {
+      final URL url = file.toURI().toURL();
+      final AudioFileFormat[] audioFileFormats = new FFAudioFileReader().getAudioFileFormats(url);
+
+      System.out.println("Found " + audioFileFormats.length + " streams.");
+      for (int i = 0; i < audioFileFormats.length; i++) {
+        System.out.println("Reading stream " + i + " ...");
         int bytesRead = 0;
         FFStreamInputStream in = null;
         try {
-            in = new FFStreamInputStream(new FileInputStream(file));
-            int justRead;
-            final byte[] buf = new byte[1024*8];
-            while ((justRead = in.read(buf)) != -1) {
-                assertTrue(justRead > 0);
-                bytesRead += justRead;
-            }
+          in = new FFStreamInputStream(new FileInputStream(file), i);
+          int justRead;
+          final byte[] buf = new byte[1024];
+          while ((justRead = in.read(buf)) != -1) {
+            assertTrue(justRead > 0);
+            bytesRead += justRead;
+          }
         } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+          if (in != null) {
+            try {
+              in.close();
+            } catch (IOException e) {
+              e.printStackTrace();
             }
-            file.delete();
+          }
         }
         System.out.println("Read " + bytesRead + " bytes.");
-        assertTrue(bytesRead != 0);
+      }
+    } finally {
+      file.delete();
     }
+  }
 
-    @Test
-    public void testReadThroughOggFile() throws IOException, UnsupportedAudioFileException {
-        final String filename = "test.ogg";
-        final File file = File.createTempFile("testReadThroughOggFile", filename);
-        extractFile(filename, file);
-        int bytesRead = 0;
-        FFStreamInputStream in = null;
+  @Test
+  public void testReadThroughM4AFile() throws IOException, UnsupportedAudioFileException {
+    final String filename = "test.m4a";
+    final File file = File.createTempFile("testReadThroughM4AFile", filename);
+    extractFile(filename, file);
+    int bytesRead = 0;
+    FFStreamInputStream in = null;
+    try {
+      in = new FFStreamInputStream(new FileInputStream(file));
+      int justRead;
+      final byte[] buf = new byte[1024 * 8];
+      while ((justRead = in.read(buf)) != -1) {
+        assertTrue(justRead > 0);
+        bytesRead += justRead;
+      }
+    } finally {
+      if (in != null) {
         try {
-            in = new FFStreamInputStream(new FileInputStream(file));
-            int justRead;
-            final byte[] buf = new byte[1024*8];
-            while ((justRead = in.read(buf)) != -1) {
-                assertTrue(justRead > 0);
-                bytesRead += justRead;
-            }
-        } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            file.delete();
+          in.close();
+        } catch (IOException e) {
+          e.printStackTrace();
         }
-        System.out.println("Read " + bytesRead + " bytes.");
-        assertTrue(bytesRead != 0);
+      }
+      file.delete();
     }
+    System.out.println("Read " + bytesRead + " bytes.");
+    assertTrue(bytesRead != 0);
+  }
 
-    @Test(expected = IndexOutOfBoundsException.class)
-    public void testBadStreamIndex() throws IOException, UnsupportedAudioFileException {
-        final String filename = "test.stem.mp4";
-        final File file = File.createTempFile("testReadThroughStemMP4File", filename);
-        extractFile(filename, file);
+  @Test(expected = UnsupportedAudioFileException.class)
+  public void testReadThroughDRMM4AFile() throws IOException, UnsupportedAudioFileException {
+    final String filename = "test_drms.m4a";
+    final File file = File.createTempFile("testReadThroughDRMM4AFile", filename);
+    extractFile(filename, file);
+    FFStreamInputStream in = null;
+    try {
+      in = new FFStreamInputStream(new FileInputStream(file));
+    } finally {
+      if (in != null) {
         try {
-            final URL url = file.toURI().toURL();
-            final AudioFileFormat[] audioFileFormats = new FFAudioFileReader().getAudioFileFormats(url);
-            System.out.println("Found " + audioFileFormats.length + " streams.");
-            new FFStreamInputStream(new FileInputStream(file), audioFileFormats.length);
-        } finally {
-            file.delete();
+          in.close();
+        } catch (IOException e) {
+          e.printStackTrace();
         }
+      }
+      file.delete();
     }
+  }
 
-    @Test
-    public void testReadThroughStemMP4File() throws IOException, UnsupportedAudioFileException {
-        final String filename = "test.stem.mp4";
-        final File file = File.createTempFile("testReadThroughStemMP4File", filename);
-        extractFile(filename, file);
+  @Test
+  public void testReadThroughFLACFile() throws IOException, UnsupportedAudioFileException {
+    final String filename = "test.flac";
+    final File file = File.createTempFile("testReadThroughFLACFile", filename);
+    extractFile(filename, file);
+    int bytesRead = 0;
+    FFStreamInputStream in = null;
+    try {
+      in = new FFStreamInputStream(new FileInputStream(file));
+      int justRead;
+      final byte[] buf = new byte[1024 * 8];
+      while ((justRead = in.read(buf)) != -1) {
+        assertTrue(justRead > 0);
+        bytesRead += justRead;
+      }
+    } finally {
+      if (in != null) {
         try {
-            final URL url = file.toURI().toURL();
-            final AudioFileFormat[] audioFileFormats = new FFAudioFileReader().getAudioFileFormats(url);
-
-            System.out.println("Found " + audioFileFormats.length + " streams.");
-            for (int i = 0; i < audioFileFormats.length; i++) {
-                System.out.println("Reading stream " + i + " ...");
-                int bytesRead = 0;
-                FFStreamInputStream in = null;
-                try {
-                    in = new FFStreamInputStream(new FileInputStream(file), i);
-                    int justRead;
-                    final byte[] buf = new byte[1024];
-                    while ((justRead = in.read(buf)) != -1) {
-                        assertTrue(justRead > 0);
-                        bytesRead += justRead;
-                    }
-                } finally {
-                    if (in != null) {
-                        try {
-                            in.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-                System.out.println("Read " + bytesRead + " bytes.");
-            }
-        } finally {
-            file.delete();
+          in.close();
+        } catch (IOException e) {
+          e.printStackTrace();
         }
+      }
+      file.delete();
     }
+    System.out.println("Read " + bytesRead + " bytes.");
+    assertTrue(bytesRead != 0);
+  }
 
-    @Test
-    public void testReadThroughM4AFile() throws IOException, UnsupportedAudioFileException {
-        final String filename = "test.m4a";
-        final File file = File.createTempFile("testReadThroughM4AFile", filename);
-        extractFile(filename, file);
-        int bytesRead = 0;
-        FFStreamInputStream in = null;
+  @Test
+  public void testReadThroughWaveFile() throws IOException, UnsupportedAudioFileException {
+    final String filename = "test.wav";
+    final File file = File.createTempFile("testReadThroughWaveFile", filename);
+    extractFile(filename, file);
+
+    // pre-computed reference values index 1024-50 to 1024 (excl.)
+    final int[] referenceValues =
+        new int[] {
+          240, 255, 230, 255, 230, 255, 232, 255, 232, 255, 247, 255, 247, 255, 246, 255, 246, 255,
+          235, 255, 235, 255, 250, 255, 250, 255, 13, 0, 13, 0, 15, 0, 15, 0, 39, 0, 39, 0, 87, 0,
+          87, 0, 90, 0, 90, 0, 31, 0, 31, 0
+        };
+
+    int bytesRead = 0;
+    FFStreamInputStream in = null;
+    try {
+      in = new FFStreamInputStream(new FileInputStream(file));
+      int justRead;
+      final byte[] buf = new byte[1024];
+      while ((justRead = in.read(buf)) != -1) {
+        assertTrue(justRead > 0);
+        bytesRead += justRead;
+        if (bytesRead == 1024) {
+          for (int i = 0; i < 50; i++) {
+            assertEquals(referenceValues[i], buf[i + (1024 - 50)] & 0xFF);
+          }
+        }
+      }
+    } finally {
+      if (in != null) {
         try {
-            in = new FFStreamInputStream(new FileInputStream(file));
-            int justRead;
-            final byte[] buf = new byte[1024*8];
-            while ((justRead = in.read(buf)) != -1) {
-                assertTrue(justRead > 0);
-                bytesRead += justRead;
-            }
-        } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            file.delete();
+          in.close();
+        } catch (IOException e) {
+          e.printStackTrace();
         }
-        System.out.println("Read " + bytesRead + " bytes.");
-        assertTrue(bytesRead != 0);
+      }
+      file.delete();
     }
+    assertEquals(133632, (bytesRead / 4));
+  }
 
-    @Test(expected = UnsupportedAudioFileException.class)
-    public void testReadThroughDRMM4AFile() throws IOException, UnsupportedAudioFileException {
-        final String filename = "test_drms.m4a";
-        final File file = File.createTempFile("testReadThroughDRMM4AFile", filename);
-        extractFile(filename, file);
-        FFStreamInputStream in = null;
+  @Test
+  public void testReadThroughWMAFile() throws IOException, UnsupportedAudioFileException {
+    final String filename = "test.wma";
+    final File file = File.createTempFile("testReadThroughWMAFile", filename);
+    extractFile(filename, file);
+
+    int bytesRead = 0;
+    FFStreamInputStream in = null;
+    try {
+      in = new FFStreamInputStream(new FileInputStream(file));
+      int justRead;
+      final byte[] buf = new byte[1024];
+      while ((justRead = in.read(buf)) != -1) {
+        assertTrue(justRead > 0);
+        bytesRead += justRead;
+      }
+    } finally {
+      if (in != null) {
         try {
-            in = new FFStreamInputStream(new FileInputStream(file));
-        } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            file.delete();
+          in.close();
+        } catch (IOException e) {
+          e.printStackTrace();
         }
+      }
+      file.delete();
     }
+    assertEquals(14585856, (bytesRead / 4));
+  }
 
-    @Test
-    public void testReadThroughFLACFile() throws IOException, UnsupportedAudioFileException {
-        final String filename = "test.flac";
-        final File file = File.createTempFile("testReadThroughFLACFile", filename);
-        extractFile(filename, file);
-        int bytesRead = 0;
-        FFStreamInputStream in = null;
+  @Test
+  public void testBogusStream() throws IOException {
+    final String filename = "test.wav";
+    final File file = File.createTempFile("testBogusFile", filename);
+    FileOutputStream out = new FileOutputStream(file);
+    final Random random = new Random();
+    for (int i = 0; i < 8 * 1024; i++) {
+      out.write(random.nextInt());
+    }
+    out.close();
+    FFStreamInputStream in = null;
+    try {
+      in = new FFStreamInputStream(new BufferedInputStream(new FileInputStream(file)));
+      in.read(new byte[1024]);
+      fail("Expected UnsupportedAudioFileException");
+    } catch (UnsupportedAudioFileException e) {
+      // expected this
+      e.printStackTrace();
+      assertTrue(
+          e.toString().endsWith("(Operation not permitted)")
+              || e.toString().endsWith("(Invalid data found when processing input)")
+              || e.toString().endsWith("(End of file)")
+              || e.toString().endsWith("(Invalid argument)")
+              || e.toString().endsWith("(Invalid data found when processing input)")
+              || e.toString().contains("Probe score too low"));
+    } finally {
+      if (in != null) {
         try {
-            in = new FFStreamInputStream(new FileInputStream(file));
-            int justRead;
-            final byte[] buf = new byte[1024*8];
-            while ((justRead = in.read(buf)) != -1) {
-                assertTrue(justRead > 0);
-                bytesRead += justRead;
-            }
-        } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            file.delete();
+          in.close();
+        } catch (IOException e) {
+          e.printStackTrace();
         }
-        System.out.println("Read " + bytesRead + " bytes.");
-        assertTrue(bytesRead != 0);
+      }
+      file.delete();
     }
+  }
 
-    @Test
-    public void testReadThroughWaveFile() throws IOException, UnsupportedAudioFileException {
-        final String filename = "test.wav";
-        final File file = File.createTempFile("testReadThroughWaveFile", filename);
-        extractFile(filename, file);
+  @Test
+  public void testNotSeekable() throws IOException, UnsupportedAudioFileException {
+    final String filename = "test.wav";
+    final File file = File.createTempFile("testNotSeekable", filename);
+    extractFile(filename, file);
+    FFStreamInputStream in = null;
+    try {
+      in = new FFStreamInputStream(new BufferedInputStream(new FileInputStream(file)));
+      assertFalse(in.isSeekable());
+      in.read(new byte[1024 * 4]);
+      in.seek(0, TimeUnit.MICROSECONDS);
 
-        // pre-computed reference values index 1024-50 to 1024 (excl.)
-        final int[] referenceValues = new int[]{240, 255, 230, 255, 230, 255, 232, 255, 232, 255, 247, 255, 247, 255, 246, 255, 246, 255, 235, 255, 235, 255, 250, 255, 250, 255, 13, 0, 13, 0, 15, 0, 15, 0, 39, 0, 39, 0, 87, 0, 87, 0, 90, 0, 90, 0, 31, 0, 31, 0};
-
-        int bytesRead = 0;
-        FFStreamInputStream in = null;
+    } catch (UnsupportedOperationException e) {
+      // expected this
+      e.printStackTrace();
+    } finally {
+      if (in != null) {
         try {
-            in = new FFStreamInputStream(new FileInputStream(file));
-            int justRead;
-            final byte[] buf = new byte[1024];
-            while ((justRead = in.read(buf)) != -1) {
-                assertTrue(justRead > 0);
-                bytesRead += justRead;
-                if (bytesRead == 1024) {
-                    for (int i=0; i<50; i++) {
-                        assertEquals(referenceValues[i], buf[i+(1024-50)] & 0xFF);
-                    }
-                }
-            }
-        } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            file.delete();
+          in.close();
+        } catch (IOException e) {
+          e.printStackTrace();
         }
-        assertEquals(133632, (bytesRead / 4));
+      }
+      file.delete();
     }
+  }
 
-
-    @Test
-    public void testReadThroughWMAFile() throws IOException, UnsupportedAudioFileException {
-        final String filename = "test.wma";
-        final File file = File.createTempFile("testReadThroughWMAFile", filename);
-        extractFile(filename, file);
-
-        int bytesRead = 0;
-        FFStreamInputStream in = null;
-        try {
-            in = new FFStreamInputStream(new FileInputStream(file));
-            int justRead;
-            final byte[] buf = new byte[1024];
-            while ((justRead = in.read(buf)) != -1) {
-                assertTrue(justRead > 0);
-                bytesRead += justRead;
-            }
-        } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            file.delete();
-        }
-        assertEquals(14585856, (bytesRead / 4));
+  static void extractFile(final String filename, final File file) throws IOException {
+    try (final InputStream in = TestFFStreamInputStream.class.getResourceAsStream(filename);
+        OutputStream out = new FileOutputStream(file)) {
+      final byte[] buf = new byte[1024 * 64];
+      int justRead;
+      while ((justRead = in.read(buf)) != -1) {
+        out.write(buf, 0, justRead);
+      }
     }
-
-
-    @Test
-    public void testBogusStream() throws IOException {
-        final String filename = "test.wav";
-        final File file = File.createTempFile("testBogusFile", filename);
-        FileOutputStream out = new FileOutputStream(file);
-        final Random random = new Random();
-        for (int i=0; i<8*1024; i++) {
-            out.write(random.nextInt());
-        }
-        out.close();
-        FFStreamInputStream in = null;
-        try {
-            in = new FFStreamInputStream(new BufferedInputStream(new FileInputStream(file)));
-            in.read(new byte[1024]);
-            fail("Expected UnsupportedAudioFileException");
-        } catch (UnsupportedAudioFileException e) {
-            // expected this
-            e.printStackTrace();
-            assertTrue(e.toString().endsWith("(Operation not permitted)")
-                    || e.toString().endsWith("(Invalid data found when processing input)")
-                    || e.toString().endsWith("(End of file)")
-                    || e.toString().endsWith("(Invalid argument)")
-                    || e.toString().endsWith("(Invalid data found when processing input)")
-                    || e.toString().contains("Probe score too low")
-            );
-        } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            file.delete();
-        }
-    }
-
-    @Test
-    public void testNotSeekable() throws IOException, UnsupportedAudioFileException {
-        final String filename = "test.wav";
-        final File file = File.createTempFile("testNotSeekable", filename);
-        extractFile(filename, file);
-        FFStreamInputStream in = null;
-        try {
-            in = new FFStreamInputStream(new BufferedInputStream(new FileInputStream(file)));
-            assertFalse(in.isSeekable());
-            in.read(new byte[1024 * 4]);
-            in.seek(0, TimeUnit.MICROSECONDS);
-
-        } catch (UnsupportedOperationException e) {
-            // expected this
-            e.printStackTrace();
-        } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            file.delete();
-        }
-    }
-
-
-    static void extractFile(final String filename, final File file) throws IOException {
-        try (final InputStream in = TestFFStreamInputStream.class.getResourceAsStream(filename);
-             OutputStream out = new FileOutputStream(file)) {
-            final byte[] buf = new byte[1024*64];
-            int justRead;
-            while ((justRead = in.read(buf)) != -1) {
-                out.write(buf, 0, justRead);
-            }
-        }
-    }
-
+  }
 }

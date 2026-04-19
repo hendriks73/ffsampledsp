@@ -1,36 +1,37 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <project name="FFSampledSP">
-    <version position="right"/>
-    <bannerLeft>
-        <name>FFSampledSP</name>
-        <href>https://www.tagtraum.com/ffsampledsp</href>
-        <src>../images/ffsampledsp-banner.png</src>
-    </bannerLeft>
-    <bannerRight>
-        <href>https://www.tagtraum.com/</href>
-        <src>../images/tagtraum-banner.png</src>
-        <width>90px</width>
-        <height>60px</height>
-    </bannerRight>
-    <body>
-        <links>
-            <item name="tagtraum" href="https://www.tagtraum.com/"/>
-            <item name="beaTunes" href="https://www.beatunes.com/"/>
-            <item name="FFmpeg" href="https://www.ffmpeg.org/"/>
-        </links>
+	<version position="right" />
+	<bannerLeft>
+		<name>FFSampledSP</name>
+		<href>https://www.tagtraum.com/ffsampledsp</href>
+		<src>../images/ffsampledsp-banner.png</src>
+	</bannerLeft>
+	<bannerRight>
+		<href>https://www.tagtraum.com/</href>
+		<src>../images/tagtraum-banner.png</src>
+		<width>90px</width>
+		<height>60px</height>
+	</bannerRight>
+	<body>
+		<links>
+			<item name="tagtraum" href="https://www.tagtraum.com/" />
+			<item name="beaTunes" href="https://www.beatunes.com/" />
+			<item name="FFmpeg" href="https://www.ffmpeg.org/" />
+		</links>
 
-        <menu name="FFSampledSP">
-            <item name="Introduction" href="index.html"/>
-            <item name="Release" href="https://www.beatunes.com/repo/maven2/com/tagtraum/ffsampledsp-test"/>
-            <item name="TestDocs" href="testapidocs/index.html"/>
-            <item name="JavaDocs" href="../apidocs/index.html"/>
-            <item name="C-Docs" href="../doxygen/index.html"/>
-            <item name="FFmpeg" href="https://www.ffmpeg.org/"/>
-        </menu>
+		<menu name="FFSampledSP">
+			<item name="Introduction" href="index.html" />
+			<item name="Release"
+				href="https://www.beatunes.com/repo/maven2/com/tagtraum/ffsampledsp-test" />
+			<item name="TestDocs" href="testapidocs/index.html" />
+			<item name="JavaDocs" href="../apidocs/index.html" />
+			<item name="C-Docs" href="../doxygen/index.html" />
+			<item name="FFmpeg" href="https://www.ffmpeg.org/" />
+		</menu>
 
-        <menu ref="modules" />
-        <menu ref="reports"/>
-        <menu ref="parent"/>
+		<menu ref="modules" />
+		<menu ref="reports" />
+		<menu ref="parent" />
 
-    </body>
+	</body>
 </project>

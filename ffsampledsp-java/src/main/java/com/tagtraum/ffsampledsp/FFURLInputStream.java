@@ -20,13 +20,13 @@
  */
 package com.tagtraum.ffsampledsp;
 
-import javax.sound.sampled.UnsupportedAudioFileException;
+import static com.tagtraum.ffsampledsp.FFGlobalLock.LOCK;
+
 import java.io.IOException;
 import java.net.URL;
 import java.nio.Buffer;
 import java.util.concurrent.TimeUnit;
-
-import static com.tagtraum.ffsampledsp.FFGlobalLock.LOCK;
+import javax.sound.sampled.UnsupportedAudioFileException;
 
 /**
  * Audio stream capable of decoding resources via FFmpeg.
@@ -35,82 +35,86 @@ import static com.tagtraum.ffsampledsp.FFGlobalLock.LOCK;
  */
 public class FFURLInputStream extends FFNativePeerInputStream {
 
-    private final boolean seekable;
-    private final URL url;
+  private final boolean seekable;
+  private final URL url;
 
-    public FFURLInputStream(final URL url) throws IOException, UnsupportedAudioFileException {
-        this(url, 0);
+  public FFURLInputStream(final URL url) throws IOException, UnsupportedAudioFileException {
+    this(url, 0);
+  }
+
+  public FFURLInputStream(final URL url, final int streamIndex)
+      throws IOException, UnsupportedAudioFileException {
+    // FFmpeg did not use to recognize DRM-crippled files.
+    // Therefore we avoid decoding altogether.
+    if (url.toString().toLowerCase().endsWith(".m4p")) {
+      throw new UnsupportedAudioFileException("DRM encrypted file is unsupported: " + url);
     }
+    this.url = url;
+    // workaround covariant return type introduced in Java 9
+    // ensure limit(int) is called on Buffer, not ByteBuffer
+    ((Buffer) this.nativeBuffer).limit(0);
+    this.pointer = lockedOpen(FFAudioFileReader.urlToString(url), streamIndex);
+    this.seekable = isSeekable(pointer);
+  }
 
-    public FFURLInputStream(final URL url, final int streamIndex) throws IOException, UnsupportedAudioFileException {
-        // FFmpeg did not use to recognize DRM-crippled files.
-        // Therefore we avoid decoding altogether.
-        if (url.toString().toLowerCase().endsWith(".m4p")) {
-            throw new UnsupportedAudioFileException("DRM encrypted file is unsupported: " + url);
-        }
-        this.url = url;
-        // workaround covariant return type introduced in Java 9
-        // ensure limit(int) is called on Buffer, not ByteBuffer
-        ((Buffer)this.nativeBuffer).limit(0);
-        this.pointer = lockedOpen(FFAudioFileReader.urlToString(url), streamIndex);
-        this.seekable = isSeekable(pointer);
+  @Override
+  public boolean isSeekable() {
+    return seekable;
+  }
+
+  @Override
+  public synchronized void seek(final long time, final TimeUnit timeUnit)
+      throws UnsupportedOperationException, IOException {
+    if (!isOpen()) throw new IOException("Stream is already closed: " + url);
+    if (!isSeekable())
+      throw new UnsupportedOperationException("Seeking is not supported for " + url);
+    final long microseconds = timeUnit.toMicros(time);
+    seek(pointer, microseconds);
+    // workaround covariant return type introduced in Java 9
+    // ensure limit(int) is called on Buffer, not ByteBuffer
+    ((Buffer) this.nativeBuffer).limit(0);
+  }
+
+  @Override
+  protected void fillNativeBuffer() throws IOException {
+    if (isOpen()) {
+      fillNativeBuffer(pointer);
     }
+  }
 
-    @Override
-    public boolean isSeekable() {
-        return seekable;
+  @Override
+  public String toString() {
+    return "FFURLInputStream{" + "url=" + url + ", seekable=" + seekable + '}';
+  }
+
+  /**
+   * Synchronizes calls to {@link #open(String, int)}.
+   *
+   * @param url url
+   * @param streamIndex index of the stream in the file, typically 0, but may differ for STEMS
+   * @return pointer to native peer
+   * @throws IOException if something IO-related goes wrong
+   * @throws UnsupportedAudioFileException if the file is not supported
+   * @throws IndexOutOfBoundsException if the stream index is not valid
+   */
+  private long lockedOpen(final String url, final int streamIndex)
+      throws IOException, UnsupportedAudioFileException {
+    LOCK.lock();
+    try {
+      return open(url, streamIndex);
+    } finally {
+      LOCK.unlock();
     }
+  }
 
-    @Override
-    public synchronized void seek(final long time, final TimeUnit timeUnit) throws UnsupportedOperationException, IOException {
-        if (!isOpen()) throw new IOException("Stream is already closed: " + url);
-        if (!isSeekable()) throw new UnsupportedOperationException("Seeking is not supported for " + url);
-        final long microseconds = timeUnit.toMicros(time);
-        seek(pointer, microseconds);
-        // workaround covariant return type introduced in Java 9
-        // ensure limit(int) is called on Buffer, not ByteBuffer
-        ((Buffer)this.nativeBuffer).limit(0);
-    }
+  private native boolean isSeekable(final long pointer);
 
+  private native void seek(final long pointer, final long microseconds) throws IOException;
 
-    @Override
-    protected void fillNativeBuffer() throws IOException {
-        if (isOpen()) {
-            fillNativeBuffer(pointer);
-        }
-    }
+  private native void fillNativeBuffer(final long pointer) throws IOException;
 
-    @Override
-    public String toString() {
-        return "FFURLInputStream{" +
-                "url=" + url +
-                ", seekable=" + seekable +
-                '}';
-    }
+  private native long open(final String url, final int streamIndex)
+      throws IOException, UnsupportedAudioFileException;
 
-    /**
-     * Synchronizes calls to {@link #open(String, int)}.
-     *
-     * @param url url
-     * @param streamIndex index of the stream in the file, typically 0, but may differ for STEMS
-     * @return pointer to native peer
-     * @throws IOException if something IO-related goes wrong
-     * @throws UnsupportedAudioFileException if the file is not supported
-     * @throws IndexOutOfBoundsException if the stream index is not valid
-     */
-    private long lockedOpen(final String url, final int streamIndex) throws IOException, UnsupportedAudioFileException {
-        LOCK.lock();
-        try {
-            return open(url, streamIndex);
-        } finally {
-            LOCK.unlock();
-        }
-    }
-
-    private native boolean isSeekable(final long pointer);
-    private native void seek(final long pointer, final long microseconds) throws IOException;
-    private native void fillNativeBuffer(final long pointer) throws IOException;
-    private native long open(final String url, final int streamIndex) throws IOException, UnsupportedAudioFileException;
-    protected native void close(final long pointer) throws IOException;
-
+  protected native void close(final long pointer) throws IOException;
 }

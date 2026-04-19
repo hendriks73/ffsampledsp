@@ -20,11 +20,8 @@
  */
 package com.tagtraum.ffsampledsp;
 
-import javax.sound.sampled.AudioFileFormat;
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.UnsupportedAudioFileException;
-import javax.sound.sampled.spi.AudioFileReader;
+import static com.tagtraum.ffsampledsp.FFGlobalLock.LOCK;
+
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -35,8 +32,11 @@ import java.nio.channels.ReadableByteChannel;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
-import static com.tagtraum.ffsampledsp.FFGlobalLock.LOCK;
+import javax.sound.sampled.AudioFileFormat;
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.UnsupportedAudioFileException;
+import javax.sound.sampled.spi.AudioFileReader;
 
 /**
  * Open URLs/files or streams and returns a {@link AudioFileFormat} instance.
@@ -45,297 +45,326 @@ import static com.tagtraum.ffsampledsp.FFGlobalLock.LOCK;
  */
 public class FFAudioFileReader extends AudioFileReader {
 
-    private static final boolean nativeLibraryLoaded;
+  private static final boolean nativeLibraryLoaded;
 
-    static {
-        // Ensure JNI library is loaded
-        nativeLibraryLoaded = FFNativeLibraryLoader.loadLibrary();
-    }
+  static {
+    // Ensure JNI library is loaded
+    nativeLibraryLoaded = FFNativeLibraryLoader.loadLibrary();
+  }
 
-    private static final boolean WINDOWS = System.getProperty("os.name").toLowerCase().contains("win");
+  private static final boolean WINDOWS =
+      System.getProperty("os.name").toLowerCase().contains("win");
 
-    private static final Map<URL, AudioFileFormat[]> cache = Collections.synchronizedMap(new LinkedHashMap<URL, AudioFileFormat[]>() {
-        private static final int MAX_ENTRIES = 20;
+  private static final Map<URL, AudioFileFormat[]> cache =
+      Collections.synchronizedMap(
+          new LinkedHashMap<URL, AudioFileFormat[]>() {
+            private static final int MAX_ENTRIES = 20;
 
-        @Override
-        protected boolean removeEldestEntry(final Map.Entry eldest) {
-            return size() > MAX_ENTRIES;
-        }
-    });
-
-    private static void addAudioFileFormatToCache(final URL url, final AudioFileFormat[] audioFileFormat) {
-        cache.put(url, audioFileFormat);
-    }
-
-    private static AudioFileFormat[] getAudioFileFormatsFromCache(final URL url) {
-        return cache.get(url);
-    }
-
-    public AudioFileFormat[] getAudioFileFormats(final InputStream stream) throws UnsupportedAudioFileException, IOException {
-        if (!nativeLibraryLoaded) throw new UnsupportedAudioFileException("Native library ffsampledsp not loaded.");
-        if (!stream.markSupported()) throw new IOException("InputStream must support mark()");
-        final int readlimit = 1024 * 32;
-        stream.mark(readlimit);
-
-        final ReadableByteChannel channel = Channels.newChannel(stream);
-        final ByteBuffer buf = ByteBuffer.allocateDirect(readlimit);
-        try {
-            channel.read(buf);
-            buf.flip();
-            return lockedGetAudioFileFormatFromBuffer(buf);
-        } finally {
-            stream.reset();
-        }
-    }
-
-    @Override
-    public AudioFileFormat getAudioFileFormat(final InputStream stream) throws UnsupportedAudioFileException, IOException {
-        return getAudioFileFormats(stream)[0];
-    }
-
-    @Override
-    public AudioFileFormat getAudioFileFormat(final File file) throws UnsupportedAudioFileException, IOException {
-        if (!file.exists()) throw new FileNotFoundException(file.toString());
-        if (!file.canRead()) throw new IOException("Can't read " + file);
-        return getAudioFileFormat(fileToURL(file));
-    }
-
-    /**
-     * Returns one or more {@link AudioFileFormat}s for the given file.
-     * Multiple objects are returned, if the file contains multiple streams, e.g. for
-     * STEM files.
-     *
-     * @param file file
-     * @return one or more {@link AudioFileFormat}s for the given URL
-     * @throws UnsupportedAudioFileException if the audio is not supported
-     * @throws IOException if an IO error occurs
-     * @see <a href="https://www.stems-music.com">www.stems-music.com</a>
-     * @see #getAudioFileFormat(File)
-     */
-    public AudioFileFormat[] getAudioFileFormats(final File file) throws UnsupportedAudioFileException, IOException {
-        if (!file.exists()) throw new FileNotFoundException(file.toString());
-        if (!file.canRead()) throw new IOException("Can't read " + file);
-        return getAudioFileFormats(fileToURL(file));
-    }
-
-    /**
-     * Convert file to URL. Assumes that any punctuation in the filename must not be url encoded.
-     *
-     * @param file file
-     * @return correctly encoded URL
-     * @throws MalformedURLException if the URL is malformed
-     */
-    static URL fileToURL(final File file) throws MalformedURLException {
-        try {
-            String encoded = file.toURI().toString().replace("+", "%2B");
-            return new URL(URLDecoder.decode(encoded, "UTF-8"));
-        } catch (UnsupportedEncodingException e) {
-            final MalformedURLException malformedURLException = new MalformedURLException();
-            malformedURLException.initCause(e);
-            throw malformedURLException;
-        }
-    }
-
-    /**
-     * Make sure that file URLs on Windows follow the super special libav style, e.g. "file:C:/path/file.ext"
-     * or "file://UNCServerName/path/file.ext".
-     * For file: URLs on all platforms, percent-encoded sequences (e.g. %20 for space) are decoded
-     * because FFmpeg's file: protocol handler passes the path directly to the OS without decoding.
-     */
-    static String urlToString(final URL url) {
-        if (url == null) return null;
-        String s = url.toString();
-        if (s.startsWith("file:")) {
-            // FFmpeg's file: protocol handler does not percent-decode paths, so decode here.
-            // Protect '+' first so URLDecoder does not convert it to a space.
-            try {
-                s = URLDecoder.decode(s.replace("+", "%2B"), "UTF-8");
-            } catch (UnsupportedEncodingException e) {
-                // UTF-8 is always available; cannot happen
+            @Override
+            protected boolean removeEldestEntry(final Map.Entry eldest) {
+              return size() > MAX_ENTRIES;
             }
-        }
-        if (WINDOWS && s.matches("file\\:/[^\\/].*")) {
-            return s.replace("file:/", "file:");
-        }
-        // deal with UNC paths
-        if (WINDOWS && s.matches("file\\:////[^\\/].*")) {
-            return s.replace("file://", "file:");
-        }
-        return s;
+          });
+
+  private static void addAudioFileFormatToCache(
+      final URL url, final AudioFileFormat[] audioFileFormat) {
+    cache.put(url, audioFileFormat);
+  }
+
+  private static AudioFileFormat[] getAudioFileFormatsFromCache(final URL url) {
+    return cache.get(url);
+  }
+
+  public AudioFileFormat[] getAudioFileFormats(final InputStream stream)
+      throws UnsupportedAudioFileException, IOException {
+    if (!nativeLibraryLoaded)
+      throw new UnsupportedAudioFileException("Native library ffsampledsp not loaded.");
+    if (!stream.markSupported()) throw new IOException("InputStream must support mark()");
+    final int readlimit = 1024 * 32;
+    stream.mark(readlimit);
+
+    final ReadableByteChannel channel = Channels.newChannel(stream);
+    final ByteBuffer buf = ByteBuffer.allocateDirect(readlimit);
+    try {
+      channel.read(buf);
+      buf.flip();
+      return lockedGetAudioFileFormatFromBuffer(buf);
+    } finally {
+      stream.reset();
     }
+  }
 
-    /**
-     * Returns one or more {@link AudioFileFormat}s for the given file.
-     * Multiple objects are returned, if the file contains multiple streams, e.g. for
-     * Stem files.
-     *
-     * @param url url
-     * @return one or more {@link AudioFileFormat}s for the given URL
-     * @throws UnsupportedAudioFileException if the audio is not supported
-     * @throws IOException if an IO error occurs
-     * @see <a href="https://www.stems-music.com">www.stems-music.com</a>
-     * @see #getAudioFileFormat(URL)
-     */
-    public AudioFileFormat[] getAudioFileFormats(final URL url) throws UnsupportedAudioFileException, IOException {
-        if (!nativeLibraryLoaded) throw new UnsupportedAudioFileException("Native library ffsampledsp not loaded.");
-        final AudioFileFormat[] fileFormats = getAudioFileFormatsFromCache(url);
-        if (fileFormats != null) {
-            return fileFormats;
-        }
-        final AudioFileFormat[] audioFileFormat = lockedGetAudioFileFormatsFromURL(urlToString(url));
-        if (audioFileFormat != null) {
-            addAudioFileFormatToCache(url, audioFileFormat);
-        }
-        return audioFileFormat;
+  @Override
+  public AudioFileFormat getAudioFileFormat(final InputStream stream)
+      throws UnsupportedAudioFileException, IOException {
+    return getAudioFileFormats(stream)[0];
+  }
+
+  @Override
+  public AudioFileFormat getAudioFileFormat(final File file)
+      throws UnsupportedAudioFileException, IOException {
+    if (!file.exists()) throw new FileNotFoundException(file.toString());
+    if (!file.canRead()) throw new IOException("Can't read " + file);
+    return getAudioFileFormat(fileToURL(file));
+  }
+
+  /**
+   * Returns one or more {@link AudioFileFormat}s for the given file. Multiple objects are returned,
+   * if the file contains multiple streams, e.g. for STEM files.
+   *
+   * @param file file
+   * @return one or more {@link AudioFileFormat}s for the given URL
+   * @throws UnsupportedAudioFileException if the audio is not supported
+   * @throws IOException if an IO error occurs
+   * @see <a href="https://www.stems-music.com">www.stems-music.com</a>
+   * @see #getAudioFileFormat(File)
+   */
+  public AudioFileFormat[] getAudioFileFormats(final File file)
+      throws UnsupportedAudioFileException, IOException {
+    if (!file.exists()) throw new FileNotFoundException(file.toString());
+    if (!file.canRead()) throw new IOException("Can't read " + file);
+    return getAudioFileFormats(fileToURL(file));
+  }
+
+  /**
+   * Convert file to URL. Assumes that any punctuation in the filename must not be url encoded.
+   *
+   * @param file file
+   * @return correctly encoded URL
+   * @throws MalformedURLException if the URL is malformed
+   */
+  static URL fileToURL(final File file) throws MalformedURLException {
+    try {
+      String encoded = file.toURI().toString().replace("+", "%2B");
+      return new URL(URLDecoder.decode(encoded, "UTF-8"));
+    } catch (UnsupportedEncodingException e) {
+      final MalformedURLException malformedURLException = new MalformedURLException();
+      malformedURLException.initCause(e);
+      throw malformedURLException;
     }
+  }
 
-    private static void checkPlausibility(final AudioFileFormat[] audioFileFormat) throws UnsupportedAudioFileException {
-        if (audioFileFormat != null && audioFileFormat.length >= 1 && audioFileFormat[0].getFormat() != null) {
-            // verify plausibility of audioFileFormat
-            final AudioFileFormat firstFileFormat = audioFileFormat[0];
-            final AudioFormat firstFormat = audioFileFormat[0].getFormat();
-            if (firstFileFormat.getFrameLength() == 0
-                && firstFormat.getSampleRate() == 0
-                && firstFormat.getSampleSizeInBits() == 0
-                && firstFormat.getChannels() == 0) throw new UnsupportedAudioFileException("Nonplausable audio format: " + firstFileFormat);
-        }
+  /**
+   * Make sure that file URLs on Windows follow the super special libav style, e.g.
+   * "file:C:/path/file.ext" or "file://UNCServerName/path/file.ext". For file: URLs on all
+   * platforms, percent-encoded sequences (e.g. %20 for space) are decoded because FFmpeg's file:
+   * protocol handler passes the path directly to the OS without decoding.
+   */
+  static String urlToString(final URL url) {
+    if (url == null) return null;
+    String s = url.toString();
+    if (s.startsWith("file:")) {
+      // FFmpeg's file: protocol handler does not percent-decode paths, so decode here.
+      // Protect '+' first so URLDecoder does not convert it to a space.
+      try {
+        s = URLDecoder.decode(s.replace("+", "%2B"), "UTF-8");
+      } catch (UnsupportedEncodingException e) {
+        // UTF-8 is always available; cannot happen
+      }
     }
-
-    @Override
-    public AudioFileFormat getAudioFileFormat(final URL url) throws UnsupportedAudioFileException, IOException {
-        return getAudioFileFormats(url)[0];
+    if (WINDOWS && s.matches("file\\:/[^\\/].*")) {
+      return s.replace("file:/", "file:");
     }
-
-    @Override
-    public AudioInputStream getAudioInputStream(final InputStream stream) throws UnsupportedAudioFileException, IOException {
-        return getAudioInputStream(stream, 0);
+    // deal with UNC paths
+    if (WINDOWS && s.matches("file\\:////[^\\/].*")) {
+      return s.replace("file://", "file:");
     }
+    return s;
+  }
 
-    @Override
-    public AudioInputStream getAudioInputStream(final URL url) throws UnsupportedAudioFileException, IOException {
-        return getAudioInputStream(url, 0);
+  /**
+   * Returns one or more {@link AudioFileFormat}s for the given file. Multiple objects are returned,
+   * if the file contains multiple streams, e.g. for Stem files.
+   *
+   * @param url url
+   * @return one or more {@link AudioFileFormat}s for the given URL
+   * @throws UnsupportedAudioFileException if the audio is not supported
+   * @throws IOException if an IO error occurs
+   * @see <a href="https://www.stems-music.com">www.stems-music.com</a>
+   * @see #getAudioFileFormat(URL)
+   */
+  public AudioFileFormat[] getAudioFileFormats(final URL url)
+      throws UnsupportedAudioFileException, IOException {
+    if (!nativeLibraryLoaded)
+      throw new UnsupportedAudioFileException("Native library ffsampledsp not loaded.");
+    final AudioFileFormat[] fileFormats = getAudioFileFormatsFromCache(url);
+    if (fileFormats != null) {
+      return fileFormats;
     }
-
-    @Override
-    public AudioInputStream getAudioInputStream(final File file) throws UnsupportedAudioFileException, IOException {
-        return getAudioInputStream(file, 0);
+    final AudioFileFormat[] audioFileFormat = lockedGetAudioFileFormatsFromURL(urlToString(url));
+    if (audioFileFormat != null) {
+      addAudioFileFormatToCache(url, audioFileFormat);
     }
+    return audioFileFormat;
+  }
 
-    /**
-     * Allows you to open a specific audio stream from the given stream.
-     * Useful for <a href="https://www.stems-music.com">Stems</a>.
-     *
-     * @param stream stream
-     * @param streamIndex audio stream index
-     * @return audio stream
-     * @throws UnsupportedAudioFileException if the audio is not supported
-     * @throws IOException if an IO error occurs
-     * @throws IndexOutOfBoundsException if the index is not valid.
-     * @see #getAudioInputStream(URL)
-     * @see #getAudioInputStream(File, int)
-     */
-    public AudioInputStream getAudioInputStream(final InputStream stream, final int streamIndex) throws UnsupportedAudioFileException, IOException {
-        if (!nativeLibraryLoaded) throw new UnsupportedAudioFileException("Native library ffsampledsp not loaded.");
-        final AudioFileFormat fileFormat = getAudioFileFormats(stream)[streamIndex];
-        return new FFAudioInputStream(new FFStreamInputStream(stream, streamIndex), fileFormat.getFormat(), fileFormat.getFrameLength());
+  private static void checkPlausibility(final AudioFileFormat[] audioFileFormat)
+      throws UnsupportedAudioFileException {
+    if (audioFileFormat != null
+        && audioFileFormat.length >= 1
+        && audioFileFormat[0].getFormat() != null) {
+      // verify plausibility of audioFileFormat
+      final AudioFileFormat firstFileFormat = audioFileFormat[0];
+      final AudioFormat firstFormat = audioFileFormat[0].getFormat();
+      if (firstFileFormat.getFrameLength() == 0
+          && firstFormat.getSampleRate() == 0
+          && firstFormat.getSampleSizeInBits() == 0
+          && firstFormat.getChannels() == 0)
+        throw new UnsupportedAudioFileException("Nonplausable audio format: " + firstFileFormat);
     }
+  }
 
-    /**
-     * Allows you to open a specific audio stream from the given URL.
-     * Useful for <a href="https://www.stems-music.com">Stems</a>.
-     *
-     * @param url url
-     * @param streamIndex audio stream index
-     * @return audio stream
-     * @throws UnsupportedAudioFileException if the audio is not supported
-     * @throws IOException if an IO error occurs
-     * @throws IndexOutOfBoundsException if the index is not valid.
-     * @see #getAudioInputStream(URL)
-     * @see #getAudioInputStream(File, int)
-     */
-    public AudioInputStream getAudioInputStream(final URL url, final int streamIndex) throws UnsupportedAudioFileException, IOException {
-        if (!nativeLibraryLoaded) throw new UnsupportedAudioFileException("Native library ffsampledsp not loaded.");
-        final AudioFileFormat fileFormat = getAudioFileFormats(url)[streamIndex];
-        return new FFAudioInputStream(new FFURLInputStream(url, streamIndex), fileFormat.getFormat(), fileFormat.getFrameLength());
+  @Override
+  public AudioFileFormat getAudioFileFormat(final URL url)
+      throws UnsupportedAudioFileException, IOException {
+    return getAudioFileFormats(url)[0];
+  }
+
+  @Override
+  public AudioInputStream getAudioInputStream(final InputStream stream)
+      throws UnsupportedAudioFileException, IOException {
+    return getAudioInputStream(stream, 0);
+  }
+
+  @Override
+  public AudioInputStream getAudioInputStream(final URL url)
+      throws UnsupportedAudioFileException, IOException {
+    return getAudioInputStream(url, 0);
+  }
+
+  @Override
+  public AudioInputStream getAudioInputStream(final File file)
+      throws UnsupportedAudioFileException, IOException {
+    return getAudioInputStream(file, 0);
+  }
+
+  /**
+   * Allows you to open a specific audio stream from the given stream. Useful for <a
+   * href="https://www.stems-music.com">Stems</a>.
+   *
+   * @param stream stream
+   * @param streamIndex audio stream index
+   * @return audio stream
+   * @throws UnsupportedAudioFileException if the audio is not supported
+   * @throws IOException if an IO error occurs
+   * @throws IndexOutOfBoundsException if the index is not valid.
+   * @see #getAudioInputStream(URL)
+   * @see #getAudioInputStream(File, int)
+   */
+  public AudioInputStream getAudioInputStream(final InputStream stream, final int streamIndex)
+      throws UnsupportedAudioFileException, IOException {
+    if (!nativeLibraryLoaded)
+      throw new UnsupportedAudioFileException("Native library ffsampledsp not loaded.");
+    final AudioFileFormat fileFormat = getAudioFileFormats(stream)[streamIndex];
+    return new FFAudioInputStream(
+        new FFStreamInputStream(stream, streamIndex),
+        fileFormat.getFormat(),
+        fileFormat.getFrameLength());
+  }
+
+  /**
+   * Allows you to open a specific audio stream from the given URL. Useful for <a
+   * href="https://www.stems-music.com">Stems</a>.
+   *
+   * @param url url
+   * @param streamIndex audio stream index
+   * @return audio stream
+   * @throws UnsupportedAudioFileException if the audio is not supported
+   * @throws IOException if an IO error occurs
+   * @throws IndexOutOfBoundsException if the index is not valid.
+   * @see #getAudioInputStream(URL)
+   * @see #getAudioInputStream(File, int)
+   */
+  public AudioInputStream getAudioInputStream(final URL url, final int streamIndex)
+      throws UnsupportedAudioFileException, IOException {
+    if (!nativeLibraryLoaded)
+      throw new UnsupportedAudioFileException("Native library ffsampledsp not loaded.");
+    final AudioFileFormat fileFormat = getAudioFileFormats(url)[streamIndex];
+    return new FFAudioInputStream(
+        new FFURLInputStream(url, streamIndex),
+        fileFormat.getFormat(),
+        fileFormat.getFrameLength());
+  }
+
+  /**
+   * Allows you to open a specific audio stream from the given file. Useful for <a
+   * href="https://www.stems-music.com">Stems</a>.
+   *
+   * @param file file
+   * @param streamIndex audio stream index
+   * @return audio stream
+   * @throws UnsupportedAudioFileException if the audio is not supported
+   * @throws IOException if an IO error occurs
+   * @throws IndexOutOfBoundsException if the index is not valid.
+   * @see #getAudioInputStream(URL, int)
+   * @see #getAudioInputStream(File)
+   */
+  public AudioInputStream getAudioInputStream(final File file, final int streamIndex)
+      throws UnsupportedAudioFileException, IOException {
+    if (!file.exists()) throw new FileNotFoundException(file.toString());
+    if (!file.canRead()) throw new IOException("Can't read " + file);
+    return getAudioInputStream(fileToURL(file), streamIndex);
+  }
+
+  /**
+   * Makes sure that functions like <code>avcodec_open2</code> are not called from multiple threads
+   * at the same time.
+   *
+   * @param url url
+   * @return file formats
+   * @throws IOException if an IO error occurs
+   * @throws UnsupportedAudioFileException if the audio is not supported
+   */
+  private AudioFileFormat[] lockedGetAudioFileFormatsFromURL(final String url)
+      throws IOException, UnsupportedAudioFileException {
+    LOCK.lock();
+    try {
+      final AudioFileFormat[] audioFileFormat = getAudioFileFormatsFromURL(url);
+      checkPlausibility(audioFileFormat);
+      return audioFileFormat;
+    } finally {
+      LOCK.unlock();
     }
+  }
 
-    /**
-     * Allows you to open a specific audio stream from the given file.
-     * Useful for <a href="https://www.stems-music.com">Stems</a>.
-     *
-     * @param file file
-     * @param streamIndex audio stream index
-     * @return audio stream
-     * @throws UnsupportedAudioFileException if the audio is not supported
-     * @throws IOException if an IO error occurs
-     * @throws IndexOutOfBoundsException if the index is not valid.
-     * @see #getAudioInputStream(URL, int)
-     * @see #getAudioInputStream(File)
-     */
-    public AudioInputStream getAudioInputStream(final File file, final int streamIndex) throws UnsupportedAudioFileException, IOException {
-        if (!file.exists()) throw new FileNotFoundException(file.toString());
-        if (!file.canRead()) throw new IOException("Can't read " + file);
-        return getAudioInputStream(fileToURL(file), streamIndex);
+  /**
+   * Makes sure that functions like <code>avcodec_open2</code> are not called from multiple threads
+   * at the same time.
+   *
+   * @param byteBuffer byteBuffer
+   * @return file formats
+   * @throws IOException if an IO error occurs
+   * @throws UnsupportedAudioFileException if the audio is not supported
+   */
+  private AudioFileFormat[] lockedGetAudioFileFormatFromBuffer(final ByteBuffer byteBuffer)
+      throws IOException, UnsupportedAudioFileException {
+    LOCK.lock();
+    try {
+      final AudioFileFormat[] audioFileFormat = getAudioFileFormatsFromBuffer(byteBuffer);
+      checkPlausibility(audioFileFormat);
+      return audioFileFormat;
+    } finally {
+      LOCK.unlock();
     }
+  }
 
-    /**
-     * Makes sure that functions like <code>avcodec_open2</code> are not called from multiple
-     * threads at the same time.
-     *
-     * @param url url
-     * @return file formats
-     * @throws IOException if an IO error occurs
-     * @throws UnsupportedAudioFileException if the audio is not supported
-     */
-    private AudioFileFormat[] lockedGetAudioFileFormatsFromURL(final String url) throws IOException, UnsupportedAudioFileException {
-        LOCK.lock();
-        try {
-            final AudioFileFormat[] audioFileFormat = getAudioFileFormatsFromURL(url);
-            checkPlausibility(audioFileFormat);
-            return audioFileFormat;
-        } finally {
-            LOCK.unlock();
-        }
-    }
+  /**
+   * Determine {@link AudioFileFormat}s from url.
+   *
+   * @param url url
+   * @return {@link AudioFileFormat}s
+   * @throws IOException if an IO error occurs
+   */
+  private native AudioFileFormat[] getAudioFileFormatsFromURL(final String url)
+      throws IOException, UnsupportedAudioFileException;
 
-    /**
-     * Makes sure that functions like <code>avcodec_open2</code> are not called from multiple
-     * threads at the same time.
-     *
-     * @param byteBuffer byteBuffer
-     * @return file formats
-     * @throws IOException if an IO error occurs
-     * @throws UnsupportedAudioFileException if the audio is not supported
-     */
-    private AudioFileFormat[] lockedGetAudioFileFormatFromBuffer(final ByteBuffer byteBuffer) throws IOException, UnsupportedAudioFileException {
-        LOCK.lock();
-        try {
-            final AudioFileFormat[] audioFileFormat = getAudioFileFormatsFromBuffer(byteBuffer);
-            checkPlausibility(audioFileFormat);
-            return audioFileFormat;
-        } finally {
-            LOCK.unlock();
-        }
-    }
-
-    /**
-     * Determine {@link AudioFileFormat}s from url.
-     *
-     * @param url url
-     * @return {@link AudioFileFormat}s
-     * @throws IOException if an IO error occurs
-     */
-    private native AudioFileFormat[] getAudioFileFormatsFromURL(final String url) throws IOException, UnsupportedAudioFileException;
-
-    /**
-     * Determine {@link AudioFileFormat} from a file containing just the first kbs from a stream.
-     *
-     * @param byteBuffer buffer with the beginning from an audio stream
-     * @return {@link AudioFileFormat}
-     * @throws IOException if an IO error occurs
-     */
-    private native AudioFileFormat[] getAudioFileFormatsFromBuffer(final ByteBuffer byteBuffer) throws IOException, UnsupportedAudioFileException;
-
-
+  /**
+   * Determine {@link AudioFileFormat} from a file containing just the first kbs from a stream.
+   *
+   * @param byteBuffer buffer with the beginning from an audio stream
+   * @return {@link AudioFileFormat}
+   * @throws IOException if an IO error occurs
+   */
+  private native AudioFileFormat[] getAudioFileFormatsFromBuffer(final ByteBuffer byteBuffer)
+      throws IOException, UnsupportedAudioFileException;
 }
-

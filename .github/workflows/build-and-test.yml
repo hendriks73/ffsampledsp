@@ -11,15 +11,12 @@ name: "Build and Test"
     - "main"
 jobs:
   macos-build:
-    runs-on: "${{ matrix.os }}"
+    runs-on: "macos-latest"
     strategy:
       matrix:
         jarch:
         - "aarch64"
         - "x86_64"
-        os:
-        - "macos-15"
-        - "macos-latest"
         java:
         - "8"
         - "11"
@@ -49,7 +46,7 @@ jobs:
     - name: "Build tagtraum site"
       run: "mvn --no-transfer-progress \\\n  --batch-mode \\\n  --activate-profiles\
         \ ffsampledsp-aarch64-macos \\\n  --file pom.xml  \\\n  clean install site:site\n"
-      if: "matrix.os == 'macos-15' && matrix.java == '9' && matrix.jarch == 'x86_64'"
+      if: "matrix.os == 'macos-latest' && matrix.java == '9' && matrix.jarch == 'x86_64'"
   windows-build:
     runs-on: "windows-latest"
     strategy:
@@ -106,12 +103,9 @@ jobs:
       run: "ls -la ffsampledsp-${{ matrix.jarch }}-win\\\\target\\\\lib\nls -la ffsampledsp-${{\
         \ matrix.jarch }}-win\\\\target\\\\native\\\\include\n"
   linux-build:
-    runs-on: "${{ matrix.os }}"
+    runs-on: "ubuntu-latest"
     strategy:
       matrix:
-        os:
-        - "ubuntu-22.04"
-        - "ubuntu-latest"
         java:
         - "8"
         - "11"
@@ -121,18 +115,11 @@ jobs:
         - "25"
         arch:
         - "x64"
-        - "aarch64"
         include:
         - arch: "x64"
           jarch: "x86_64"
           skiptests: "false"
-        - arch: "aarch64"
-          jarch: "aarch64"
-          skiptests: "true"
     steps:
-    - name: "Set up cross compile toolchain"
-      run: "sudo apt-get update\nsudo apt-get install -y g++-aarch64-linux-gnu gcc-aarch64-linux-gnu\
-        \ crossbuild-essential-arm64\n"
     - name: "Set up Doxygen and native build dependencies"
       run: "sudo apt-get install -y doxygen libbz2-dev zlib1g-dev"
     - uses: "actions/checkout@v6"
@@ -149,3 +136,36 @@ jobs:
     - name: "Print lib dir"
       if: "always()"
       run: "ls -la ffsampledsp-${{ matrix.jarch }}-linux/target/lib"
+  linux-arm-build:
+    runs-on: "ubuntu-24.04-arm"
+    strategy:
+      matrix:
+        java:
+        - "8"
+        - "11"
+        - "15"
+        - "17"
+        - "20"
+        - "25"
+    steps:
+    - name: "Set up Doxygen and native build dependencies"
+      run: "sudo apt-get install -y doxygen libbz2-dev zlib1g-dev"
+    - uses: "actions/checkout@v6"
+    - name: "Set up Java"
+      uses: "actions/setup-java@v5"
+      with:
+        java-version: "${{ matrix.java }}"
+        architecture: "arm64"
+        distribution: "zulu"
+        cache: "maven"
+    - name: "Verify Java setup"
+      run: "echo \"JAVA_HOME: $JAVA_HOME\"\nls -la \"$JAVA_HOME/bin/java\"\njava -version\n\
+        which java\ngcc --version\n"
+    - name: "Build/test code with Maven"
+      run: "mvn --activate-profiles ffsampledsp-aarch64-linux \\\n  --no-transfer-progress\
+        \ \\\n  --batch-mode \\\n  --file pom.xml \\\n  install\n"
+    - name: "Print lib dir"
+      if: "always()"
+      run: "ls -la ffsampledsp-aarch64-linux/target/lib || echo \"ff_idctdsp_init_aarch64\
+        \ count:\" || nm ffsampledsp-aarch64-linux/target/lib/libavcodec.so | grep\
+        \ -c ff_idctdsp_init_aarch64"

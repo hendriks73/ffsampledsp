@@ -72,7 +72,7 @@
                         </goals>
                         <configuration>
                             <outputDirectory>${project.build.directory}/native</outputDirectory>
-                            <overwrite>true</overwrite>
+
                             <resources>
                                 <resource>
                                     <directory>../ffsampledsp-java/target/native/</directory>

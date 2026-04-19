@@ -9,7 +9,7 @@
     <artifactId>ffsampledsp-x86_64-linux</artifactId>
     <packaging>so</packaging>
     <name>FFSampledSP Native Library Linux (64bit)</name>
-    <description>Linux 64bit binary library for FFSampledSP.</description>
+    <description>Linux x86_64 binary library for FFSampledSP.</description>
 
     <dependencies>
         <dependency>

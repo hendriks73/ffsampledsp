@@ -67,6 +67,25 @@ public class FFAudioFileFormat extends AudioFileFormat {
 
   private final HashMap<String, Object> properties;
 
+  /**
+   * Creates a new {@code FFAudioFileFormat}. Called from native code in {@code
+   * FFAudioFileReader.c}.
+   *
+   * @param url URL string of the audio source, or {@code null}
+   * @param codecId FFmpeg {@code AVCodecID} value
+   * @param sampleRate sample rate in Hz
+   * @param sampleSize bits per sample, or {@link AudioSystem#NOT_SPECIFIED}
+   * @param channels channel count, or {@link AudioSystem#NOT_SPECIFIED}
+   * @param frameSize frame size in bytes, or {@link AudioSystem#NOT_SPECIFIED}
+   * @param frameRate frame rate in frames per second, or {@link AudioSystem#NOT_SPECIFIED}
+   * @param frameLength total frame count, or {@link AudioSystem#NOT_SPECIFIED}
+   * @param bigEndian {@code true} if samples are big-endian
+   * @param durationInMicroSeconds duration in microseconds, or 0 if unknown
+   * @param bitRate bit rate in bits per second, or 0 if unknown
+   * @param vbr {@code true} if variable bit rate, {@code false} if CBR, or {@code null} if unknown
+   * @param encrypted {@code true} if the stream is DRM-protected
+   * @throws UnsupportedAudioFileException if the URL extension is not recognised
+   */
   public FFAudioFileFormat(
       final String url,
       final int codecId,

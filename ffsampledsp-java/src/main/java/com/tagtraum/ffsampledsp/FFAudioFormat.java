@@ -47,6 +47,21 @@ public class FFAudioFormat extends AudioFormat {
    */
   public static final String FFSAMPLEDSP = "ffsampledsp";
 
+  /**
+   * Creates a new {@code FFAudioFormat} from the given codec and format parameters.
+   *
+   * @param codecId FFmpeg {@code AVCodecID} value
+   * @param sampleRate sample rate in Hz
+   * @param sampleSize bits per sample, or {@link javax.sound.sampled.AudioSystem#NOT_SPECIFIED}
+   * @param channels channel count, or {@link javax.sound.sampled.AudioSystem#NOT_SPECIFIED}
+   * @param frameSize frame size in bytes, or {@link javax.sound.sampled.AudioSystem#NOT_SPECIFIED}
+   * @param frameRate frame rate in frames per second, or {@link
+   *     javax.sound.sampled.AudioSystem#NOT_SPECIFIED}
+   * @param bigEndian {@code true} if samples are big-endian
+   * @param bitRate bit rate in bits per second, or 0 if unknown
+   * @param vbr {@code true} if variable bit rate, {@code false} if CBR, or {@code null} if unknown
+   * @param encrypted {@code true} if the stream is DRM-protected
+   */
   public FFAudioFormat(
       final int codecId,
       final float sampleRate,
@@ -324,255 +339,472 @@ public class FFAudioFormat extends AudioFormat {
 
     /** Codecs supported by libavcodec. */
     public enum Codec {
+      /** MPEG-1 Layer 1 audio. */
       MP1("MPEG-1, Layer 1", AV_CODEC_ID_MP1),
+      /** MPEG-1 Layer 2 audio. */
       MP2("MPEG-1, Layer 2", AV_CODEC_ID_MP2),
+      /** MPEG-1 Layer 3 audio (MP3). */
       MP3("MPEG-1, Layer 3", AV_CODEC_ID_MP3),
 
+      /** Apple Lossless Audio Codec (ALAC). */
       APPLE_LOSSLESS("Apple Lossless", AV_CODEC_ID_ALAC),
 
+      /** MPEG-4 Advanced Audio Coding (AAC). */
       MPEG4_AAC("MPEG4 AAC", AV_CODEC_ID_AAC),
+      /** MPEG-4 AAC with LATM/LOAS framing. */
       MPEG4_AAC_LATM("MPEG4 AAC-LATM", AV_CODEC_ID_AAC_LATM),
 
+      /** MPEG-4 QCELP (Qualcomm Code Excited Linear Prediction). */
       MPEG4_QCELP("QCELP", AV_CODEC_ID_QCELP),
+      /** MPEG-4 TwinVQ. */
       MPEG4_TWINVQ("MPEG4 TwinVQ", AV_CODEC_ID_TWINVQ),
+      /** MPEG-4 Audio Lossless Coding (ALS). */
       MPEG4_ALS("MPEG4 Audio Lossless Coding", AV_CODEC_ID_MP4ALS),
 
+      /** ITU-T G.711 mu-law (ULAW) PCM. */
       ULAW(Encoding.ULAW.toString(), AV_CODEC_ID_PCM_MULAW),
+      /** ITU-T G.711 A-law (ALAW) PCM. */
       ALAW(Encoding.ALAW.toString(), AV_CODEC_ID_PCM_ALAW),
 
+      /** Generic signed PCM (format determined by sample size and endianness). */
       PCM_SIGNED(Encoding.PCM_SIGNED.toString(), -1, true),
+      /** Generic unsigned PCM (format determined by sample size and endianness). */
       PCM_UNSIGNED(Encoding.PCM_UNSIGNED.toString(), -1, true),
+      /** Generic floating-point PCM (format determined by sample size and endianness). */
       PCM_FLOAT(PCM_FLOAT_STRING, -1, true),
 
-      // signed pcm
+      /** Signed 8-bit PCM. */
       PCM_S8(Encoding.PCM_SIGNED.toString(), AV_CODEC_ID_PCM_S8, true),
+      /** Signed 16-bit big-endian PCM. */
       PCM_S16BE(Encoding.PCM_SIGNED.toString(), AV_CODEC_ID_PCM_S16BE, true),
+      /** Signed 16-bit little-endian PCM. */
       PCM_S16LE(Encoding.PCM_SIGNED.toString(), AV_CODEC_ID_PCM_S16LE, true),
+      /** Signed 24-bit big-endian PCM. */
       PCM_S24BE(Encoding.PCM_SIGNED.toString(), AV_CODEC_ID_PCM_S24BE, true),
+      /** Signed 24-bit little-endian PCM. */
       PCM_S24LE(Encoding.PCM_SIGNED.toString(), AV_CODEC_ID_PCM_S24LE, true),
+      /** Signed 32-bit big-endian PCM. */
       PCM_S32BE(Encoding.PCM_SIGNED.toString(), AV_CODEC_ID_PCM_S32BE, true),
+      /** Signed 32-bit little-endian PCM. */
       PCM_S32LE(Encoding.PCM_SIGNED.toString(), AV_CODEC_ID_PCM_S32LE, true),
+      /** Signed 64-bit big-endian PCM. */
       PCM_S64BE(Encoding.PCM_SIGNED.toString(), AV_CODEC_ID_PCM_S64BE, true),
+      /** Signed 64-bit little-endian PCM. */
       PCM_S64LE(Encoding.PCM_SIGNED.toString(), AV_CODEC_ID_PCM_S64LE, true),
 
-      // unsigned pcm
+      /** Unsigned 8-bit PCM. */
       PCM_U8(Encoding.PCM_UNSIGNED.toString(), AV_CODEC_ID_PCM_U8, true),
+      /** Unsigned 16-bit big-endian PCM. */
       PCM_U16BE(Encoding.PCM_UNSIGNED.toString(), AV_CODEC_ID_PCM_U16BE, true),
+      /** Unsigned 16-bit little-endian PCM. */
       PCM_U16LE(Encoding.PCM_UNSIGNED.toString(), AV_CODEC_ID_PCM_U16LE, true),
+      /** Unsigned 24-bit big-endian PCM. */
       PCM_U24BE(Encoding.PCM_UNSIGNED.toString(), AV_CODEC_ID_PCM_U24BE, true),
+      /** Unsigned 24-bit little-endian PCM. */
       PCM_U24LE(Encoding.PCM_UNSIGNED.toString(), AV_CODEC_ID_PCM_U24LE, true),
+      /** Unsigned 32-bit big-endian PCM. */
       PCM_U32BE(Encoding.PCM_UNSIGNED.toString(), AV_CODEC_ID_PCM_U32BE, true),
+      /** Unsigned 32-bit little-endian PCM. */
       PCM_U32LE(Encoding.PCM_UNSIGNED.toString(), AV_CODEC_ID_PCM_U32LE, true),
 
-      // float pcm - named just like the PCM_FLOAT in encoding
-      // in Java 7 (not used for compatibility with Java <=6)
+      /** 16-bit floating-point little-endian PCM. */
       PCM_F16LE(PCM_FLOAT_STRING, AV_CODEC_ID_PCM_F16LE, true),
+      /** 24-bit floating-point little-endian PCM. */
       PCM_F24LE(PCM_FLOAT_STRING, AV_CODEC_ID_PCM_F24LE, true),
+      /** 32-bit floating-point big-endian PCM. */
       PCM_F32BE(PCM_FLOAT_STRING, AV_CODEC_ID_PCM_F32BE, true),
+      /** 32-bit floating-point little-endian PCM. */
       PCM_F32LE(PCM_FLOAT_STRING, AV_CODEC_ID_PCM_F32LE, true),
+      /** 64-bit floating-point big-endian PCM. */
       PCM_F64BE(PCM_FLOAT_STRING, AV_CODEC_ID_PCM_F64BE, true),
+      /** 64-bit floating-point little-endian PCM. */
       PCM_F64LE(PCM_FLOAT_STRING, AV_CODEC_ID_PCM_F64LE, true),
 
-      // planar pcm
+      /** Signed 8-bit planar PCM. */
       PCM_S8_PLANAR("PCM S8 Planar", AV_CODEC_ID_PCM_S8_PLANAR, true),
+      /** Signed 16-bit little-endian planar PCM. */
       PCM_S16LE_PLANAR("PCM S16LE Planar", AV_CODEC_ID_PCM_S16LE_PLANAR, true),
+      /** Signed 16-bit big-endian planar PCM. */
       PCM_S16BE_PLANAR("PCM S16BE Planar", AV_CODEC_ID_PCM_S16BE_PLANAR, true),
+      /** Signed 24-bit little-endian planar PCM. */
       PCM_S24LE_PLANAR("PCM S24LE Planar", AV_CODEC_ID_PCM_S24LE_PLANAR, true),
+      /** Signed 32-bit little-endian planar PCM. */
       PCM_S32LE_PLANAR("PCM S32LE Planar", AV_CODEC_ID_PCM_S32LE_PLANAR, true),
 
-      // other pcm
+      /** Signed 24-bit PCM in DAUD format. */
       PCM_S24DAUD("PCM S24 DAUD", AV_CODEC_ID_PCM_S24DAUD, true),
+      /** Zork PCM. */
       PCM_ZORK("Zork", AV_CODEC_ID_PCM_ZORK, true),
+      /** PCM as used on DVD. */
       PCM_DVD("PCM DVD", AV_CODEC_ID_PCM_DVD, true),
+      /** PCM as used on Blu-ray. */
       PCM_BLURAY("PCM BLURAY", AV_CODEC_ID_PCM_BLURAY, true),
+      /** PCM as used in LXF files. */
       PCM_LXF("PCM LXF", AV_CODEC_ID_PCM_LXF, true),
+      /** VIDC PCM. */
       PCM_VIDC("PCM VIDC", AV_CODEC_ID_PCM_VIDC, true),
+      /** SGA PCM. */
       PCM_SGA("PCM SGA", AV_CODEC_ID_PCM_SGA, true),
 
+      /** Internet Low Bitrate Codec (iLBC). */
       I_LBC("iLBC", AV_CODEC_ID_ILBC),
+      /** Microsoft GSM 6.10. */
       MICROSOFT_GSM("Microsoft GSM", AV_CODEC_ID_GSM_MS),
+      /** Adaptive Multi-Rate Wideband (AMR-WB). */
       AMR_WB("AMR WB", AV_CODEC_ID_AMR_WB),
+      /** Adaptive Multi-Rate Narrowband (AMR-NB). */
       AMR_NB("AMR NB", AV_CODEC_ID_AMR_NB),
+      /** Dolby AC-3 (Audio Codec 3). */
       AC3("AC3", AV_CODEC_ID_AC3),
+      /** Ogg Vorbis. */
       VORBIS("VORBIS", AV_CODEC_ID_VORBIS),
+      /** Free Lossless Audio Codec (FLAC). */
       FLAC("FLAC", AV_CODEC_ID_FLAC),
+      /** Digital Theater Systems (DTS). */
       DTS("DTS", AV_CODEC_ID_DTS),
 
+      /** Windows Media Audio v1. */
       WMA_V1("WMA 1", AV_CODEC_ID_WMAV1),
+      /** Windows Media Audio v2. */
       WMA_V2("WMA 2", AV_CODEC_ID_WMAV2),
+      /** Windows Media Audio Lossless. */
       WMA_LOSSLESS("WMA Lossless", AV_CODEC_ID_WMALOSSLESS),
+      /** Windows Media Audio Professional. */
       WMA_PRO("WMA Pro", AV_CODEC_ID_WMAPRO),
+      /** Windows Media Audio Voice. */
       WMA_VOICE("WMA Voice", AV_CODEC_ID_WMAVOICE),
 
+      /** Sony ATRAC1. */
       ATRAC_1("ATRAC 1", AV_CODEC_ID_ATRAC1),
+      /** Sony ATRAC3. */
       ATRAC_3("ATRAC 3", AV_CODEC_ID_ATRAC3),
+      /** Sony ATRAC3plus. */
       ATRAC_3P("ATRAC 3plus", AV_CODEC_ID_ATRAC3P),
+      /** Sony ATRAC3 Advanced Lossless. */
       ATRAC_3AL("ATRAC 3 Advanced Lossless", AV_CODEC_ID_ATRAC3AL),
+      /** Sony ATRAC3plus Advanced Lossless. */
       ATRAC_3PAL("ATRAC 3plus Advanced Lossless", AV_CODEC_ID_ATRAC3PAL),
+      /** Sony ATRAC9. */
       ATRAC_9("ATRAC9", AV_CODEC_ID_ATRAC9),
 
+      /** Global System for Mobile (GSM) full-rate codec. */
       GSM("GSM", AV_CODEC_ID_GSM),
+      /** Dolby TrueHD lossless audio. */
       TRUE_HD("TrueHD", AV_CODEC_ID_TRUEHD),
+      /** Microsoft TrueSpeech. */
       TRUESPEECH("Truespeech", AV_CODEC_ID_TRUESPEECH),
 
+      /** Nellymoser Asao codec. */
       NELLYMOSER("Nellymoser", AV_CODEC_ID_NELLYMOSER),
+      /** Speex speech codec. */
       SPEEX("Speex", AV_CODEC_ID_SPEEX),
+      /** Opus interactive audio codec. */
       OPUS("OPUS", AV_CODEC_ID_OPUS),
 
+      /** SMPTE 302M audio. */
       S302M("S302M", AV_CODEC_ID_S302M),
 
-      // ADPCM codecs
+      /** ADPCM for Shockwave Flash (SWF). */
       ADPCM_SWF("ADPCM SWF", AV_CODEC_ID_ADPCM_SWF),
+      /** ADPCM IMA QuickTime. */
       ADPCM_IMA_QT("ADPCM IMA QT", AV_CODEC_ID_ADPCM_IMA_QT),
+      /** ADPCM IMA WAV. */
       ADPCM_IMA_WAV("ADPCM IMA WAV", AV_CODEC_ID_ADPCM_IMA_WAV),
+      /** ADPCM IMA Duck DK3. */
       ADPCM_IMA_DK3("ADPCM IMA DK3", AV_CODEC_ID_ADPCM_IMA_DK3),
+      /** ADPCM IMA Duck DK4. */
       ADPCM_IMA_DK4("ADPCM IMA DK4", AV_CODEC_ID_ADPCM_IMA_DK4),
+      /** ADPCM IMA Westwood Studios. */
       ADPCM_IMA_WS("ADPCM IMA WS", AV_CODEC_ID_ADPCM_IMA_WS),
+      /** ADPCM IMA SMJPEG. */
       ADPCM_IMA_SMJPEG("ADPCM IMA SMJPEG", AV_CODEC_ID_ADPCM_IMA_SMJPEG),
+      /** ADPCM Microsoft. */
       ADPCM_MS("ADPCM MS", AV_CODEC_ID_ADPCM_MS),
+      /** ADPCM 4X Movie. */
       ADPCM_4XM("ADPCM 4XM", AV_CODEC_ID_ADPCM_4XM),
+      /** ADPCM XA (PlayStation CD-ROM). */
       ADPCM_XA("ADPCM XA", AV_CODEC_ID_ADPCM_XA),
+      /** ADPCM ADX (CRI Middleware). */
       ADPCM_ADX("ADPCM ADX", AV_CODEC_ID_ADPCM_ADX),
+      /** ADPCM Electronic Arts. */
       ADPCM_EA("ADPCM EA", AV_CODEC_ID_ADPCM_EA),
+      /** ADPCM ITU-T G.726 big-endian. */
       ADPCM_G726("ADPCM G726", AV_CODEC_ID_ADPCM_G726),
+      /** ADPCM ITU-T G.726 little-endian. */
       ADPCM_G726LE("ADPCM G726LE", AV_CODEC_ID_ADPCM_G726LE),
+      /** ADPCM Creative Technology. */
       ADPCM_CT("ADPCM CT", AV_CODEC_ID_ADPCM_CT),
+      /** ADPCM Yamaha. */
       ADPCM_YAMAHA("ADPCM YAMAHA", AV_CODEC_ID_ADPCM_YAMAHA),
+      /** ADPCM Sound Blaster Pro 4-bit. */
       ADPCM_SBPRO_4("ADPCM SBPRO_4", AV_CODEC_ID_ADPCM_SBPRO_4),
+      /** ADPCM Sound Blaster Pro 3-bit. */
       ADPCM_SBPRO_3("ADPCM SBPRO_3", AV_CODEC_ID_ADPCM_SBPRO_3),
+      /** ADPCM Sound Blaster Pro 2-bit. */
       ADPCM_SBPRO_2("ADPCM SBPRO_2", AV_CODEC_ID_ADPCM_SBPRO_2),
+      /** ADPCM Nintendo THP. */
       ADPCM_THP("ADPCM THP", AV_CODEC_ID_ADPCM_THP),
+      /** ADPCM Nintendo THP little-endian. */
       ADPCM_THP_LE("ADPCM THP LE", AV_CODEC_ID_ADPCM_THP_LE),
+      /** ADPCM IMA AMV. */
       ADPCM_IMA_AMV("ADPCM IMA AMV", AV_CODEC_ID_ADPCM_IMA_AMV),
+      /** ADPCM Electronic Arts R1. */
       ADPCM_EA_R1("ADPCM EA R1", AV_CODEC_ID_ADPCM_EA_R1),
+      /** ADPCM Electronic Arts R3. */
       ADPCM_EA_R3("ADPCM EA R3", AV_CODEC_ID_ADPCM_EA_R3),
+      /** ADPCM Electronic Arts R2. */
       ADPCM_EA_R2("ADPCM EA R2", AV_CODEC_ID_ADPCM_EA_R2),
+      /** ADPCM IMA Electronic Arts SEAD. */
       ADPCM_IMA_EA_SEAD("ADPCM IMA EA SEAD", AV_CODEC_ID_ADPCM_IMA_EA_SEAD),
+      /** ADPCM IMA Electronic Arts EACS. */
       ADPCM_IMA_EA_EACS("ADPCM IMA EA EACS", AV_CODEC_ID_ADPCM_IMA_EA_EACS),
+      /** ADPCM Electronic Arts XAS. */
       ADPCM_EA_XAS("ADPCM EA XAS", AV_CODEC_ID_ADPCM_EA_XAS),
+      /** ADPCM Electronic Arts Maxis XA. */
       ADPCM_EA_MAXIS_XA("ADPCM EA MAXIS XA", AV_CODEC_ID_ADPCM_EA_MAXIS_XA),
+      /** ADPCM IMA ISS. */
       ADPCM_IMA_ISS("ADPCM IMA ISS", AV_CODEC_ID_ADPCM_IMA_ISS),
+      /** ADPCM ITU-T G.722. */
       ADPCM_G722("ADPCM G722", AV_CODEC_ID_ADPCM_G722),
+      /** ADPCM IMA APC. */
       ADPCM_IMA_APC("ADPCM IMA APC", AV_CODEC_ID_ADPCM_IMA_APC),
+      /** ADPCM VIMA. */
       ADPCM_VIMA("ADPCM VIMA", AV_CODEC_ID_ADPCM_VIMA),
+      /** ADPCM Nintendo AFC. */
       ADPCM_AFC("ADPCM AFC", AV_CODEC_ID_ADPCM_AFC),
+      /** ADPCM IMA OKI. */
       ADPCM_IMA_OKI("ADPCM IMA OKI", AV_CODEC_ID_ADPCM_IMA_OKI),
+      /** ADPCM DTK (Nintendo GameCube). */
       ADPCM_DTK("ADPCM DTK", AV_CODEC_ID_ADPCM_DTK),
+      /** ADPCM IMA RAD. */
       ADPCM_IMA_RAD("ADPCM IMA RAD", AV_CODEC_ID_ADPCM_IMA_RAD),
+      /** ADPCM PSX (PlayStation). */
       ADPCM_PSX("ADPCM PSX", AV_CODEC_ID_ADPCM_PSX),
+      /** ADPCM AICA (Sega Dreamcast). */
       ADPCM_AICA("ADPCM AICA", AV_CODEC_ID_ADPCM_AICA),
+      /** ADPCM IMA DAT4. */
       ADPCM_IMA_DAT4("ADPCM IMA DAT4", AV_CODEC_ID_ADPCM_IMA_DAT4),
+      /** ADPCM MTAF. */
       ADPCM_MTAF("ADPCM MTAF", AV_CODEC_ID_ADPCM_MTAF),
+      /** ADPCM AGM. */
       ADPCM_AGM("ADPCM AGM", AV_CODEC_ID_ADPCM_AGM),
+      /** ADPCM Argonaut Games. */
       ADPCM_ARGO("ADPCM ARGO", AV_CODEC_ID_ADPCM_ARGO),
+      /** ADPCM IMA SSI. */
       ADPCM_IMA_SSI("ADPCM IMA SSI", AV_CODEC_ID_ADPCM_IMA_SSI),
+      /** ADPCM Zork. */
       ADPCM_ZORK("ADPCM ZORK", AV_CODEC_ID_ADPCM_ZORK),
+      /** ADPCM IMA APM. */
       ADPCM_IMA_APM("ADPCM IMA APM", AV_CODEC_ID_ADPCM_IMA_APM),
+      /** ADPCM IMA ALP. */
       ADPCM_IMA_ALP("ADPCM IMA ALP", AV_CODEC_ID_ADPCM_IMA_ALP),
+      /** ADPCM IMA MTF. */
       ADPCM_IMA_MTF("ADPCM IMA MTF", AV_CODEC_ID_ADPCM_IMA_MTF),
+      /** ADPCM IMA Cunning Developments. */
       ADPCM_IMA_CUNNING("ADPCM IMA CUNNING", AV_CODEC_ID_ADPCM_IMA_CUNNING),
+      /** ADPCM IMA MoFlex. */
       ADPCM_IMA_MOFLEX("ADPCM IMA MOFLEX", AV_CODEC_ID_ADPCM_IMA_MOFLEX),
+      /** ADPCM IMA Acorn Replay. */
       ADPCM_IMA_ACORN("ADPCM IMA ACORN", AV_CODEC_ID_ADPCM_IMA_ACORN),
+      /** ADPCM XMD. */
       ADPCM_XMD("ADPCM XMD", AV_CODEC_ID_ADPCM_XMD),
+      /** ADPCM IMA Xbox. */
       ADPCM_IMA_XBOX("ADPCM IMA XBOX", AV_CODEC_ID_ADPCM_IMA_XBOX),
+      /** ADPCM Sanyo. */
       ADPCM_SANYO("ADPCM SANYO", AV_CODEC_ID_ADPCM_SANYO),
+      /** ADPCM IMA HVQM4. */
       ADPCM_IMA_HVQM4("ADPCM IMA HVQM4", AV_CODEC_ID_ADPCM_IMA_HVQM4),
+      /** ADPCM IMA PDA. */
       ADPCM_IMA_PDA("ADPCM IMA PDA", AV_CODEC_ID_ADPCM_IMA_PDA),
+      /** ADPCM Nintendo 64. */
       ADPCM_N64("ADPCM N64", AV_CODEC_ID_ADPCM_N64),
+      /** ADPCM IMA HVQM2. */
       ADPCM_IMA_HVQM2("ADPCM IMA HVQM2", AV_CODEC_ID_ADPCM_IMA_HVQM2),
+      /** ADPCM IMA Magix. */
       ADPCM_IMA_MAGIX("ADPCM IMA MAGIX", AV_CODEC_ID_ADPCM_IMA_MAGIX),
+      /** ADPCM PSXC. */
       ADPCM_PSXC("ADPCM PSXC", AV_CODEC_ID_ADPCM_PSXC),
+      /** ADPCM Circus. */
       ADPCM_CIRCUS("ADPCM CIRCUS", AV_CODEC_ID_ADPCM_CIRCUS),
+      /** ADPCM IMA Escape. */
       ADPCM_IMA_ESCAPE("ADPCM IMA ESCAPE", AV_CODEC_ID_ADPCM_IMA_ESCAPE),
 
+      /** RealAudio 1.0 (144 bits/frame). */
       RA_144("RA 144", AV_CODEC_ID_RA_144),
+      /** RealAudio 2.0 (288 bits/frame). */
       RA_288("RA_288", AV_CODEC_ID_RA_288),
+      /** RoQ DPCM. */
       ROQ_DPCM("ROQ DPCM", AV_CODEC_ID_ROQ_DPCM),
+      /** Interplay DPCM. */
       INTERPLAY_DPCM("INTERPLAY DPCM", AV_CODEC_ID_INTERPLAY_DPCM),
+      /** Xan DPCM. */
       XAN_DPCM("XAN DPCM", AV_CODEC_ID_XAN_DPCM),
+      /** Sol DPCM. */
       SOL_DPCM("SOL DPCM", AV_CODEC_ID_SOL_DPCM),
+      /** SDX2 DPCM. */
       SDX2_DPCM("SDX2 DPCM", AV_CODEC_ID_SDX2_DPCM),
+      /** Gremlin DPCM. */
       GREMLIN_DPCM("GREMLIN DPCM", AV_CODEC_ID_GREMLIN_DPCM),
+      /** DERF DPCM. */
       DERF_DPCM("DERF DPCM", AV_CODEC_ID_DERF_DPCM),
+      /** WADY DPCM. */
       WADY_DPCM("WADY DPCM", AV_CODEC_ID_WADY_DPCM),
+      /** CBD2 DPCM. */
       CBD2_DPCM("CBD2 DPCM", AV_CODEC_ID_CBD2_DPCM),
 
+      /** DV audio. */
       DVAUDIO("DVAUDIO", AV_CODEC_ID_DVAUDIO),
+      /** Apple MACE 3:1 audio compression. */
       MACE3("MACE3", AV_CODEC_ID_MACE3),
+      /** Apple MACE 6:1 audio compression. */
       MACE6("MACE6", AV_CODEC_ID_MACE6),
+      /** Sierra VMD audio. */
       VMDAUDIO("VMDAUDIO", AV_CODEC_ID_VMDAUDIO),
+      /** MP3 ADU (Application Data Unit) variant. */
       MP3ADU("MP3ADU", AV_CODEC_ID_MP3ADU),
+      /** MP3 on MP4 (mp3on4). */
       MP3ON4("MP3ON4", AV_CODEC_ID_MP3ON4),
+      /** Shorten lossless audio. */
       SHORTEN("SHORTEN", AV_CODEC_ID_SHORTEN),
+      /** Westwood Studios SND1 audio. */
       WESTWOOD_SND1("WESTWOOD SND1", AV_CODEC_ID_WESTWOOD_SND1),
+      /** QDesign Music Codec 2. */
       QDM2("QDM2", AV_CODEC_ID_QDM2),
+      /** RealAudio COOK. */
       COOK("COOK", AV_CODEC_ID_COOK),
+      /** True Audio (TTA) lossless codec. */
       TTA("TTA", AV_CODEC_ID_TTA),
+      /** Smacker audio. */
       SMACKAUDIO("SMACKAUDIO", AV_CODEC_ID_SMACKAUDIO),
+      /** WavPack lossless/hybrid audio. */
       WAVPACK("WAVPACK", AV_CODEC_ID_WAVPACK),
+      /** Delphine Software International CIN audio. */
       DSICINAUDIO("DSICINAUDIO", AV_CODEC_ID_DSICINAUDIO),
+      /** IMC (Intel Music Coder). */
       IMC("IMC", AV_CODEC_ID_IMC),
+      /** Musepack SV7. */
       MUSEPACK7("MUSEPACK7", AV_CODEC_ID_MUSEPACK7),
+      /** Meridian Lossless Packing (MLP). */
       MLP("MLP", AV_CODEC_ID_MLP),
+      /** Monkey's Audio (APE) lossless codec. */
       APE("APE", AV_CODEC_ID_APE),
+      /** Musepack SV8. */
       MUSEPACK8("MUSEPACK8", AV_CODEC_ID_MUSEPACK8),
+      /** Dolby Digital Plus (E-AC-3). */
       EAC3("EAC3", AV_CODEC_ID_EAC3),
+      /** RealAudio SIPR (Sipro Lab Telecom). */
       SIPR("SIPR", AV_CODEC_ID_SIPR),
+      /** Bink Audio RDFT. */
       BINKAUDIO_RDFT("BINKAUDIO RDFT", AV_CODEC_ID_BINKAUDIO_RDFT),
+      /** Bink Audio DCT. */
       BINKAUDIO_DCT("BINKAUDIO DCT", AV_CODEC_ID_BINKAUDIO_DCT),
+      /** QDesign Music Codec 1. */
       QDMC("QDMC", AV_CODEC_ID_QDMC),
+      /** Constrained Energy Lapped Transform (CELT). */
       CELT("CELT", AV_CODEC_ID_CELT),
+      /** ITU-T G.723.1 audio codec. */
       G723_1("G723 1", AV_CODEC_ID_G723_1),
+      /** ITU-T G.729 audio codec. */
       G729("G729", AV_CODEC_ID_G729),
+      /** ITU-T G.728 audio codec. */
       G728("G728", AV_CODEC_ID_G728),
+      /** 8SVX exponential codec. */
       _8SVX_EXP("8SVX EXP", AV_CODEC_ID_8SVX_EXP),
+      /** 8SVX Fibonacci codec. */
       _8SVX_FIB("8SVX FIB", AV_CODEC_ID_8SVX_FIB),
+      /** BMV audio. */
       BMV_AUDIO("BMV_AUDIO", AV_CODEC_ID_BMV_AUDIO),
+      /** RealAudio Lossless (RALF). */
       RALF("RALF", AV_CODEC_ID_RALF),
+      /** Indeo Audio Coder (IAC). */
       IAC("IAC", AV_CODEC_ID_IAC),
+      /** Comfort noise (RFC 3389). */
       COMFORT_NOISE("COMFORT NOISE", AV_CODEC_ID_COMFORT_NOISE),
+      /** FFmpeg WaveSynth. */
       FFWAVESYNTH("FFWAVESYNTH", AV_CODEC_ID_FFWAVESYNTH),
+      /** Sonic lossless audio codec. */
       SONIC("SONIC", AV_CODEC_ID_SONIC),
+      /** Sonic lossless audio codec (lossless mode). */
       SONIC_LS("SONIC_LS", AV_CODEC_ID_SONIC_LS),
+      /** PAF audio. */
       PAF_AUDIO("PAF_AUDIO", AV_CODEC_ID_PAF_AUDIO),
+      /** Tom's lossless Audio Kompressor (TAK). */
       TAK("TAK", AV_CODEC_ID_TAK),
+      /** Voxware MetaSound. */
       METASOUND("METASOUND", AV_CODEC_ID_METASOUND),
+      /** On2 AVC audio. */
       ON2AVC("ON2AVC", AV_CODEC_ID_ON2AVC),
+      /** Digital Speech Standard SP (DSS SP). */
       DSS_SP("DSS SP", AV_CODEC_ID_DSS_SP),
+      /** Codec 2 (open source speech codec). */
       CODEC2("CODEC2", AV_CODEC_ID_CODEC2),
+      /** Enhanced Variable Rate Codec (EVRC). */
       EVRC("EVRC", AV_CODEC_ID_EVRC),
+      /** Selectable Mode Vocoder (SMV). */
       SMV("SMV", AV_CODEC_ID_SMV),
+      /** Direct Stream Digital (DSD) least-significant-bit-first. */
       DSD_LSBF("DSD LSBF", AV_CODEC_ID_DSD_LSBF),
+      /** Direct Stream Digital (DSD) most-significant-bit-first. */
       DSD_MSBF("DSD MSBF", AV_CODEC_ID_DSD_MSBF),
+      /** Direct Stream Digital (DSD) least-significant-bit-first, planar. */
       DSD_LSBF_PLANAR("DSD LSBF Planar", AV_CODEC_ID_DSD_LSBF_PLANAR),
+      /** Direct Stream Digital (DSD) most-significant-bit-first, planar. */
       DSD_MSBF_PLANAR("DSD MSBF Planar", AV_CODEC_ID_DSD_MSBF_PLANAR),
+      /** 4GV (QUALCOMM PureVoice) speech codec. */
       _4GV("4GV", AV_CODEC_ID_4GV),
+      /** Interplay ACM audio. */
       INTERPLAY_ACM("INTERPLAY ACM", AV_CODEC_ID_INTERPLAY_ACM),
+      /** Xbox Media Audio 1 (XMA1). */
       XMA1("XMA1", AV_CODEC_ID_XMA1),
+      /** Xbox Media Audio 2 (XMA2). */
       XMA2("XMA2", AV_CODEC_ID_XMA2),
+      /** Direct Stream Transfer (DST) lossless audio. */
       DST("DST", AV_CODEC_ID_DST),
+      /** Dolby E audio. */
       DOLBY_E("Dolby E", AV_CODEC_ID_DOLBY_E),
+      /** Qualcomm aptX Bluetooth audio codec. */
       APTX("aptX", AV_CODEC_ID_APTX),
+      /** Qualcomm aptX HD Bluetooth audio codec. */
       APTX_HD("aptX HD", AV_CODEC_ID_APTX_HD),
+      /** Bluetooth Sub-Band Coding (SBC). */
       SBC("SBC", AV_CODEC_ID_SBC),
+      /** HCOM audio codec. */
       HCOM("HCOM", AV_CODEC_ID_HCOM),
+      /** ACELP.KELVIN speech codec. */
       ACELP_KELVIN("ACELP.KELVIN", AV_CODEC_ID_ACELP_KELVIN),
+      /** MPEG-H 3D Audio. */
       MPEGH_3D_AUDIO("MPEG-H 3D Audio", AV_CODEC_ID_MPEGH_3D_AUDIO),
+      /** Siren audio codec (G.722.1). */
       SIREN("Siren", AV_CODEC_ID_SIREN),
+      /** HCA (High Compression Audio, CRI Middleware). */
       HCA("HCA", AV_CODEC_ID_HCA),
+      /** FastAudio codec. */
       FASTAUDIO("FastAudio", AV_CODEC_ID_FASTAUDIO),
+      /** MSN Siren audio codec. */
       MSNSIREN("MSN Siren", AV_CODEC_ID_MSNSIREN),
+      /** Decoder For Pure Waveform-based Modulation (DFPWM). */
       DFPWM("DFPWM", AV_CODEC_ID_DFPWM),
+      /** Bonk lossless audio. */
       BONK("Bonk", AV_CODEC_ID_BONK),
+      /** MISC4 audio codec. */
       MISC4("MISC4", AV_CODEC_ID_MISC4),
+      /** APAC lossless audio. */
       APAC("APAC", AV_CODEC_ID_APAC),
+      /** FTR audio codec. */
       FTR("FTR", AV_CODEC_ID_FTR),
+      /** WavArc lossless audio. */
       WAVARC("WavArc", AV_CODEC_ID_WAVARC),
+      /** RKA lossless audio. */
       RKA("RKA", AV_CODEC_ID_RKA),
+      /** Dolby AC-4 audio. */
       AC4("AC-4", AV_CODEC_ID_AC4),
+      /** Original Sound Quality (OSQ) lossless audio. */
       OSQ("OSQ", AV_CODEC_ID_OSQ),
+      /** Quite OK Audio (QOA) lossy codec. */
       QOA("QOA", AV_CODEC_ID_QOA),
+      /** Low Complexity Communication Codec (LC3). */
       LC3("LC3", AV_CODEC_ID_LC3),
+      /** AHX audio codec. */
       AHX("AHX", AV_CODEC_ID_AHX);
 
       private FFEncoding encoding;
@@ -600,6 +832,11 @@ public class FFAudioFormat extends AudioFormat {
         this.pcm = pcm;
       }
 
+      /**
+       * Returns the {@link FFEncoding} for this codec, creating it lazily on first call.
+       *
+       * @return {@link FFEncoding} for this codec
+       */
       public synchronized FFEncoding getEncoding() {
         if (encoding == null) {
           encoding = new FFEncoding(this);
@@ -607,14 +844,29 @@ public class FFAudioFormat extends AudioFormat {
         return encoding;
       }
 
+      /**
+       * Returns the FFmpeg {@code AVCodecID} integer value for this codec.
+       *
+       * @return {@code AVCodecID} value
+       */
       public int getId() {
         return id;
       }
 
+      /**
+       * Returns the human-readable name of this codec.
+       *
+       * @return codec name
+       */
       public String getName() {
         return name;
       }
 
+      /**
+       * Returns {@code true} if this codec is a PCM variant.
+       *
+       * @return {@code true} for PCM codecs
+       */
       public boolean isPCM() {
         return pcm;
       }
@@ -746,33 +998,74 @@ public class FFAudioFormat extends AudioFormat {
 
     private final int codecId;
 
+    /**
+     * Creates an {@link FFEncoding} backed by the given {@link Codec}.
+     *
+     * @param codec the codec this encoding represents
+     */
     public FFEncoding(final Codec codec) {
       super(codec.getName());
       this.codecId = codec.getId();
     }
 
+    /**
+     * Creates an {@link FFEncoding} with an explicit name and codec ID. Used for codecs not present
+     * in the {@link Codec} enum.
+     *
+     * @param name encoding name
+     * @param codecId FFmpeg {@code AVCodecID} integer value
+     */
     public FFEncoding(final String name, final int codecId) {
       super(name);
       this.codecId = codecId;
     }
 
+    /**
+     * Returns the FFmpeg {@code AVCodecID} integer value for this encoding.
+     *
+     * @return {@code AVCodecID} value
+     */
     public int getCodecId() {
       return codecId;
     }
 
+    /**
+     * Returns an unmodifiable set of all encodings backed by a known {@link Codec}.
+     *
+     * @return unmodifiable set of supported encodings
+     */
     public static Set<FFEncoding> getSupportedEncodings() {
       return Collections.unmodifiableSet(SUPPORTED_ENCODINGS);
     }
 
+    /**
+     * Returns the {@link FFEncoding} matching the given PCM {@link AudioFormat}.
+     *
+     * @param audioFormat audio format whose encoding and sample size select the PCM variant
+     * @return matching {@link FFEncoding}
+     */
     public static FFEncoding getInstance(final AudioFormat audioFormat) {
       return PCM_MAP.get(toPCMKey(audioFormat)).getEncoding();
     }
 
+    /**
+     * Returns the {@link FFEncoding} with the given name, or {@code null} if unknown.
+     *
+     * @param name encoding name
+     * @return matching {@link FFEncoding}, or {@code null}
+     */
     public static FFEncoding getInstance(final String name) {
       final Codec codec = NAME_MAP.get(name);
       return codec == null ? null : codec.getEncoding();
     }
 
+    /**
+     * Returns the {@link FFEncoding} for the given FFmpeg codec ID. If the ID is not in the {@link
+     * Codec} enum, a synthetic encoding is returned.
+     *
+     * @param codecId FFmpeg {@code AVCodecID} integer value
+     * @return matching or synthetic {@link FFEncoding}, never {@code null}
+     */
     public static FFEncoding getInstance(final int codecId) {
       Codec codec = CODEC_ID_MAP.get(codecId);
       if (codec == null) {
@@ -782,6 +1075,12 @@ public class FFAudioFormat extends AudioFormat {
       return codec.getEncoding();
     }
 
+    /**
+     * Returns the {@link Codec} for the given FFmpeg codec ID, or {@code null} if unknown.
+     *
+     * @param codecId FFmpeg {@code AVCodecID} integer value
+     * @return matching {@link Codec}, or {@code null}
+     */
     public static Codec getCodec(final int codecId) {
       return CODEC_ID_MAP.get(codecId);
     }

@@ -45,6 +45,9 @@ import javax.sound.sampled.spi.AudioFileReader;
  */
 public class FFAudioFileReader extends AudioFileReader {
 
+  /** Creates a new {@code FFAudioFileReader}. */
+  public FFAudioFileReader() {}
+
   private static final boolean nativeLibraryLoaded;
 
   static {
@@ -75,6 +78,15 @@ public class FFAudioFileReader extends AudioFileReader {
     return cache.get(url);
   }
 
+  /**
+   * Returns all {@link AudioFileFormat}s detected in the given stream. The stream must support
+   * {@link InputStream#mark(int)}.
+   *
+   * @param stream mark-supporting input stream to probe
+   * @return array of detected audio file formats
+   * @throws UnsupportedAudioFileException if the stream cannot be recognised as a supported format
+   * @throws IOException if an I/O error occurs or the stream does not support {@code mark}
+   */
   public AudioFileFormat[] getAudioFileFormats(final InputStream stream)
       throws UnsupportedAudioFileException, IOException {
     if (!nativeLibraryLoaded)

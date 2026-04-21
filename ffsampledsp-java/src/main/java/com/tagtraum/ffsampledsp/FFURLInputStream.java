@@ -38,10 +38,25 @@ public class FFURLInputStream extends FFNativePeerInputStream {
   private final boolean seekable;
   private final URL url;
 
+  /**
+   * Opens the first audio stream from the given URL.
+   *
+   * @param url URL of the audio resource to decode
+   * @throws IOException if an I/O error occurs
+   * @throws UnsupportedAudioFileException if the URL points to an unsupported or DRM-protected file
+   */
   public FFURLInputStream(final URL url) throws IOException, UnsupportedAudioFileException {
     this(url, 0);
   }
 
+  /**
+   * Opens the specified audio stream index from the given URL.
+   *
+   * @param url URL of the audio resource to decode
+   * @param streamIndex zero-based index of the audio stream to open
+   * @throws IOException if an I/O error occurs
+   * @throws UnsupportedAudioFileException if the URL points to an unsupported or DRM-protected file
+   */
   public FFURLInputStream(final URL url, final int streamIndex)
       throws IOException, UnsupportedAudioFileException {
     // FFmpeg did not use to recognize DRM-crippled files.

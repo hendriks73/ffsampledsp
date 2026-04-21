@@ -56,6 +56,15 @@ public class FFCodecInputStream extends FFNativePeerInputStream {
   private static final Set<Integer> PCM_FLOAT_VALID_SAMPLE_SIZES = new HashSet<>(asList(32, 64));
   private final FFNativePeerInputStream wrappedStream;
 
+  /**
+   * Creates a new {@code FFCodecInputStream} that resamples/converts {@code stream} to {@code
+   * targetFormat}.
+   *
+   * @param targetFormat desired output {@link AudioFormat}
+   * @param stream source stream to convert
+   * @throws IOException if an I/O error occurs during setup
+   * @throws UnsupportedAudioFileException if the target format is not supported
+   */
   public FFCodecInputStream(final AudioFormat targetFormat, final FFAudioInputStream stream)
       throws IOException, UnsupportedAudioFileException {
 

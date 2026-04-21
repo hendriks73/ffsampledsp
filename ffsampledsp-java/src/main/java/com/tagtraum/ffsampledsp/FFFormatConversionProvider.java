@@ -36,6 +36,9 @@ import javax.sound.sampled.spi.FormatConversionProvider;
  */
 public class FFFormatConversionProvider extends FormatConversionProvider {
 
+  /** Creates a new {@code FFFormatConversionProvider}. */
+  public FFFormatConversionProvider() {}
+
   private static final boolean nativeLibraryLoaded;
 
   static {
@@ -43,8 +46,13 @@ public class FFFormatConversionProvider extends FormatConversionProvider {
     nativeLibraryLoaded = FFNativeLibraryLoader.loadLibrary();
   }
 
+  /** {@code true} if the native byte order is big-endian. */
   public static final boolean NATIVE_ORDER = ByteOrder.BIG_ENDIAN.equals(ByteOrder.nativeOrder());
+
+  /** Channel count constant for mono audio. */
   public static final int MONO = 1;
+
+  /** Channel count constant for stereo audio. */
   public static final int STEREO = 2;
 
   @Override

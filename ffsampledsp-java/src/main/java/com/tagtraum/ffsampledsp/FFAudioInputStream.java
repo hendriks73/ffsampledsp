@@ -38,6 +38,13 @@ public class FFAudioInputStream extends AudioInputStream {
   private final FFNativePeerInputStream nativePeerInputStream;
   private final long ffFrameLength;
 
+  /**
+   * Creates a new {@code FFAudioInputStream} backed by the given native peer.
+   *
+   * @param nativePeerInputStream native peer that reads and decodes audio data
+   * @param format audio format of the decoded PCM data
+   * @param frameLength total frame count, or {@link javax.sound.sampled.AudioSystem#NOT_SPECIFIED}
+   */
   public FFAudioInputStream(
       final FFNativePeerInputStream nativePeerInputStream,
       final AudioFormat format,

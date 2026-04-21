@@ -144,14 +144,18 @@ public abstract class FFNativePeerInputStream extends InputStream {
   }
 
   /**
-   * @return true or false
+   * Returns {@code true} if this stream supports seeking.
+   *
+   * @return {@code true} if seeking is supported
    * @see com.tagtraum.ffsampledsp.FFAudioInputStream#isSeekable()
    */
   public abstract boolean isSeekable();
 
   /**
-   * @param time time
-   * @param timeUnit time unit
+   * Seeks to the given position in the stream.
+   *
+   * @param time position to seek to
+   * @param timeUnit unit of {@code time}
    * @see com.tagtraum.ffsampledsp.FFAudioInputStream#seek(long, java.util.concurrent.TimeUnit)
    * @throws IOException if an IO error occurs
    */

@@ -41,11 +41,26 @@ public class FFStreamInputStream extends FFNativePeerInputStream {
   private final ByteBuffer readBuffer = ByteBuffer.allocateDirect(32 * 1024);
   private final ReadableByteChannel channel;
 
+  /**
+   * Opens the first audio stream from the given {@link InputStream}.
+   *
+   * @param stream input stream to decode
+   * @throws IOException if an I/O error occurs
+   * @throws UnsupportedAudioFileException if the stream format is not supported
+   */
   public FFStreamInputStream(final InputStream stream)
       throws IOException, UnsupportedAudioFileException {
     this(stream, 0);
   }
 
+  /**
+   * Opens the specified audio stream index from the given {@link InputStream}.
+   *
+   * @param stream input stream to decode
+   * @param streamIndex zero-based index of the audio stream to open
+   * @throws IOException if an I/O error occurs
+   * @throws UnsupportedAudioFileException if the stream format is not supported
+   */
   public FFStreamInputStream(final InputStream stream, final int streamIndex)
       throws IOException, UnsupportedAudioFileException {
     // workaround covariant return type introduced in Java 9

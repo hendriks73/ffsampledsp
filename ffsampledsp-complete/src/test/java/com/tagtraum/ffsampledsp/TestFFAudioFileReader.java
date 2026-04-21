@@ -523,6 +523,42 @@ public class TestFFAudioFileReader {
     assertEquals("file:/someDir/;:&=+@[]?/name.txt", url.toString());
   }
 
+  @Test
+  public void testGetAudioFileFormatOgg() throws IOException, UnsupportedAudioFileException {
+    final String filename = "test.ogg";
+    final File file = File.createTempFile("testGetAudioFileFormatOgg", filename);
+    extractFile(filename, file);
+    try {
+      final AudioFileFormat fileFormat = new FFAudioFileReader().getAudioFileFormat(file);
+      System.out.println(fileFormat);
+      assertEquals("ogg", fileFormat.getType().getExtension());
+      final AudioFormat format = fileFormat.getFormat();
+      assertEquals(2, format.getChannels());
+      assertEquals(44100f, format.getSampleRate(), 0.01f);
+      assertTrue(fileFormat.getByteLength() > 0);
+    } finally {
+      file.delete();
+    }
+  }
+
+  @Test
+  public void testGetAudioFileFormatWav96k() throws IOException, UnsupportedAudioFileException {
+    final String filename = "test_96k.wav";
+    final File file = File.createTempFile("testGetAudioFileFormatWav96k", filename);
+    extractFile(filename, file);
+    try {
+      final AudioFileFormat fileFormat = new FFAudioFileReader().getAudioFileFormat(file);
+      System.out.println(fileFormat);
+      assertEquals("wav", fileFormat.getType().getExtension());
+      final AudioFormat format = fileFormat.getFormat();
+      assertEquals(2, format.getChannels());
+      assertEquals(96000f, format.getSampleRate(), 0.01f);
+      assertEquals(16, format.getSampleSizeInBits());
+    } finally {
+      file.delete();
+    }
+  }
+
   private void extractFile(final String filename, final File file) throws IOException {
     try (final InputStream in = getClass().getResourceAsStream(filename);
         OutputStream out = new FileOutputStream(file)) {

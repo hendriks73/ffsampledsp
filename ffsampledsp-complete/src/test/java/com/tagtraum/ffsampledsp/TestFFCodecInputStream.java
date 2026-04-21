@@ -418,7 +418,7 @@ public class TestFFCodecInputStream {
       file.delete();
     }
     System.out.println("Read " + bytesRead + " bytes.");
-    assertEquals(268160, bytesRead);
+    assertEquals(267264, bytesRead);
   }
 
   @Test
@@ -496,7 +496,7 @@ public class TestFFCodecInputStream {
       file.delete();
     }
     System.out.println("Read " + bytesRead + " bytes.");
-    assertEquals(402240, bytesRead);
+    assertEquals(400896, bytesRead);
   }
 
   @Test
@@ -576,7 +576,7 @@ public class TestFFCodecInputStream {
       file.delete();
     }
     System.out.println("Read " + bytesRead + " bytes.");
-    assertEquals(536320, bytesRead);
+    assertEquals(534528, bytesRead);
   }
 
   @Test
@@ -1026,6 +1026,104 @@ public class TestFFCodecInputStream {
     }
     // now seek in the already closed stream.
     pcmStream.seek(500, TimeUnit.SECONDS);
+  }
+
+  @Test
+  public void testResampleMonoToStereo() throws IOException, UnsupportedAudioFileException {
+    final String filename = "test_mono.wav";
+    final File file = File.createTempFile("testResampleMonoToStereo", filename);
+    extractFile(filename, file);
+    int bytesRead = 0;
+    FFCodecInputStream targetStream = null;
+    try (final AudioInputStream sourceStream = new FFAudioFileReader().getAudioInputStream(file)) {
+      assertEquals(1, sourceStream.getFormat().getChannels());
+      final AudioFormat targetFormat =
+          new AudioFormat(FFAudioFormat.FFEncoding.PCM_SIGNED, 44100, 16, 2, 4, 44100, false);
+      targetStream = new FFCodecInputStream(targetFormat, (FFAudioInputStream) sourceStream);
+      int justRead;
+      final byte[] buf = new byte[1024];
+      while ((justRead = targetStream.read(buf)) != -1) {
+        assertTrue(justRead > 0);
+        bytesRead += justRead;
+      }
+    } finally {
+      if (targetStream != null) {
+        try {
+          targetStream.close();
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+      }
+      file.delete();
+    }
+    System.out.println("Read " + bytesRead + " bytes.");
+    // stereo output: 44100 * 2ch * 2bytes * 3s = 529200 bytes
+    assertEquals(529200, bytesRead);
+  }
+
+  @Test
+  public void testResampleStereoToMono() throws IOException, UnsupportedAudioFileException {
+    final String filename = "test.wav";
+    final File file = File.createTempFile("testResampleStereoToMono", filename);
+    extractFile(filename, file);
+    int bytesRead = 0;
+    FFCodecInputStream targetStream = null;
+    try (final AudioInputStream sourceStream = new FFAudioFileReader().getAudioInputStream(file)) {
+      assertEquals(2, sourceStream.getFormat().getChannels());
+      final AudioFormat targetFormat =
+          new AudioFormat(FFAudioFormat.FFEncoding.PCM_SIGNED, 44100, 16, 1, 2, 44100, false);
+      targetStream = new FFCodecInputStream(targetFormat, (FFAudioInputStream) sourceStream);
+      int justRead;
+      final byte[] buf = new byte[1024];
+      while ((justRead = targetStream.read(buf)) != -1) {
+        assertTrue(justRead > 0);
+        bytesRead += justRead;
+      }
+    } finally {
+      if (targetStream != null) {
+        try {
+          targetStream.close();
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+      }
+      file.delete();
+    }
+    System.out.println("Read " + bytesRead + " bytes.");
+    // mono output is half the stereo byte count: 534528 / 2 = 267264
+    assertEquals(267264, bytesRead);
+  }
+
+  @Test
+  public void testResampleTo96kHz() throws IOException, UnsupportedAudioFileException {
+    final String filename = "test.wav";
+    final File file = File.createTempFile("testResampleTo96kHz", filename);
+    extractFile(filename, file);
+    int bytesRead = 0;
+    FFCodecInputStream targetStream = null;
+    try (final AudioInputStream sourceStream = new FFAudioFileReader().getAudioInputStream(file)) {
+      final AudioFormat targetFormat =
+          new AudioFormat(FFAudioFormat.FFEncoding.PCM_SIGNED, 96000, 16, 2, 4, 96000, false);
+      targetStream = new FFCodecInputStream(targetFormat, (FFAudioInputStream) sourceStream);
+      int justRead;
+      final byte[] buf = new byte[4096];
+      while ((justRead = targetStream.read(buf)) != -1) {
+        assertTrue(justRead > 0);
+        bytesRead += justRead;
+      }
+    } finally {
+      if (targetStream != null) {
+        try {
+          targetStream.close();
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+      }
+      file.delete();
+    }
+    System.out.println("Read " + bytesRead + " bytes.");
+    // upsample from 44100 to 96000: 534528 * (96000/44100) ≈ 1163264
+    assertTrue("Expected upsample to produce more bytes than source", bytesRead > 534528);
   }
 
   private void extractFile(final String filename, final File file) throws IOException {

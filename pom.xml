@@ -370,14 +370,15 @@
                         </excludes>
                         <googleJavaFormat/>
                     </java>
-                    <yaml>
-                        <includes>
-                            <include>**/*.yaml</include>
-                            <include>**/*.yml</include>
-                        </includes>
-                        <jackson/>
-                    </yaml>
                     <formats>
+                        <format>
+                            <includes>
+                                <include>**/*.yaml</include>
+                                <include>**/*.yml</include>
+                            </includes>
+                            <trimTrailingWhitespace/>
+                            <endWithNewline/>
+                        </format>
                         <format>
                             <includes>
                                 <include>src/**/*.html</include>
@@ -586,24 +587,6 @@
             <modules>
                 <module>ffsampledsp-aarch64-macos</module>
             </modules>
-
-            <build>
-                <plugins>
-                    <plugin>
-                        <!--
-                        We are building this on a x86_64 with a arm64
-                        toolchain. Because of this mismatch we cannot
-                        test the native code and skip testing
-                        altogether.
-                        -->
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-surefire-plugin</artifactId>
-                        <configuration>
-                            <skipTests>true</skipTests>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
 
             <properties>
                 <arch>aarch64</arch>

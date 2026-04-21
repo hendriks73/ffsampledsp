@@ -614,6 +614,70 @@ public class TestFFURLInputStream {
     }
   }
 
+  @Test
+  public void testReadMonoWav() throws IOException, UnsupportedAudioFileException {
+    final String filename = "test_mono.wav";
+    final File file = File.createTempFile("testReadMonoWav", filename);
+    extractFile(filename, file);
+    int bytesRead = 0;
+    FFURLInputStream in = null;
+    try {
+      in = new FFURLInputStream(file.toURI().toURL());
+      final AudioFileFormat audioFileFormat = new FFAudioFileReader().getAudioFileFormat(file);
+      assertEquals(1, audioFileFormat.getFormat().getChannels());
+      assertEquals(44100f, audioFileFormat.getFormat().getSampleRate(), 0.01f);
+      int justRead;
+      final byte[] buf = new byte[1024];
+      while ((justRead = in.read(buf)) != -1) {
+        assertTrue(justRead > 0);
+        bytesRead += justRead;
+      }
+    } finally {
+      if (in != null) {
+        try {
+          in.close();
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+      }
+      file.delete();
+    }
+    // mono 16-bit 44100 Hz 3s = 44100 * 1 * 2 * 3 = 264600 bytes
+    assertEquals(264600, bytesRead);
+  }
+
+  @Test
+  public void testRead96kWav() throws IOException, UnsupportedAudioFileException {
+    final String filename = "test_96k.wav";
+    final File file = File.createTempFile("testRead96kWav", filename);
+    extractFile(filename, file);
+    int bytesRead = 0;
+    FFURLInputStream in = null;
+    try {
+      in = new FFURLInputStream(file.toURI().toURL());
+      final AudioFileFormat audioFileFormat = new FFAudioFileReader().getAudioFileFormat(file);
+      assertEquals(96000f, audioFileFormat.getFormat().getSampleRate(), 0.01f);
+      assertEquals(2, audioFileFormat.getFormat().getChannels());
+      int justRead;
+      final byte[] buf = new byte[4096];
+      while ((justRead = in.read(buf)) != -1) {
+        assertTrue(justRead > 0);
+        bytesRead += justRead;
+      }
+    } finally {
+      if (in != null) {
+        try {
+          in.close();
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+      }
+      file.delete();
+    }
+    // stereo 16-bit 96000 Hz 3s = 96000 * 2 * 2 * 3 = 1152000 bytes
+    assertEquals(1152000, bytesRead);
+  }
+
   static void extractFile(final String filename, final File file) throws IOException {
     try (final InputStream in = TestFFURLInputStream.class.getResourceAsStream(filename);
         OutputStream out = new FileOutputStream(file)) {

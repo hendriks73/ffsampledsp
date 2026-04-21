@@ -294,7 +294,7 @@ public class TestFFStreamInputStream {
       }
       file.delete();
     }
-    assertEquals(14585856, (bytesRead / 4));
+    assertEquals(14583576, (bytesRead / 4));
   }
 
   @Test

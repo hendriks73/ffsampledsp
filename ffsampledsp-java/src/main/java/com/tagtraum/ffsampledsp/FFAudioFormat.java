@@ -82,6 +82,7 @@ public class FFAudioFormat extends AudioFormat {
   /** libavcodec encodings that are aware of their AVCodecID. */
   public static class FFEncoding extends Encoding {
 
+    // PCM codecs (0x10000+)
     private static final int AV_CODEC_ID_PCM_S16LE = 0x10000;
     private static final int AV_CODEC_ID_PCM_S16BE = 0x10001;
     private static final int AV_CODEC_ID_PCM_U16LE = 0x10002;
@@ -110,9 +111,17 @@ public class FFAudioFormat extends AudioFormat {
     private static final int AV_CODEC_ID_PCM_LXF = 0x10019;
     private static final int AV_CODEC_ID_S302M = 0x1001a;
     private static final int AV_CODEC_ID_PCM_S8_PLANAR = 0x1001b;
-    private static final int AV_CODEC_ID_PCM_S24LE_PLANAR = 0x18505350;
-    private static final int AV_CODEC_ID_PCM_S32LE_PLANAR = 0x20505350;
-    private static final int AV_CODEC_ID_PCM_S16BE_PLANAR = 0x50535010;
+    private static final int AV_CODEC_ID_PCM_S24LE_PLANAR = 0x1001c;
+    private static final int AV_CODEC_ID_PCM_S32LE_PLANAR = 0x1001d;
+    private static final int AV_CODEC_ID_PCM_S16BE_PLANAR = 0x1001e;
+    private static final int AV_CODEC_ID_PCM_S64LE = 0x1001f;
+    private static final int AV_CODEC_ID_PCM_S64BE = 0x10020;
+    private static final int AV_CODEC_ID_PCM_F16LE = 0x10021;
+    private static final int AV_CODEC_ID_PCM_F24LE = 0x10022;
+    private static final int AV_CODEC_ID_PCM_VIDC = 0x10023;
+    private static final int AV_CODEC_ID_PCM_SGA = 0x10024;
+
+    // ADPCM codecs (0x11000+)
     private static final int AV_CODEC_ID_ADPCM_IMA_QT = 0x11000;
     private static final int AV_CODEC_ID_ADPCM_IMA_WAV = 0x11001;
     private static final int AV_CODEC_ID_ADPCM_IMA_DK3 = 0x11002;
@@ -143,17 +152,59 @@ public class FFAudioFormat extends AudioFormat {
     private static final int AV_CODEC_ID_ADPCM_IMA_ISS = 0x1101b;
     private static final int AV_CODEC_ID_ADPCM_G722 = 0x1101c;
     private static final int AV_CODEC_ID_ADPCM_IMA_APC = 0x1101d;
-    private static final int AV_CODEC_ID_VIMA = 0x56494d41;
-    private static final int AV_CODEC_ID_ADPCM_AFC = 0x41464320;
-    private static final int AV_CODEC_ID_ADPCM_IMA_OKI = 0x4f4b4920;
+    private static final int AV_CODEC_ID_ADPCM_VIMA = 0x1101e;
+    private static final int AV_CODEC_ID_ADPCM_AFC = 0x1101f;
+    private static final int AV_CODEC_ID_ADPCM_IMA_OKI = 0x11020;
+    private static final int AV_CODEC_ID_ADPCM_DTK = 0x11021;
+    private static final int AV_CODEC_ID_ADPCM_IMA_RAD = 0x11022;
+    private static final int AV_CODEC_ID_ADPCM_G726LE = 0x11023;
+    private static final int AV_CODEC_ID_ADPCM_THP_LE = 0x11024;
+    private static final int AV_CODEC_ID_ADPCM_PSX = 0x11025;
+    private static final int AV_CODEC_ID_ADPCM_AICA = 0x11026;
+    private static final int AV_CODEC_ID_ADPCM_IMA_DAT4 = 0x11027;
+    private static final int AV_CODEC_ID_ADPCM_MTAF = 0x11028;
+    private static final int AV_CODEC_ID_ADPCM_AGM = 0x11029;
+    private static final int AV_CODEC_ID_ADPCM_ARGO = 0x1102a;
+    private static final int AV_CODEC_ID_ADPCM_IMA_SSI = 0x1102b;
+    private static final int AV_CODEC_ID_ADPCM_ZORK = 0x1102c;
+    private static final int AV_CODEC_ID_ADPCM_IMA_APM = 0x1102d;
+    private static final int AV_CODEC_ID_ADPCM_IMA_ALP = 0x1102e;
+    private static final int AV_CODEC_ID_ADPCM_IMA_MTF = 0x1102f;
+    private static final int AV_CODEC_ID_ADPCM_IMA_CUNNING = 0x11030;
+    private static final int AV_CODEC_ID_ADPCM_IMA_MOFLEX = 0x11031;
+    private static final int AV_CODEC_ID_ADPCM_IMA_ACORN = 0x11032;
+    private static final int AV_CODEC_ID_ADPCM_XMD = 0x11033;
+    private static final int AV_CODEC_ID_ADPCM_IMA_XBOX = 0x11034;
+    private static final int AV_CODEC_ID_ADPCM_SANYO = 0x11035;
+    private static final int AV_CODEC_ID_ADPCM_IMA_HVQM4 = 0x11036;
+    private static final int AV_CODEC_ID_ADPCM_IMA_PDA = 0x11037;
+    private static final int AV_CODEC_ID_ADPCM_N64 = 0x11038;
+    private static final int AV_CODEC_ID_ADPCM_IMA_HVQM2 = 0x11039;
+    private static final int AV_CODEC_ID_ADPCM_IMA_MAGIX = 0x1103a;
+    private static final int AV_CODEC_ID_ADPCM_PSXC = 0x1103b;
+    private static final int AV_CODEC_ID_ADPCM_CIRCUS = 0x1103c;
+    private static final int AV_CODEC_ID_ADPCM_IMA_ESCAPE = 0x1103d;
+
+    // AMR codecs (0x12000+)
     private static final int AV_CODEC_ID_AMR_NB = 0x12000;
     private static final int AV_CODEC_ID_AMR_WB = 0x12001;
+
+    // RealAudio codecs (0x13000+)
     private static final int AV_CODEC_ID_RA_144 = 0x13000;
     private static final int AV_CODEC_ID_RA_288 = 0x13001;
+
+    // DPCM codecs (0x14000+)
     private static final int AV_CODEC_ID_ROQ_DPCM = 0x14000;
     private static final int AV_CODEC_ID_INTERPLAY_DPCM = 0x14001;
     private static final int AV_CODEC_ID_XAN_DPCM = 0x14002;
     private static final int AV_CODEC_ID_SOL_DPCM = 0x14003;
+    private static final int AV_CODEC_ID_SDX2_DPCM = 0x14004;
+    private static final int AV_CODEC_ID_GREMLIN_DPCM = 0x14005;
+    private static final int AV_CODEC_ID_DERF_DPCM = 0x14006;
+    private static final int AV_CODEC_ID_WADY_DPCM = 0x14007;
+    private static final int AV_CODEC_ID_CBD2_DPCM = 0x14008;
+
+    // Audio codecs (0x15000+)
     private static final int AV_CODEC_ID_MP2 = 0x15000;
     private static final int AV_CODEC_ID_MP3 = 0x15001;
     private static final int AV_CODEC_ID_AAC = 0x15002;
@@ -186,47 +237,83 @@ public class FFAudioFormat extends AudioFormat {
     private static final int AV_CODEC_ID_MLP = 0x1501d;
     private static final int AV_CODEC_ID_GSM_MS = 0x1501e;
     private static final int AV_CODEC_ID_ATRAC3 = 0x1501f;
-    private static final int AV_CODEC_ID_VOXWARE = 0x15020;
-    private static final int AV_CODEC_ID_APE = 0x15021;
-    private static final int AV_CODEC_ID_NELLYMOSER = 0x15022;
-    private static final int AV_CODEC_ID_MUSEPACK8 = 0x15023;
-    private static final int AV_CODEC_ID_SPEEX = 0x15024;
-    private static final int AV_CODEC_ID_WMAVOICE = 0x15025;
-    private static final int AV_CODEC_ID_WMAPRO = 0x15026;
-    private static final int AV_CODEC_ID_WMALOSSLESS = 0x15027;
-    private static final int AV_CODEC_ID_ATRAC3P = 0x15028;
-    private static final int AV_CODEC_ID_EAC3 = 0x15029;
-    private static final int AV_CODEC_ID_SIPR = 0x1502a;
-    private static final int AV_CODEC_ID_MP1 = 0x1502b;
-    private static final int AV_CODEC_ID_TWINVQ = 0x1502c;
-    private static final int AV_CODEC_ID_TRUEHD = 0x1502d;
-    private static final int AV_CODEC_ID_MP4ALS = 0x1502e;
-    private static final int AV_CODEC_ID_ATRAC1 = 0x1502f;
-    private static final int AV_CODEC_ID_BINKAUDIO_RDFT = 0x15030;
-    private static final int AV_CODEC_ID_BINKAUDIO_DCT = 0x15031;
-    private static final int AV_CODEC_ID_AAC_LATM = 0x15032;
-    private static final int AV_CODEC_ID_QDMC = 0x15033;
-    private static final int AV_CODEC_ID_CELT = 0x15034;
-    private static final int AV_CODEC_ID_G723_1 = 0x15035;
-    private static final int AV_CODEC_ID_G729 = 0x15036;
-    private static final int AV_CODEC_ID_8SVX_EXP = 0x15037;
-    private static final int AV_CODEC_ID_8SVX_FIB = 0x15038;
-    private static final int AV_CODEC_ID_BMV_AUDIO = 0x15039;
-    private static final int AV_CODEC_ID_RALF = 0x1503a;
-    private static final int AV_CODEC_ID_IAC = 0x1503b;
-    private static final int AV_CODEC_ID_ILBC = 0x1503c;
-    private static final int AV_CODEC_ID_OPUS_DEPRECATED = 0x1503d;
-    private static final int AV_CODEC_ID_COMFORT_NOISE = 0x1503e;
-    private static final int AV_CODEC_ID_TAK_DEPRECATED = 0x1503f;
-    private static final int AV_CODEC_ID_FFWAVESYNTH = 0x46465753;
-    private static final int AV_CODEC_ID_8SVX_RAW = 0x38535658;
-    private static final int AV_CODEC_ID_SONIC = 0x534f4e43;
-    private static final int AV_CODEC_ID_SONIC_LS = 0x534f4e4c;
-    private static final int AV_CODEC_ID_PAF_AUDIO = 0x50414641;
-    private static final int AV_CODEC_ID_OPUS = 0x4f505553;
-    private static final int AV_CODEC_ID_TAK = 0x7442614b;
-    private static final int AV_CODEC_ID_EVRC = 0x73657663;
-    private static final int AV_CODEC_ID_SMV = 0x73736d76;
+    private static final int AV_CODEC_ID_APE = 0x15020;
+    private static final int AV_CODEC_ID_NELLYMOSER = 0x15021;
+    private static final int AV_CODEC_ID_MUSEPACK8 = 0x15022;
+    private static final int AV_CODEC_ID_SPEEX = 0x15023;
+    private static final int AV_CODEC_ID_WMAVOICE = 0x15024;
+    private static final int AV_CODEC_ID_WMAPRO = 0x15025;
+    private static final int AV_CODEC_ID_WMALOSSLESS = 0x15026;
+    private static final int AV_CODEC_ID_ATRAC3P = 0x15027;
+    private static final int AV_CODEC_ID_EAC3 = 0x15028;
+    private static final int AV_CODEC_ID_SIPR = 0x15029;
+    private static final int AV_CODEC_ID_MP1 = 0x1502a;
+    private static final int AV_CODEC_ID_TWINVQ = 0x1502b;
+    private static final int AV_CODEC_ID_TRUEHD = 0x1502c;
+    private static final int AV_CODEC_ID_MP4ALS = 0x1502d;
+    private static final int AV_CODEC_ID_ATRAC1 = 0x1502e;
+    private static final int AV_CODEC_ID_BINKAUDIO_RDFT = 0x1502f;
+    private static final int AV_CODEC_ID_BINKAUDIO_DCT = 0x15030;
+    private static final int AV_CODEC_ID_AAC_LATM = 0x15031;
+    private static final int AV_CODEC_ID_QDMC = 0x15032;
+    private static final int AV_CODEC_ID_CELT = 0x15033;
+    private static final int AV_CODEC_ID_G723_1 = 0x15034;
+    private static final int AV_CODEC_ID_G729 = 0x15035;
+    private static final int AV_CODEC_ID_8SVX_EXP = 0x15036;
+    private static final int AV_CODEC_ID_8SVX_FIB = 0x15037;
+    private static final int AV_CODEC_ID_BMV_AUDIO = 0x15038;
+    private static final int AV_CODEC_ID_RALF = 0x15039;
+    private static final int AV_CODEC_ID_IAC = 0x1503a;
+    private static final int AV_CODEC_ID_ILBC = 0x1503b;
+    private static final int AV_CODEC_ID_OPUS = 0x1503c;
+    private static final int AV_CODEC_ID_COMFORT_NOISE = 0x1503d;
+    private static final int AV_CODEC_ID_TAK = 0x1503e;
+    private static final int AV_CODEC_ID_METASOUND = 0x1503f;
+    private static final int AV_CODEC_ID_PAF_AUDIO = 0x15040;
+    private static final int AV_CODEC_ID_ON2AVC = 0x15041;
+    private static final int AV_CODEC_ID_DSS_SP = 0x15042;
+    private static final int AV_CODEC_ID_CODEC2 = 0x15043;
+    private static final int AV_CODEC_ID_FFWAVESYNTH = 0x15044;
+    private static final int AV_CODEC_ID_SONIC = 0x15045;
+    private static final int AV_CODEC_ID_SONIC_LS = 0x15046;
+    private static final int AV_CODEC_ID_EVRC = 0x15047;
+    private static final int AV_CODEC_ID_SMV = 0x15048;
+    private static final int AV_CODEC_ID_DSD_LSBF = 0x15049;
+    private static final int AV_CODEC_ID_DSD_MSBF = 0x1504a;
+    private static final int AV_CODEC_ID_DSD_LSBF_PLANAR = 0x1504b;
+    private static final int AV_CODEC_ID_DSD_MSBF_PLANAR = 0x1504c;
+    private static final int AV_CODEC_ID_4GV = 0x1504d;
+    private static final int AV_CODEC_ID_INTERPLAY_ACM = 0x1504e;
+    private static final int AV_CODEC_ID_XMA1 = 0x1504f;
+    private static final int AV_CODEC_ID_XMA2 = 0x15050;
+    private static final int AV_CODEC_ID_DST = 0x15051;
+    private static final int AV_CODEC_ID_ATRAC3AL = 0x15052;
+    private static final int AV_CODEC_ID_ATRAC3PAL = 0x15053;
+    private static final int AV_CODEC_ID_DOLBY_E = 0x15054;
+    private static final int AV_CODEC_ID_APTX = 0x15055;
+    private static final int AV_CODEC_ID_APTX_HD = 0x15056;
+    private static final int AV_CODEC_ID_SBC = 0x15057;
+    private static final int AV_CODEC_ID_ATRAC9 = 0x15058;
+    private static final int AV_CODEC_ID_HCOM = 0x15059;
+    private static final int AV_CODEC_ID_ACELP_KELVIN = 0x1505a;
+    private static final int AV_CODEC_ID_MPEGH_3D_AUDIO = 0x1505b;
+    private static final int AV_CODEC_ID_SIREN = 0x1505c;
+    private static final int AV_CODEC_ID_HCA = 0x1505d;
+    private static final int AV_CODEC_ID_FASTAUDIO = 0x1505e;
+    private static final int AV_CODEC_ID_MSNSIREN = 0x1505f;
+    private static final int AV_CODEC_ID_DFPWM = 0x15060;
+    private static final int AV_CODEC_ID_BONK = 0x15061;
+    private static final int AV_CODEC_ID_MISC4 = 0x15062;
+    private static final int AV_CODEC_ID_APAC = 0x15063;
+    private static final int AV_CODEC_ID_FTR = 0x15064;
+    private static final int AV_CODEC_ID_WAVARC = 0x15065;
+    private static final int AV_CODEC_ID_RKA = 0x15066;
+    private static final int AV_CODEC_ID_AC4 = 0x15067;
+    private static final int AV_CODEC_ID_OSQ = 0x15068;
+    private static final int AV_CODEC_ID_QOA = 0x15069;
+    private static final int AV_CODEC_ID_LC3 = 0x1506a;
+    private static final int AV_CODEC_ID_G728 = 0x1506b;
+    private static final int AV_CODEC_ID_AHX = 0x1506c;
 
     /**
      * Float PCM - named just like the <code>PCM_FLOAT</code> in {@link
@@ -265,6 +352,8 @@ public class FFAudioFormat extends AudioFormat {
       PCM_S24LE(Encoding.PCM_SIGNED.toString(), AV_CODEC_ID_PCM_S24LE, true),
       PCM_S32BE(Encoding.PCM_SIGNED.toString(), AV_CODEC_ID_PCM_S32BE, true),
       PCM_S32LE(Encoding.PCM_SIGNED.toString(), AV_CODEC_ID_PCM_S32LE, true),
+      PCM_S64BE(Encoding.PCM_SIGNED.toString(), AV_CODEC_ID_PCM_S64BE, true),
+      PCM_S64LE(Encoding.PCM_SIGNED.toString(), AV_CODEC_ID_PCM_S64LE, true),
 
       // unsigned pcm
       PCM_U8(Encoding.PCM_UNSIGNED.toString(), AV_CODEC_ID_PCM_U8, true),
@@ -277,6 +366,8 @@ public class FFAudioFormat extends AudioFormat {
 
       // float pcm - named just like the PCM_FLOAT in encoding
       // in Java 7 (not used for compatibility with Java <=6)
+      PCM_F16LE(PCM_FLOAT_STRING, AV_CODEC_ID_PCM_F16LE, true),
+      PCM_F24LE(PCM_FLOAT_STRING, AV_CODEC_ID_PCM_F24LE, true),
       PCM_F32BE(PCM_FLOAT_STRING, AV_CODEC_ID_PCM_F32BE, true),
       PCM_F32LE(PCM_FLOAT_STRING, AV_CODEC_ID_PCM_F32LE, true),
       PCM_F64BE(PCM_FLOAT_STRING, AV_CODEC_ID_PCM_F64BE, true),
@@ -284,10 +375,10 @@ public class FFAudioFormat extends AudioFormat {
 
       // planar pcm
       PCM_S8_PLANAR("PCM S8 Planar", AV_CODEC_ID_PCM_S8_PLANAR, true),
+      PCM_S16LE_PLANAR("PCM S16LE Planar", AV_CODEC_ID_PCM_S16LE_PLANAR, true),
+      PCM_S16BE_PLANAR("PCM S16BE Planar", AV_CODEC_ID_PCM_S16BE_PLANAR, true),
       PCM_S24LE_PLANAR("PCM S24LE Planar", AV_CODEC_ID_PCM_S24LE_PLANAR, true),
       PCM_S32LE_PLANAR("PCM S32LE Planar", AV_CODEC_ID_PCM_S32LE_PLANAR, true),
-      PCM_S16BE_PLANAR("PCM S16BE Planar", AV_CODEC_ID_PCM_S16BE_PLANAR, true),
-      PCM_S16LE_PLANAR("PCM S16LE Planar", AV_CODEC_ID_PCM_S16LE_PLANAR, true),
 
       // other pcm
       PCM_S24DAUD("PCM S24 DAUD", AV_CODEC_ID_PCM_S24DAUD, true),
@@ -295,6 +386,8 @@ public class FFAudioFormat extends AudioFormat {
       PCM_DVD("PCM DVD", AV_CODEC_ID_PCM_DVD, true),
       PCM_BLURAY("PCM BLURAY", AV_CODEC_ID_PCM_BLURAY, true),
       PCM_LXF("PCM LXF", AV_CODEC_ID_PCM_LXF, true),
+      PCM_VIDC("PCM VIDC", AV_CODEC_ID_PCM_VIDC, true),
+      PCM_SGA("PCM SGA", AV_CODEC_ID_PCM_SGA, true),
 
       I_LBC("iLBC", AV_CODEC_ID_ILBC),
       MICROSOFT_GSM("Microsoft GSM", AV_CODEC_ID_GSM_MS),
@@ -314,6 +407,9 @@ public class FFAudioFormat extends AudioFormat {
       ATRAC_1("ATRAC 1", AV_CODEC_ID_ATRAC1),
       ATRAC_3("ATRAC 3", AV_CODEC_ID_ATRAC3),
       ATRAC_3P("ATRAC 3plus", AV_CODEC_ID_ATRAC3P),
+      ATRAC_3AL("ATRAC 3 Advanced Lossless", AV_CODEC_ID_ATRAC3AL),
+      ATRAC_3PAL("ATRAC 3plus Advanced Lossless", AV_CODEC_ID_ATRAC3PAL),
+      ATRAC_9("ATRAC9", AV_CODEC_ID_ATRAC9),
 
       GSM("GSM", AV_CODEC_ID_GSM),
       TRUE_HD("TrueHD", AV_CODEC_ID_TRUEHD),
@@ -321,6 +417,7 @@ public class FFAudioFormat extends AudioFormat {
 
       NELLYMOSER("Nellymoser", AV_CODEC_ID_NELLYMOSER),
       SPEEX("Speex", AV_CODEC_ID_SPEEX),
+      OPUS("OPUS", AV_CODEC_ID_OPUS),
 
       S302M("S302M", AV_CODEC_ID_S302M),
 
@@ -338,12 +435,14 @@ public class FFAudioFormat extends AudioFormat {
       ADPCM_ADX("ADPCM ADX", AV_CODEC_ID_ADPCM_ADX),
       ADPCM_EA("ADPCM EA", AV_CODEC_ID_ADPCM_EA),
       ADPCM_G726("ADPCM G726", AV_CODEC_ID_ADPCM_G726),
+      ADPCM_G726LE("ADPCM G726LE", AV_CODEC_ID_ADPCM_G726LE),
       ADPCM_CT("ADPCM CT", AV_CODEC_ID_ADPCM_CT),
       ADPCM_YAMAHA("ADPCM YAMAHA", AV_CODEC_ID_ADPCM_YAMAHA),
       ADPCM_SBPRO_4("ADPCM SBPRO_4", AV_CODEC_ID_ADPCM_SBPRO_4),
       ADPCM_SBPRO_3("ADPCM SBPRO_3", AV_CODEC_ID_ADPCM_SBPRO_3),
       ADPCM_SBPRO_2("ADPCM SBPRO_2", AV_CODEC_ID_ADPCM_SBPRO_2),
       ADPCM_THP("ADPCM THP", AV_CODEC_ID_ADPCM_THP),
+      ADPCM_THP_LE("ADPCM THP LE", AV_CODEC_ID_ADPCM_THP_LE),
       ADPCM_IMA_AMV("ADPCM IMA AMV", AV_CODEC_ID_ADPCM_IMA_AMV),
       ADPCM_EA_R1("ADPCM EA R1", AV_CODEC_ID_ADPCM_EA_R1),
       ADPCM_EA_R3("ADPCM EA R3", AV_CODEC_ID_ADPCM_EA_R3),
@@ -355,16 +454,48 @@ public class FFAudioFormat extends AudioFormat {
       ADPCM_IMA_ISS("ADPCM IMA ISS", AV_CODEC_ID_ADPCM_IMA_ISS),
       ADPCM_G722("ADPCM G722", AV_CODEC_ID_ADPCM_G722),
       ADPCM_IMA_APC("ADPCM IMA APC", AV_CODEC_ID_ADPCM_IMA_APC),
+      ADPCM_VIMA("ADPCM VIMA", AV_CODEC_ID_ADPCM_VIMA),
       ADPCM_AFC("ADPCM AFC", AV_CODEC_ID_ADPCM_AFC),
       ADPCM_IMA_OKI("ADPCM IMA OKI", AV_CODEC_ID_ADPCM_IMA_OKI),
+      ADPCM_DTK("ADPCM DTK", AV_CODEC_ID_ADPCM_DTK),
+      ADPCM_IMA_RAD("ADPCM IMA RAD", AV_CODEC_ID_ADPCM_IMA_RAD),
+      ADPCM_PSX("ADPCM PSX", AV_CODEC_ID_ADPCM_PSX),
+      ADPCM_AICA("ADPCM AICA", AV_CODEC_ID_ADPCM_AICA),
+      ADPCM_IMA_DAT4("ADPCM IMA DAT4", AV_CODEC_ID_ADPCM_IMA_DAT4),
+      ADPCM_MTAF("ADPCM MTAF", AV_CODEC_ID_ADPCM_MTAF),
+      ADPCM_AGM("ADPCM AGM", AV_CODEC_ID_ADPCM_AGM),
+      ADPCM_ARGO("ADPCM ARGO", AV_CODEC_ID_ADPCM_ARGO),
+      ADPCM_IMA_SSI("ADPCM IMA SSI", AV_CODEC_ID_ADPCM_IMA_SSI),
+      ADPCM_ZORK("ADPCM ZORK", AV_CODEC_ID_ADPCM_ZORK),
+      ADPCM_IMA_APM("ADPCM IMA APM", AV_CODEC_ID_ADPCM_IMA_APM),
+      ADPCM_IMA_ALP("ADPCM IMA ALP", AV_CODEC_ID_ADPCM_IMA_ALP),
+      ADPCM_IMA_MTF("ADPCM IMA MTF", AV_CODEC_ID_ADPCM_IMA_MTF),
+      ADPCM_IMA_CUNNING("ADPCM IMA CUNNING", AV_CODEC_ID_ADPCM_IMA_CUNNING),
+      ADPCM_IMA_MOFLEX("ADPCM IMA MOFLEX", AV_CODEC_ID_ADPCM_IMA_MOFLEX),
+      ADPCM_IMA_ACORN("ADPCM IMA ACORN", AV_CODEC_ID_ADPCM_IMA_ACORN),
+      ADPCM_XMD("ADPCM XMD", AV_CODEC_ID_ADPCM_XMD),
+      ADPCM_IMA_XBOX("ADPCM IMA XBOX", AV_CODEC_ID_ADPCM_IMA_XBOX),
+      ADPCM_SANYO("ADPCM SANYO", AV_CODEC_ID_ADPCM_SANYO),
+      ADPCM_IMA_HVQM4("ADPCM IMA HVQM4", AV_CODEC_ID_ADPCM_IMA_HVQM4),
+      ADPCM_IMA_PDA("ADPCM IMA PDA", AV_CODEC_ID_ADPCM_IMA_PDA),
+      ADPCM_N64("ADPCM N64", AV_CODEC_ID_ADPCM_N64),
+      ADPCM_IMA_HVQM2("ADPCM IMA HVQM2", AV_CODEC_ID_ADPCM_IMA_HVQM2),
+      ADPCM_IMA_MAGIX("ADPCM IMA MAGIX", AV_CODEC_ID_ADPCM_IMA_MAGIX),
+      ADPCM_PSXC("ADPCM PSXC", AV_CODEC_ID_ADPCM_PSXC),
+      ADPCM_CIRCUS("ADPCM CIRCUS", AV_CODEC_ID_ADPCM_CIRCUS),
+      ADPCM_IMA_ESCAPE("ADPCM IMA ESCAPE", AV_CODEC_ID_ADPCM_IMA_ESCAPE),
 
-      VIMA("VIMA", AV_CODEC_ID_VIMA),
       RA_144("RA 144", AV_CODEC_ID_RA_144),
       RA_288("RA_288", AV_CODEC_ID_RA_288),
       ROQ_DPCM("ROQ DPCM", AV_CODEC_ID_ROQ_DPCM),
       INTERPLAY_DPCM("INTERPLAY DPCM", AV_CODEC_ID_INTERPLAY_DPCM),
       XAN_DPCM("XAN DPCM", AV_CODEC_ID_XAN_DPCM),
       SOL_DPCM("SOL DPCM", AV_CODEC_ID_SOL_DPCM),
+      SDX2_DPCM("SDX2 DPCM", AV_CODEC_ID_SDX2_DPCM),
+      GREMLIN_DPCM("GREMLIN DPCM", AV_CODEC_ID_GREMLIN_DPCM),
+      DERF_DPCM("DERF DPCM", AV_CODEC_ID_DERF_DPCM),
+      WADY_DPCM("WADY DPCM", AV_CODEC_ID_WADY_DPCM),
+      CBD2_DPCM("CBD2 DPCM", AV_CODEC_ID_CBD2_DPCM),
 
       DVAUDIO("DVAUDIO", AV_CODEC_ID_DVAUDIO),
       MACE3("MACE3", AV_CODEC_ID_MACE3),
@@ -383,7 +514,6 @@ public class FFAudioFormat extends AudioFormat {
       IMC("IMC", AV_CODEC_ID_IMC),
       MUSEPACK7("MUSEPACK7", AV_CODEC_ID_MUSEPACK7),
       MLP("MLP", AV_CODEC_ID_MLP),
-      VOXWARE("VOXWARE", AV_CODEC_ID_VOXWARE),
       APE("APE", AV_CODEC_ID_APE),
       MUSEPACK8("MUSEPACK8", AV_CODEC_ID_MUSEPACK8),
       EAC3("EAC3", AV_CODEC_ID_EAC3),
@@ -394,23 +524,56 @@ public class FFAudioFormat extends AudioFormat {
       CELT("CELT", AV_CODEC_ID_CELT),
       G723_1("G723 1", AV_CODEC_ID_G723_1),
       G729("G729", AV_CODEC_ID_G729),
+      G728("G728", AV_CODEC_ID_G728),
       _8SVX_EXP("8SVX EXP", AV_CODEC_ID_8SVX_EXP),
       _8SVX_FIB("8SVX FIB", AV_CODEC_ID_8SVX_FIB),
       BMV_AUDIO("BMV_AUDIO", AV_CODEC_ID_BMV_AUDIO),
       RALF("RALF", AV_CODEC_ID_RALF),
       IAC("IAC", AV_CODEC_ID_IAC),
-      OPUS_DEPRECATED("OPUS DEPRECATED", AV_CODEC_ID_OPUS_DEPRECATED),
       COMFORT_NOISE("COMFORT NOISE", AV_CODEC_ID_COMFORT_NOISE),
-      TAK_DEPRECATED("TAK DEPRECATED", AV_CODEC_ID_TAK_DEPRECATED),
       FFWAVESYNTH("FFWAVESYNTH", AV_CODEC_ID_FFWAVESYNTH),
-      _8SVX_RAW("8SVX RAW", AV_CODEC_ID_8SVX_RAW),
       SONIC("SONIC", AV_CODEC_ID_SONIC),
       SONIC_LS("SONIC_LS", AV_CODEC_ID_SONIC_LS),
       PAF_AUDIO("PAF_AUDIO", AV_CODEC_ID_PAF_AUDIO),
-      OPUS("OPUS", AV_CODEC_ID_OPUS),
       TAK("TAK", AV_CODEC_ID_TAK),
+      METASOUND("METASOUND", AV_CODEC_ID_METASOUND),
+      ON2AVC("ON2AVC", AV_CODEC_ID_ON2AVC),
+      DSS_SP("DSS SP", AV_CODEC_ID_DSS_SP),
+      CODEC2("CODEC2", AV_CODEC_ID_CODEC2),
       EVRC("EVRC", AV_CODEC_ID_EVRC),
-      SMV("SMV", AV_CODEC_ID_SMV);
+      SMV("SMV", AV_CODEC_ID_SMV),
+      DSD_LSBF("DSD LSBF", AV_CODEC_ID_DSD_LSBF),
+      DSD_MSBF("DSD MSBF", AV_CODEC_ID_DSD_MSBF),
+      DSD_LSBF_PLANAR("DSD LSBF Planar", AV_CODEC_ID_DSD_LSBF_PLANAR),
+      DSD_MSBF_PLANAR("DSD MSBF Planar", AV_CODEC_ID_DSD_MSBF_PLANAR),
+      _4GV("4GV", AV_CODEC_ID_4GV),
+      INTERPLAY_ACM("INTERPLAY ACM", AV_CODEC_ID_INTERPLAY_ACM),
+      XMA1("XMA1", AV_CODEC_ID_XMA1),
+      XMA2("XMA2", AV_CODEC_ID_XMA2),
+      DST("DST", AV_CODEC_ID_DST),
+      DOLBY_E("Dolby E", AV_CODEC_ID_DOLBY_E),
+      APTX("aptX", AV_CODEC_ID_APTX),
+      APTX_HD("aptX HD", AV_CODEC_ID_APTX_HD),
+      SBC("SBC", AV_CODEC_ID_SBC),
+      HCOM("HCOM", AV_CODEC_ID_HCOM),
+      ACELP_KELVIN("ACELP.KELVIN", AV_CODEC_ID_ACELP_KELVIN),
+      MPEGH_3D_AUDIO("MPEG-H 3D Audio", AV_CODEC_ID_MPEGH_3D_AUDIO),
+      SIREN("Siren", AV_CODEC_ID_SIREN),
+      HCA("HCA", AV_CODEC_ID_HCA),
+      FASTAUDIO("FastAudio", AV_CODEC_ID_FASTAUDIO),
+      MSNSIREN("MSN Siren", AV_CODEC_ID_MSNSIREN),
+      DFPWM("DFPWM", AV_CODEC_ID_DFPWM),
+      BONK("Bonk", AV_CODEC_ID_BONK),
+      MISC4("MISC4", AV_CODEC_ID_MISC4),
+      APAC("APAC", AV_CODEC_ID_APAC),
+      FTR("FTR", AV_CODEC_ID_FTR),
+      WAVARC("WavArc", AV_CODEC_ID_WAVARC),
+      RKA("RKA", AV_CODEC_ID_RKA),
+      AC4("AC-4", AV_CODEC_ID_AC4),
+      OSQ("OSQ", AV_CODEC_ID_OSQ),
+      QOA("QOA", AV_CODEC_ID_QOA),
+      LC3("LC3", AV_CODEC_ID_LC3),
+      AHX("AHX", AV_CODEC_ID_AHX);
 
       private FFEncoding encoding;
       private boolean pcm;
@@ -542,6 +705,15 @@ public class FFAudioFormat extends AudioFormat {
           toPCMKey(
               new AudioFormat(FFEncoding.Codec.PCM_SIGNED.getEncoding(), -1, 32, -1, -1, -1, true)),
           Codec.PCM_S32BE);
+      PCM_MAP.put(
+          toPCMKey(
+              new AudioFormat(
+                  FFEncoding.Codec.PCM_SIGNED.getEncoding(), -1, 64, -1, -1, -1, false)),
+          Codec.PCM_S64LE);
+      PCM_MAP.put(
+          toPCMKey(
+              new AudioFormat(FFEncoding.Codec.PCM_SIGNED.getEncoding(), -1, 64, -1, -1, -1, true)),
+          Codec.PCM_S64BE);
 
       PCM_MAP.put(
           toPCMKey(

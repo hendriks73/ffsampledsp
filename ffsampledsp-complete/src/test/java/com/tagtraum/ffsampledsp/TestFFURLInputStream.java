@@ -689,6 +689,138 @@ public class TestFFURLInputStream {
     }
   }
 
+  @Test
+  public void testExplicitSmallFileBufferSize() throws IOException, UnsupportedAudioFileException {
+    final String filename = "test.mp3";
+    final File file = File.createTempFile("testExplicitSmallFileBufferSize", filename);
+    extractFile(filename, file);
+    int bytesRead = 0;
+    try (final FFURLInputStream in = new FFURLInputStream(file.toURI().toURL(), 0, 8 * 1024)) {
+      assertEquals(8 * 1024, in.getFileBufferSize());
+      final byte[] buf = new byte[1024];
+      int justRead;
+      while ((justRead = in.read(buf)) != -1) {
+        assertTrue(justRead > 0);
+        bytesRead += justRead;
+      }
+    } finally {
+      file.delete();
+    }
+    assertEquals(1078272, bytesRead);
+  }
+
+  @Test
+  public void testExplicitLargeFileBufferSize() throws IOException, UnsupportedAudioFileException {
+    final String filename = "test.mp3";
+    final File file = File.createTempFile("testExplicitLargeFileBufferSize", filename);
+    extractFile(filename, file);
+    int bytesRead = 0;
+    try (final FFURLInputStream in =
+        new FFURLInputStream(file.toURI().toURL(), 0, 4 * 1024 * 1024)) {
+      assertEquals(4 * 1024 * 1024, in.getFileBufferSize());
+      final byte[] buf = new byte[4096];
+      int justRead;
+      while ((justRead = in.read(buf)) != -1) {
+        assertTrue(justRead > 0);
+        bytesRead += justRead;
+      }
+    } finally {
+      file.delete();
+    }
+    assertEquals(1078272, bytesRead);
+  }
+
+  @Test
+  public void testDefaultFileBufferSizeFromSystemProperty()
+      throws IOException, UnsupportedAudioFileException {
+    final String previous = System.getProperty(FFURLInputStream.FILE_BUFFER_SIZE_PROPERTY);
+    System.setProperty(FFURLInputStream.FILE_BUFFER_SIZE_PROPERTY, "65536");
+    try {
+      assertEquals(65536, FFURLInputStream.getDefaultFileBufferSize());
+      final String filename = "test.mp3";
+      final File file =
+          File.createTempFile("testDefaultFileBufferSizeFromSystemProperty", filename);
+      extractFile(filename, file);
+      int bytesRead = 0;
+      try (final FFURLInputStream in = new FFURLInputStream(file.toURI().toURL())) {
+        assertEquals(65536, in.getFileBufferSize());
+        final byte[] buf = new byte[1024];
+        int justRead;
+        while ((justRead = in.read(buf)) != -1) {
+          assertTrue(justRead > 0);
+          bytesRead += justRead;
+        }
+      } finally {
+        file.delete();
+      }
+      assertEquals(1078272, bytesRead);
+    } finally {
+      if (previous == null) System.clearProperty(FFURLInputStream.FILE_BUFFER_SIZE_PROPERTY);
+      else System.setProperty(FFURLInputStream.FILE_BUFFER_SIZE_PROPERTY, previous);
+    }
+  }
+
+  @Test
+  public void testDefaultFileBufferSizeHardcodedDefault() {
+    final String previous = System.getProperty(FFURLInputStream.FILE_BUFFER_SIZE_PROPERTY);
+    System.clearProperty(FFURLInputStream.FILE_BUFFER_SIZE_PROPERTY);
+    try {
+      assertEquals(
+          FFURLInputStream.DEFAULT_FILE_BUFFER_SIZE, FFURLInputStream.getDefaultFileBufferSize());
+    } finally {
+      if (previous != null)
+        System.setProperty(FFURLInputStream.FILE_BUFFER_SIZE_PROPERTY, previous);
+    }
+  }
+
+  @Test
+  public void testDefaultUrlBufferSizeFromSystemProperty() {
+    final String previous = System.getProperty(FFURLInputStream.URL_BUFFER_SIZE_PROPERTY);
+    System.setProperty(FFURLInputStream.URL_BUFFER_SIZE_PROPERTY, "32768");
+    try {
+      assertEquals(32768, FFURLInputStream.getDefaultUrlBufferSize());
+    } finally {
+      if (previous == null) System.clearProperty(FFURLInputStream.URL_BUFFER_SIZE_PROPERTY);
+      else System.setProperty(FFURLInputStream.URL_BUFFER_SIZE_PROPERTY, previous);
+    }
+  }
+
+  @Test
+  public void testDefaultUrlBufferSizeHardcodedDefault() {
+    final String previous = System.getProperty(FFURLInputStream.URL_BUFFER_SIZE_PROPERTY);
+    System.clearProperty(FFURLInputStream.URL_BUFFER_SIZE_PROPERTY);
+    try {
+      assertEquals(
+          FFURLInputStream.DEFAULT_URL_BUFFER_SIZE, FFURLInputStream.getDefaultUrlBufferSize());
+    } finally {
+      if (previous != null) System.setProperty(FFURLInputStream.URL_BUFFER_SIZE_PROPERTY, previous);
+    }
+  }
+
+  @Test
+  public void testFileUrlUsesFileBufferSize() throws IOException, UnsupportedAudioFileException {
+    final String filename = "test.mp3";
+    final File file = File.createTempFile("testFileUrlUsesFileBufferSize", filename);
+    extractFile(filename, file);
+    try (final FFURLInputStream in = new FFURLInputStream(file.toURI().toURL())) {
+      assertEquals(FFURLInputStream.getDefaultFileBufferSize(), in.getFileBufferSize());
+    } finally {
+      file.delete();
+    }
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNegativeFileBufferSizeThrows() throws IOException, UnsupportedAudioFileException {
+    final String filename = "test.mp3";
+    final File file = File.createTempFile("testNegativeFileBufferSizeThrows", filename);
+    extractFile(filename, file);
+    try {
+      new FFURLInputStream(file.toURI().toURL(), 0, -1);
+    } finally {
+      file.delete();
+    }
+  }
+
   private int readThroughFile(final String prefix, final String filename)
       throws IOException, UnsupportedAudioFileException {
     final File file = File.createTempFile(prefix, filename);

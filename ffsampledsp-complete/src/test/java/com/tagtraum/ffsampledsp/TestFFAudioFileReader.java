@@ -707,4 +707,71 @@ public class TestFFAudioFileReader {
   public void testNonExistingFile2() throws UnsupportedAudioFileException, IOException {
     new FFAudioFileReader().getAudioFileFormat(new File("Does Not Exist 12345.mp3"));
   }
+
+  @Test
+  public void testGetAudioInputStreamURLWithFileBufferSize()
+      throws IOException, UnsupportedAudioFileException {
+    final String filename = "test.mp3";
+    final File file = File.createTempFile("testGetAudioInputStreamURLWithFileBufferSize", filename);
+    extractFile(filename, file);
+    int bytesRead = 0;
+    try {
+      final AudioInputStream stream =
+          new FFAudioFileReader().getAudioInputStream(file.toURI().toURL(), 0, 256 * 1024);
+      try {
+        final byte[] buf = new byte[4096];
+        int justRead;
+        while ((justRead = stream.read(buf)) != -1) {
+          assertTrue(justRead > 0);
+          bytesRead += justRead;
+        }
+      } finally {
+        stream.close();
+      }
+    } finally {
+      file.delete();
+    }
+    assertEquals(1078272, bytesRead);
+  }
+
+  @Test
+  public void testGetAudioInputStreamFileWithFileBufferSize()
+      throws IOException, UnsupportedAudioFileException {
+    final String filename = "test.mp3";
+    final File file =
+        File.createTempFile("testGetAudioInputStreamFileWithFileBufferSize", filename);
+    extractFile(filename, file);
+    int bytesRead = 0;
+    try {
+      final AudioInputStream stream =
+          new FFAudioFileReader().getAudioInputStream(file, 0, 256 * 1024);
+      try {
+        final byte[] buf = new byte[4096];
+        int justRead;
+        while ((justRead = stream.read(buf)) != -1) {
+          assertTrue(justRead > 0);
+          bytesRead += justRead;
+        }
+      } finally {
+        stream.close();
+      }
+    } finally {
+      file.delete();
+    }
+    assertEquals(1078272, bytesRead);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testGetAudioInputStreamURLWithInvalidFileBufferSize()
+      throws IOException, UnsupportedAudioFileException {
+    final String filename = "test.mp3";
+    final File file =
+        File.createTempFile("testGetAudioInputStreamURLWithInvalidFileBufferSize", filename);
+    extractFile(filename, file);
+    try {
+      new FFAudioFileReader().getAudioInputStream(file.toURI().toURL(), 0, 0);
+    } finally {
+      file.delete();
+    }
+  }
 }

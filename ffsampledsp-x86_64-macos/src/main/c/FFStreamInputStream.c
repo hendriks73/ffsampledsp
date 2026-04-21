@@ -199,7 +199,7 @@ JNIEXPORT jlong JNICALL Java_com_tagtraum_ffsampledsp_FFStreamInputStream_open(
 
   res = ff_open_file(env, &aio->format_context, &aio->stream,
                      &aio->decode_context, &aio->stream_index,
-                     "MemoryAVIOContext");
+                     "MemoryAVIOContext", 0);
   if (res) {
     // exception is already thrown
     goto bail;

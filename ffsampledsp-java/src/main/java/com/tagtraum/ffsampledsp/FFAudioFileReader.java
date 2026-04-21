@@ -278,6 +278,10 @@ public class FFAudioFileReader extends AudioFileReader {
    * Allows you to open a specific audio stream from the given URL. Useful for <a
    * href="https://www.stems-music.com">Stems</a>.
    *
+   * <p>The FFmpeg file I/O buffer size is determined by the {@value
+   * FFURLInputStream#FILE_BUFFER_SIZE_PROPERTY} system property, falling back to {@link
+   * FFURLInputStream#DEFAULT_FILE_BUFFER_SIZE} if the property is not set.
+   *
    * @param url url
    * @param streamIndex audio stream index
    * @return audio stream
@@ -286,14 +290,42 @@ public class FFAudioFileReader extends AudioFileReader {
    * @throws IndexOutOfBoundsException if the index is not valid.
    * @see #getAudioInputStream(URL)
    * @see #getAudioInputStream(File, int)
+   * @see #getAudioInputStream(URL, int, int)
    */
   public AudioInputStream getAudioInputStream(final URL url, final int streamIndex)
+      throws UnsupportedAudioFileException, IOException {
+    return getAudioInputStream(url, streamIndex, FFURLInputStream.getDefaultBufferSize(url));
+  }
+
+  /**
+   * Allows you to open a specific audio stream from the given URL with an explicit file I/O buffer
+   * size. Useful for <a href="https://www.stems-music.com">Stems</a>.
+   *
+   * <p>The {@code fileBufferSize} controls the size of the FFmpeg internal read buffer, passed as
+   * {@code AVFormatContext.io_buffer_size}. Larger values reduce system-call overhead and improve
+   * throughput for bulk transcoding or analysis at the cost of higher per-stream memory use. Use
+   * {@link FFURLInputStream#DEFAULT_FILE_BUFFER_SIZE} (1 MB) as a baseline for bulk work.
+   *
+   * @param url url
+   * @param streamIndex audio stream index
+   * @param fileBufferSize FFmpeg file I/O buffer size in bytes; must be positive
+   * @return audio stream
+   * @throws UnsupportedAudioFileException if the audio is not supported
+   * @throws IOException if an IO error occurs
+   * @throws IndexOutOfBoundsException if the index is not valid.
+   * @throws IllegalArgumentException if {@code fileBufferSize} is not positive
+   * @see #getAudioInputStream(URL, int)
+   * @see FFURLInputStream#DEFAULT_FILE_BUFFER_SIZE
+   * @see FFURLInputStream#FILE_BUFFER_SIZE_PROPERTY
+   */
+  public AudioInputStream getAudioInputStream(
+      final URL url, final int streamIndex, final int fileBufferSize)
       throws UnsupportedAudioFileException, IOException {
     if (!nativeLibraryLoaded)
       throw new UnsupportedAudioFileException("Native library ffsampledsp not loaded.");
     final AudioFileFormat fileFormat = getAudioFileFormats(url)[streamIndex];
     return new FFAudioInputStream(
-        new FFURLInputStream(url, streamIndex),
+        new FFURLInputStream(url, streamIndex, fileBufferSize),
         fileFormat.getFormat(),
         fileFormat.getFrameLength());
   }
@@ -301,6 +333,10 @@ public class FFAudioFileReader extends AudioFileReader {
   /**
    * Allows you to open a specific audio stream from the given file. Useful for <a
    * href="https://www.stems-music.com">Stems</a>.
+   *
+   * <p>The FFmpeg file I/O buffer size is determined by the {@value
+   * FFURLInputStream#FILE_BUFFER_SIZE_PROPERTY} system property, falling back to {@link
+   * FFURLInputStream#DEFAULT_FILE_BUFFER_SIZE} if the property is not set.
    *
    * @param file file
    * @param streamIndex audio stream index
@@ -310,12 +346,43 @@ public class FFAudioFileReader extends AudioFileReader {
    * @throws IndexOutOfBoundsException if the index is not valid.
    * @see #getAudioInputStream(URL, int)
    * @see #getAudioInputStream(File)
+   * @see #getAudioInputStream(File, int, int)
    */
   public AudioInputStream getAudioInputStream(final File file, final int streamIndex)
       throws UnsupportedAudioFileException, IOException {
     if (!file.exists()) throw new FileNotFoundException(file.toString());
     if (!file.canRead()) throw new IOException("Can't read " + file);
     return getAudioInputStream(fileToURL(file), streamIndex);
+  }
+
+  /**
+   * Allows you to open a specific audio stream from the given file with an explicit file I/O buffer
+   * size. Useful for <a href="https://www.stems-music.com">Stems</a>.
+   *
+   * <p>The {@code fileBufferSize} controls the size of the FFmpeg internal read buffer, passed as
+   * {@code AVFormatContext.io_buffer_size}. Larger values reduce system-call overhead and improve
+   * throughput for bulk transcoding or analysis at the cost of higher per-stream memory use. Use
+   * {@link FFURLInputStream#DEFAULT_FILE_BUFFER_SIZE} (1 MB) as a baseline for bulk work.
+   *
+   * @param file file
+   * @param streamIndex audio stream index
+   * @param fileBufferSize FFmpeg file I/O buffer size in bytes; must be positive
+   * @return audio stream
+   * @throws UnsupportedAudioFileException if the audio is not supported
+   * @throws IOException if an IO error occurs
+   * @throws IndexOutOfBoundsException if the index is not valid.
+   * @throws IllegalArgumentException if {@code fileBufferSize} is not positive
+   * @see #getAudioInputStream(File, int)
+   * @see #getAudioInputStream(URL, int, int)
+   * @see FFURLInputStream#DEFAULT_FILE_BUFFER_SIZE
+   * @see FFURLInputStream#FILE_BUFFER_SIZE_PROPERTY
+   */
+  public AudioInputStream getAudioInputStream(
+      final File file, final int streamIndex, final int fileBufferSize)
+      throws UnsupportedAudioFileException, IOException {
+    if (!file.exists()) throw new FileNotFoundException(file.toString());
+    if (!file.canRead()) throw new IOException("Can't read " + file);
+    return getAudioInputStream(fileToURL(file), streamIndex, fileBufferSize);
   }
 
   /**

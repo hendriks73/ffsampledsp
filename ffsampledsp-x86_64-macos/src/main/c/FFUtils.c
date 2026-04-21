@@ -35,6 +35,9 @@ static jmethodID logWarning_MID = NULL;
 static const int MIN_PROBE_SCORE =
     5; // this is fairly arbitrary, but we need to give other
        // javax.sound.sampled impls a chance
+// Minimum bytes to fill per ff_fill_buffer() call; reduces JNI roundtrips for
+// bulk use.
+static const int FF_FILL_TARGET = 64 * 1024;
 
 /**
  * Init static method and field ids for Java methods/fields, if we don't have
@@ -250,7 +253,7 @@ void logFine(FFAudioIO *aio, int err, const char *message) {
  * @return negative value, if something went wrong
  */
 int ff_open_format_context(JNIEnv *env, AVFormatContext **format_context,
-                           const char *url) {
+                           const char *url, int io_buffer_size) {
   int res = 0;
   int probe_score = 0;
 
@@ -270,6 +273,7 @@ int ff_open_format_context(JNIEnv *env, AVFormatContext **format_context,
     }
     goto bail;
   }
+
   probe_score = (*format_context)->probe_score;
 
 #ifdef DEBUG
@@ -288,6 +292,27 @@ int ff_open_format_context(JNIEnv *env, AVFormatContext **format_context,
     throwUnsupportedAudioFileExceptionIfError(env, res,
                                               "Failed to find stream info");
     goto bail;
+  }
+
+  if (io_buffer_size > 0 && (*format_context)->pb) {
+    AVIOContext *pb = (*format_context)->pb;
+    if (pb->buffer_size < io_buffer_size) {
+      unsigned char *new_buf = (unsigned char *)av_malloc(io_buffer_size);
+      if (new_buf) {
+        int valid = (int)(pb->buf_end - pb->buf_ptr);
+        if (valid > 0)
+          memcpy(new_buf, pb->buf_ptr, valid);
+        av_free(pb->buffer);
+        pb->buffer = new_buf;
+        pb->buf_ptr = new_buf;
+        pb->buf_end = new_buf + valid;
+        pb->buffer_size = io_buffer_size;
+        pb->buf_ptr_max = new_buf + valid;
+        pb->checksum_ptr = NULL;
+        pb->checksum = 0;
+        pb->update_checksum = NULL;
+      }
+    }
   }
 
 bail:
@@ -310,9 +335,9 @@ bail:
  */
 int ff_open_file(JNIEnv *env, AVFormatContext **format_context,
                  AVStream **openedStream, AVCodecContext **context,
-                 int *stream_index, const char *url) {
+                 int *stream_index, const char *url, int io_buffer_size) {
   int res = 0;
-  res = ff_open_format_context(env, format_context, url);
+  res = ff_open_format_context(env, format_context, url, io_buffer_size);
   if (res) {
     // exception has already been thrown
     goto bail;
@@ -861,11 +886,12 @@ bail:
  * @param is_flush      non-zero when called after sending a flush (NULL) packet
  * @return bytes written to the Java buffer, or a negative error code
  */
-static int receive_and_process_frames(FFAudioIO *aio, int is_flush) {
+static int receive_and_process_frames(FFAudioIO *aio, int is_flush,
+                                      uint32_t initial_offset) {
   int res = 0;
   int total_bytes = 0;
   uint8_t **resample_buf = NULL;
-  uint32_t java_buffer_offset = 0;
+  uint32_t java_buffer_offset = initial_offset;
   uint32_t out_buf_size = 0;
   int out_buf_samples = 0;
   int64_t out_sample_rate;
@@ -994,7 +1020,7 @@ bail:
  * decode)
  * @return bytes written to the Java buffer, or a negative error code
  */
-static int decode_packet(FFAudioIO *aio) {
+static int decode_packet(FFAudioIO *aio, uint32_t offset) {
   int res = avcodec_send_packet(aio->decode_context, aio->decode_packet);
   if (res == AVERROR(EINVAL)) {
     throwUnsupportedAudioFileExceptionIfError(aio->env, res,
@@ -1005,7 +1031,7 @@ static int decode_packet(FFAudioIO *aio) {
     logWarning(aio, res, "Skipping packet. avcodec_send_packet failed:");
     return 0;
   }
-  return receive_and_process_frames(aio, 0);
+  return receive_and_process_frames(aio, 0, offset);
 }
 
 /**
@@ -1017,27 +1043,29 @@ static int decode_packet(FFAudioIO *aio) {
  */
 int ff_fill_buffer(FFAudioIO *aio) {
   int res = 0;
-  int bytes_written = 0;
+  int total_bytes = 0;
 
-  aio->timestamp += aio->decode_packet->duration;
-
-  // Loop until we write audio data or hit EOF/error.
-  // Non-audio packets (other streams) are skipped without breaking out.
-  while (bytes_written == 0) {
+  // Loop over packets until the buffer reaches FF_FILL_TARGET or EOF/error.
+  // Non-audio packets (other streams) are skipped without counting toward the
+  // target.
+  while (total_bytes < FF_FILL_TARGET) {
     int read_res = av_read_frame(aio->format_context, aio->decode_packet);
     if (read_res >= 0) {
       if (aio->decode_packet->stream_index == aio->stream_index) {
+        aio->timestamp += aio->decode_packet->duration;
 #ifdef DEBUG
         fprintf(stderr, "duration  : %lli\n", aio->decode_packet->duration);
         fprintf(stderr, "timestamp : %" PRId64 "\n", aio->timestamp);
         fprintf(stderr, "pts       : %" PRId64 "\n", aio->decode_packet->pts);
         fprintf(stderr, "dts       : %" PRId64 "\n", aio->decode_packet->dts);
 #endif
-        bytes_written = decode_packet(aio);
-        if (bytes_written < 0) {
-          res = bytes_written;
-          bytes_written = 1; // force loop exit
+        int bytes = decode_packet(aio, (uint32_t)total_bytes);
+        if (bytes < 0) {
+          res = bytes;
+          av_packet_unref(aio->decode_packet);
+          goto bail;
         }
+        total_bytes += bytes;
       }
       av_packet_unref(aio->decode_packet);
     } else {
@@ -1048,9 +1076,11 @@ int ff_fill_buffer(FFAudioIO *aio) {
       av_packet_unref(aio->decode_packet);
       if (read_res == AVERROR_EOF) {
         avcodec_send_packet(aio->decode_context, NULL);
-        bytes_written = receive_and_process_frames(aio, 1);
-        if (bytes_written < 0)
-          res = bytes_written;
+        int bytes = receive_and_process_frames(aio, 1, (uint32_t)total_bytes);
+        if (bytes > 0)
+          total_bytes += bytes;
+        else if (bytes < 0)
+          res = bytes;
       } else {
         throwIOExceptionIfError(aio->env, read_res, "Error reading frame.");
         res = read_res;
@@ -1059,6 +1089,7 @@ int ff_fill_buffer(FFAudioIO *aio) {
     }
   }
 
+bail:
   return res;
 }
 

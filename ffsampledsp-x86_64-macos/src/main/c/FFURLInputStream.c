@@ -55,7 +55,8 @@ Java_com_tagtraum_ffsampledsp_FFURLInputStream_fillNativeBuffer(
  * @return pointer to new FFAudioIO
  */
 JNIEXPORT jlong JNICALL Java_com_tagtraum_ffsampledsp_FFURLInputStream_open(
-    JNIEnv *env, jobject stream, jstring url, jint streamIndex) {
+    JNIEnv *env, jobject stream, jstring url, jint streamIndex,
+    jint fileBufferSize) {
 
   int res = 0;
   FFAudioIO *aio = NULL;
@@ -81,7 +82,8 @@ JNIEXPORT jlong JNICALL Java_com_tagtraum_ffsampledsp_FFURLInputStream_open(
   aio->stream_index = (int)streamIndex;
 
   res = ff_open_file(env, &(aio->format_context), &(aio->stream),
-                     &(aio->decode_context), &(aio->stream_index), input_url);
+                     &(aio->decode_context), &(aio->stream_index), input_url,
+                     (int)fileBufferSize);
   if (res) {
     goto bail;
   }

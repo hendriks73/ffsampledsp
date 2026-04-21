@@ -100,10 +100,10 @@ void throwFileNotFoundExceptionIfError(JNIEnv *, int, const char *);
 
 int ff_open_stream(JNIEnv *, AVStream *, AVCodecContext **);
 
-int ff_open_format_context(JNIEnv *, AVFormatContext **, const char *);
+int ff_open_format_context(JNIEnv *, AVFormatContext **, const char *, int);
 
 int ff_open_file(JNIEnv *, AVFormatContext **, AVStream **, AVCodecContext **,
-                 int *, const char *);
+                 int *, const char *, int);
 
 int ff_init_audioio(JNIEnv *, FFAudioIO *);
 

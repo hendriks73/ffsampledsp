@@ -447,7 +447,7 @@ Java_com_tagtraum_ffsampledsp_FFAudioFileReader_getAudioFileFormatsFromURL(
     goto bail;
   }
 
-  res = ff_open_format_context(env, &format_context, input_url);
+  res = ff_open_format_context(env, &format_context, input_url, 0);
   if (res) {
     goto bail;
   }
@@ -538,7 +538,7 @@ Java_com_tagtraum_ffsampledsp_FFAudioFileReader_getAudioFileFormatsFromBuffer(
 
   format_context->pb = io_context;
 
-  res = ff_open_format_context(env, &format_context, "MemoryAVIOContext");
+  res = ff_open_format_context(env, &format_context, "MemoryAVIOContext", 0);
   if (res) {
     goto bail;
   }

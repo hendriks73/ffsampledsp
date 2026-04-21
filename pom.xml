@@ -130,7 +130,6 @@
                 <configuration>
                     <minmemory>250m</minmemory>
                     <maxmemory>1g</maxmemory>
-                    <verbose>true</verbose>
                     <doctitle>FFSampledSP ${project.version} API</doctitle>
                     <windowtitle>FFSampledSP ${project.version} API</windowtitle>
                 </configuration>
@@ -307,7 +306,6 @@
                 <configuration>
                     <minmemory>250m</minmemory>
                     <maxmemory>1g</maxmemory>
-                    <verbose>true</verbose>
                     <doctitle>FFSampledSP ${project.version} API</doctitle>
                     <windowtitle>FFSampledSP ${project.version} API</windowtitle>
                 </configuration>
@@ -465,12 +463,14 @@
 
         <!-- alias, because of https://maven.apache.org/plugins/maven-site-plugin/examples/creating-content.html#Filtering -->
         <projectversion>${project.version}</projectversion>
-        
+
+        <mmacosx-version-min>11.0</mmacosx-version-min>
+        <codesign.identity>Developer ID Application: Jalulo UG (haftungsbeschrankt) (2J6368YSP2)</codesign.identity>
         <!-- overwritten by modules -->
         <arch>x86_64</arch>
         <host>macos</host>
-        <ffmpeg.version>8.1.0</ffmpeg.version>
         <doxygen>doxygen</doxygen>
+        <ffmpeg.version>8.1.0</ffmpeg.version>
         <ffmpegversion>${ffmpeg.version}</ffmpegversion>
     </properties>
 
@@ -548,17 +548,15 @@
                 <isysroot>
                     /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/
                 </isysroot>
-                <mmacosx-version-min>10.8</mmacosx-version-min>
                 <headers.jni>${env.JAVA_HOME}/include/</headers.jni>
                 <headers.os>darwin</headers.os>
                 <!-- add -DDEBUG to enable standard out debug messages -->
                 <compiler.startoptions>${cflags} -DTARGET_OS_MAC
                     -arch ${arch} -fmessage-length=0
-                    -pipe -Wno-trigraphs -fpascal-strings -fasm-blocks
+                    -pipe -Wno-trigraphs
                     -O3 -Wunused-variable -isysroot ${isysroot}
                     -mmacosx-version-min=${mmacosx-version-min} -Wmost
                     -Wno-four-char-constants -Wno-unknown-pragmas
-                    -I/System/Library/Frameworks/JavaVM.framework/Headers
                 </compiler.startoptions>
                 <linker.startoptions>
                     -arch ${arch}
@@ -571,10 +569,8 @@
                     -framework VideoToolbox
                     -framework AudioToolbox
                     -framework Security
-                    -single_module
                     -compatibility_version 1
                     -current_version 1
-                    -read_only_relocs suppress
                 </linker.startoptions>
                 <linker.endoptions>-L${project.build.directory}/lib -lavformat -lavcodec -lavutil -lswresample -lz -lbz2</linker.endoptions>
             </properties>
@@ -593,17 +589,15 @@
                 <isysroot>
                     /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/
                 </isysroot>
-                <mmacosx-version-min>10.8</mmacosx-version-min>
                 <headers.jni>${env.JAVA_HOME}/include/</headers.jni>
                 <headers.os>darwin</headers.os>
                 <!-- add -DDEBUG to enable standard out debug messages -->
                 <compiler.startoptions>${cflags} -DTARGET_OS_MAC
                     -arch arm64 -fmessage-length=0
-                    -pipe -Wno-trigraphs -fpascal-strings -fasm-blocks
+                    -pipe -Wno-trigraphs
                     -O3 -Wunused-variable -isysroot ${isysroot}
                     -mmacosx-version-min=${mmacosx-version-min} -Wmost
                     -Wno-four-char-constants -Wno-unknown-pragmas
-                    -I/System/Library/Frameworks/JavaVM.framework/Headers
                 </compiler.startoptions>
                 <linker.startoptions>
                     -arch arm64
@@ -616,10 +610,8 @@
                     -framework VideoToolbox
                     -framework AudioToolbox
                     -framework Security
-                    -single_module
                     -compatibility_version 1
                     -current_version 1
-                    -read_only_relocs suppress
                 </linker.startoptions>
                 <linker.endoptions>-L${project.build.directory}/lib -lavformat -lavcodec -lavutil -lswresample -lz -lbz2</linker.endoptions>
             </properties>

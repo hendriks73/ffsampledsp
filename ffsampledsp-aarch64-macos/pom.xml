@@ -184,7 +184,7 @@
                                             <arg value="--force" />
                                             <arg value="--timestamp" />
                                             <arg value="--sign" />
-                                            <arg value="Developer ID Application: tagtraum industries incorporated (MW4Y4W5V4P)" />
+                                            <arg value="${codesign.identity}" />
                                             <arg value="${project.build.directory}/${project.artifactId}.dylib" />
                                         </exec>
                                         <!-- check timestamp  -->

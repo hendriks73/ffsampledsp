@@ -6,12 +6,11 @@
  */
 package com.tagtraum.ffsampledsp;
 
-import org.junit.Test;
-
-import java.util.Set;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+
+import java.util.Set;
+import org.junit.Test;
 
 /**
  * TestFFAudioFormat.
@@ -20,15 +19,17 @@ import static org.junit.Assert.assertNotNull;
  */
 public class TestFFAudioFormat {
 
-    @Test
-    public void testSupportedEncodings() {
-        final Set<FFAudioFormat.FFEncoding> supportedEncodings = FFAudioFormat.FFEncoding.getSupportedEncodings();
-        assertNotNull(supportedEncodings);
-    }
+  @Test
+  public void testSupportedEncodings() {
+    final Set<FFAudioFormat.FFEncoding> supportedEncodings =
+        FFAudioFormat.FFEncoding.getSupportedEncodings();
+    assertNotNull(supportedEncodings);
+  }
 
-    @Test
-    public void testGetCodec() {
-        final FFAudioFormat.FFEncoding.Codec codec = FFAudioFormat.FFEncoding.getCodec(0x10000); // AV_CODEC_ID_PCM_S16LE
-        assertEquals("PCM_SIGNED", codec.getName());
-    }
+  @Test
+  public void testGetCodec() {
+    final FFAudioFormat.FFEncoding.Codec codec =
+        FFAudioFormat.FFEncoding.getCodec(0x10000); // AV_CODEC_ID_PCM_S16LE
+    assertEquals("PCM_SIGNED", codec.getName());
+  }
 }

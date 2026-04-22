@@ -29,12 +29,11 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 class FFGlobalLock {
 
-    /**
-     * Global lock used to make sure we don't access functions like <code>avcodec_open2</code>
-     * with two threads at once.
-     */
-    public static final ReentrantLock LOCK = new ReentrantLock();
+  /**
+   * Global lock used to make sure we don't access functions like <code>avcodec_open2</code> with
+   * two threads at once.
+   */
+  public static final ReentrantLock LOCK = new ReentrantLock();
 
-    private FFGlobalLock() {
-    }
+  private FFGlobalLock() {}
 }

@@ -20,15 +20,15 @@
  */
 package com.tagtraum.ffsampledsp;
 
-import javax.sound.sampled.UnsupportedAudioFileException;
+import static com.tagtraum.ffsampledsp.FFGlobalLock.LOCK;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import static com.tagtraum.ffsampledsp.FFGlobalLock.LOCK;
+import javax.sound.sampled.UnsupportedAudioFileException;
 
 /**
  * Audio stream backed by FFmpeg.
@@ -37,183 +37,188 @@ import static com.tagtraum.ffsampledsp.FFGlobalLock.LOCK;
  */
 public abstract class FFNativePeerInputStream extends InputStream {
 
-    static {
-        // Ensure JNI library is loaded
-        FFNativeLibraryLoader.loadLibrary();
+  static {
+    // Ensure JNI library is loaded
+    FFNativeLibraryLoader.loadLibrary();
+  }
+
+  private static final int DEFAULT_NATIVE_BUFFER_SIZE = 1024 * 1024;
+
+  /** Pointer to the native peer struct. */
+  protected long pointer;
+
+  /** Buffer the native side copies audio data into. */
+  protected ByteBuffer nativeBuffer;
+
+  /**
+   * Subclasses will open a native stream in this constructor. Do not remove the checked exceptions.
+   *
+   * @throws IOException if we cannot open the stream because of IO issues (e.g. not found).
+   * @throws UnsupportedAudioFileException if we cannot open the stream, because the format is
+   *     unsupported
+   */
+  protected FFNativePeerInputStream() throws IOException, UnsupportedAudioFileException {
+    setNativeBufferCapacity(DEFAULT_NATIVE_BUFFER_SIZE);
+  }
+
+  /**
+   * Replace the old direct buffer with a newly allocated direct buffer, if the specified <code>
+   * minimumCapacity</code> is larger than the current <code>capacity</code> of the already
+   * allocated buffer. In other words, we never shrink the buffer, but only grow.
+   *
+   * @param minimumCapacity desired capacity of the new buffer
+   * @return actual current capacity
+   */
+  private int setNativeBufferCapacity(final int minimumCapacity) {
+    if (nativeBuffer != null && nativeBuffer.hasRemaining()) {
+      throw new IllegalStateException(
+          "Can't replace native buffer while the old buffer still has data remaining.");
     }
-
-    private static final int DEFAULT_NATIVE_BUFFER_SIZE = 1024 * 1024;
-
-    /**
-     * Pointer to the native peer struct.
-     */
-    protected long pointer;
-
-    /**
-     * Buffer the native side copies audio data into.
-     */
-    protected ByteBuffer nativeBuffer;
-
-    /**
-     * Subclasses will open a native stream in this constructor.
-     * Do not remove the checked exceptions.
-     *
-     * @throws IOException if we cannot open the stream because of IO issues (e.g. not found).
-     * @throws UnsupportedAudioFileException if we cannot open the stream, because the format is unsupported
-     */
-    protected FFNativePeerInputStream() throws IOException, UnsupportedAudioFileException {
-        setNativeBufferCapacity(DEFAULT_NATIVE_BUFFER_SIZE);
+    if (nativeBuffer == null || nativeBuffer.capacity() < minimumCapacity) {
+      nativeBuffer = ByteBuffer.allocateDirect(minimumCapacity);
     }
+    return nativeBuffer.capacity();
+  }
 
-    /**
-     * Replace the old direct buffer with a newly allocated direct buffer, if the specified <code>minimumCapacity</code>
-     * is larger than the current <code>capacity</code> of the already allocated buffer.
-     * In other words, we never shrink the buffer, but only grow.
-     *
-     * @param minimumCapacity desired capacity of the new buffer
-     * @return actual current capacity
-     */
-    private int setNativeBufferCapacity(final int minimumCapacity) {
-        if (nativeBuffer != null && nativeBuffer.hasRemaining()) {
-            throw new IllegalStateException("Can't replace native buffer while the old buffer still has data remaining.");
-        }
-        if (nativeBuffer == null || nativeBuffer.capacity() < minimumCapacity) {
-            nativeBuffer = ByteBuffer.allocateDirect(minimumCapacity);
-        }
-        return nativeBuffer.capacity();
+  /**
+   * Log a "fine" message using java.util logging.
+   *
+   * @param message message
+   */
+  private void logFine(final String message) {
+    Logger.getLogger(this.getClass().getName()).log(Level.FINE, message);
+  }
+
+  /**
+   * Log a "warning" message using java.util logging.
+   *
+   * @param message message
+   */
+  private void logWarning(final String message) {
+    Logger.getLogger(this.getClass().getName()).log(Level.WARNING, message);
+  }
+
+  @Override
+  public synchronized int read() throws IOException {
+    if (!nativeBuffer.hasRemaining()) {
+      fillNativeBuffer();
     }
-
-    /**
-     * Log a "fine" message using java.util logging.
-     *
-     * @param message message
-     */
-    private void logFine(final String message) {
-        Logger.getLogger(this.getClass().getName()).log(Level.FINE, message);
+    // we're at the end
+    if (!nativeBuffer.hasRemaining()) {
+      return -1;
     }
+    return nativeBuffer.get() & 0xff;
+  }
 
-    /**
-     * Log a "warning" message using java.util logging.
-     *
-     * @param message message
-     */
-    private void logWarning(final String message) {
-        Logger.getLogger(this.getClass().getName()).log(Level.WARNING, message);
-    }
+  @Override
+  public synchronized int read(final byte[] b, final int off, final int len) throws IOException {
+    if (len == 0) return 0;
+    if (len < 0)
+      throw new IllegalArgumentException("Length must be greater than or equal to 0: " + len);
+    if (off < 0)
+      throw new IllegalArgumentException("Offset must be greater than or equal to 0: " + off);
+    if (b.length - off < len)
+      throw new IllegalArgumentException(
+          "There must be more space than " + len + " bytes left in the buffer. Offset is " + off);
 
-    @Override
-    public synchronized int read() throws IOException {
+    int bytesRead = 0;
+    while (bytesRead < len) {
+      if (!nativeBuffer.hasRemaining()) {
+        fillNativeBuffer();
         if (!nativeBuffer.hasRemaining()) {
-            fillNativeBuffer();
+          // nothing more to read
+          break;
         }
+      }
+      final int chunkSize = Math.min(len - bytesRead, nativeBuffer.remaining());
+      nativeBuffer.get(b, off + bytesRead, chunkSize);
+      bytesRead += chunkSize;
+    }
+    if (!nativeBuffer.hasRemaining()) {
+      fillNativeBuffer();
+      if (!nativeBuffer.hasRemaining()) {
         // we're at the end
-        if (!nativeBuffer.hasRemaining()) {
-            return -1;
-        }
-        return nativeBuffer.get() & 0xff;
+      }
     }
+    return bytesRead == 0 ? -1 : bytesRead;
+  }
 
-    @Override
-    public synchronized int read(final byte[] b, final int off, final int len) throws IOException {
-        if (len == 0) return 0;
-        if (len < 0) throw new IllegalArgumentException("Length must be greater than or equal to 0: " + len);
-        if (off < 0) throw new IllegalArgumentException("Offset must be greater than or equal to 0: " + off);
-        if (b.length - off < len) throw new IllegalArgumentException("There must be more space than "  + len + " bytes left in the buffer. Offset is " + off);
+  /**
+   * Returns {@code true} if this stream supports seeking.
+   *
+   * @return {@code true} if seeking is supported
+   * @see com.tagtraum.ffsampledsp.FFAudioInputStream#isSeekable()
+   */
+  public abstract boolean isSeekable();
 
-        int bytesRead = 0;
-        while (bytesRead < len) {
-            if (!nativeBuffer.hasRemaining()) {
-                fillNativeBuffer();
-                if (!nativeBuffer.hasRemaining()) {
-                    // nothing more to read
-                    break;
-                }
-            }
-            final int chunkSize = Math.min(len-bytesRead, nativeBuffer.remaining());
-            nativeBuffer.get(b, off+bytesRead, chunkSize);
-            bytesRead += chunkSize;
-        }
-        if (!nativeBuffer.hasRemaining()) {
-            fillNativeBuffer();
-            if (!nativeBuffer.hasRemaining()) {
-                // we're at the end
-            }
-        }
-        return bytesRead == 0 ? -1 : bytesRead;
+  /**
+   * Seeks to the given position in the stream.
+   *
+   * @param time position to seek to
+   * @param timeUnit unit of {@code time}
+   * @see com.tagtraum.ffsampledsp.FFAudioInputStream#seek(long, java.util.concurrent.TimeUnit)
+   * @throws IOException if an IO error occurs
+   */
+  public abstract void seek(final long time, final TimeUnit timeUnit)
+      throws UnsupportedOperationException, IOException;
+
+  /**
+   * Indicates whether the underlying native peer is still available.
+   *
+   * @return true, if open
+   */
+  protected boolean isOpen() {
+    return pointer != 0;
+  }
+
+  @Override
+  public synchronized void close() throws IOException {
+    if (isOpen()) {
+      try {
+        lockedClose(pointer);
+      } finally {
+        pointer = 0;
+      }
     }
+  }
 
-    /**
-     * @return true or false
-     * @see com.tagtraum.ffsampledsp.FFAudioInputStream#isSeekable()
-     */
-    public abstract boolean isSeekable();
-
-    /**
-     * @param time time
-     * @param timeUnit time unit
-     * @see com.tagtraum.ffsampledsp.FFAudioInputStream#seek(long, java.util.concurrent.TimeUnit)
-     * @throws IOException if an IO error occurs
-     */
-    public abstract void seek(final long time, final TimeUnit timeUnit) throws UnsupportedOperationException, IOException;
-
-    /**
-     * Indicates whether the underlying native peer is still available.
-     *
-     * @return true, if open
-     */
-    protected boolean isOpen() {
-        return pointer != 0;
+  /**
+   * Synchronizes call to {@link #close(long)} via {@link FFGlobalLock#LOCK}.
+   *
+   * @param pointer pointer
+   * @throws IOException if an IO error occurs
+   */
+  private void lockedClose(final long pointer) throws IOException {
+    LOCK.lock();
+    try {
+      close(pointer);
+    } finally {
+      LOCK.unlock();
     }
+  }
 
-    @Override
-    public synchronized void close() throws IOException {
-        if (isOpen()) {
-            try {
-                lockedClose(pointer);
-            } finally {
-                pointer = 0;
-            }
-        }
+  /**
+   * Fills {@link #nativeBuffer} with new data.
+   *
+   * @throws IOException if an IO error occurs
+   */
+  protected abstract void fillNativeBuffer() throws IOException;
+
+  /**
+   * Closes the native peer and releases all resources held by it.
+   *
+   * @param pointer pointer
+   * @throws IOException if an IO error occurs
+   */
+  protected abstract void close(final long pointer) throws IOException;
+
+  @Override
+  protected void finalize() throws Throwable {
+    try {
+      close();
+    } catch (IOException e) {
+      e.printStackTrace();
     }
-
-    /**
-     * Synchronizes call to {@link #close(long)} via {@link FFGlobalLock#LOCK}.
-     *
-     * @param pointer pointer
-     * @throws IOException if an IO error occurs
-     */
-    private void lockedClose(final long pointer) throws IOException {
-        LOCK.lock();
-        try {
-            close(pointer);
-        } finally {
-            LOCK.unlock();
-        }
-    }
-
-    /**
-     * Fills {@link #nativeBuffer} with new data.
-     *
-     * @throws IOException if an IO error occurs
-     */
-    protected abstract void fillNativeBuffer() throws IOException;
-
-    /**
-     * Closes the native peer and releases all resources held by it.
-     *
-     * @param pointer pointer
-     * @throws IOException if an IO error occurs
-     */
-    protected abstract void close(final long pointer) throws IOException;
-
-    @Override
-    protected void finalize() throws Throwable {
-        try {
-            close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        super.finalize();
-    }
-
+    super.finalize();
+  }
 }

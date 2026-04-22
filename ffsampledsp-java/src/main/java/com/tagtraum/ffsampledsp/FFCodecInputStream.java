@@ -20,169 +20,196 @@
  */
 package com.tagtraum.ffsampledsp;
 
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.UnsupportedAudioFileException;
+import static com.tagtraum.ffsampledsp.FFAudioFormat.FFEncoding.Codec.*;
+import static com.tagtraum.ffsampledsp.FFGlobalLock.LOCK;
+import static java.util.Arrays.asList;
+
 import java.io.IOException;
 import java.nio.Buffer;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-
-import static com.tagtraum.ffsampledsp.FFAudioFormat.FFEncoding.Codec.*;
-import static com.tagtraum.ffsampledsp.FFGlobalLock.LOCK;
-import static java.util.Arrays.asList;
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.UnsupportedAudioFileException;
 
 /**
- * Used by {@link FFFormatConversionProvider} to convert a {@link FFAudioInputStream} (not just
- * any {@link javax.sound.sampled.AudioInputStream}) to another {@link AudioFormat}.
- * <p>
- * Note that we take a shortcut:<br>
+ * Used by {@link FFFormatConversionProvider} to convert a {@link FFAudioInputStream} (not just any
+ * {@link javax.sound.sampled.AudioInputStream}) to another {@link AudioFormat}.
+ *
+ * <p>Note that we take a shortcut:<br>
  * Instead of converting the data from the source stream, we re-configure the native underpinnings
- * of the source stream to produce the data we desire. In other words, we manipulate the
- * encoder and the <code>SwrContext</code> of the stream originally opened with FFmpeg.
- * This of course only works, if the stream to convert is also an {@link FFAudioInputStream}.
- * This needs to be checked in {@link FFFormatConversionProvider} using the {@link FFAudioFormat#PROVIDER}
- * property of the source format.
+ * of the source stream to produce the data we desire. In other words, we manipulate the encoder and
+ * the <code>SwrContext</code> of the stream originally opened with FFmpeg. This of course only
+ * works, if the stream to convert is also an {@link FFAudioInputStream}. This needs to be checked
+ * in {@link FFFormatConversionProvider} using the {@link FFAudioFormat#PROVIDER} property of the
+ * source format.
  *
- * @see FFFormatConversionProvider#isConversionSupported(javax.sound.sampled.AudioFormat, javax.sound.sampled.AudioFormat)
- * @see FFFormatConversionProvider#isConversionSupported(javax.sound.sampled.AudioFormat.Encoding, javax.sound.sampled.AudioFormat)
- *
+ * @see FFFormatConversionProvider#isConversionSupported(javax.sound.sampled.AudioFormat,
+ *     javax.sound.sampled.AudioFormat)
+ * @see FFFormatConversionProvider#isConversionSupported(javax.sound.sampled.AudioFormat.Encoding,
+ *     javax.sound.sampled.AudioFormat)
  * @author <a href="mailto:hs@tagtraum.com">Hendrik Schreiber</a>
  */
 public class FFCodecInputStream extends FFNativePeerInputStream {
 
-    private static final Set<Integer> PCM_VALID_SAMPLE_SIZES = new HashSet<>(asList(8, 16, 24, 32));
-    private static final Set<Integer> PCM_FLOAT_VALID_SAMPLE_SIZES = new HashSet<>(asList(32, 64));
-    private final FFNativePeerInputStream wrappedStream;
+  private static final Set<Integer> PCM_VALID_SAMPLE_SIZES = new HashSet<>(asList(8, 16, 24, 32));
+  private static final Set<Integer> PCM_FLOAT_VALID_SAMPLE_SIZES = new HashSet<>(asList(32, 64));
+  private final FFNativePeerInputStream wrappedStream;
 
-    public FFCodecInputStream(final AudioFormat targetFormat, final FFAudioInputStream stream) throws IOException, UnsupportedAudioFileException {
+  /**
+   * Creates a new {@code FFCodecInputStream} that resamples/converts {@code stream} to {@code
+   * targetFormat}.
+   *
+   * @param targetFormat desired output {@link AudioFormat}
+   * @param stream source stream to convert
+   * @throws IOException if an I/O error occurs during setup
+   * @throws UnsupportedAudioFileException if the target format is not supported
+   */
+  public FFCodecInputStream(final AudioFormat targetFormat, final FFAudioInputStream stream)
+      throws IOException, UnsupportedAudioFileException {
 
-        if (!isEncodingSupported(targetFormat)) {
-            throw new IllegalArgumentException("This codec does not support the encoding \"" + targetFormat.getEncoding()
-                + "\". Supported codecs are: " + FFAudioFormat.FFEncoding.getSupportedEncodings());
-        }
-        if (!isSampleSizeFrameSizeChannelsSupported(targetFormat)) {
-            throw new IllegalArgumentException("This codec does not support the desired frame size " + targetFormat.getFrameSize() + ".");
-        }
-        final FFAudioFormat.FFEncoding ffEncoding = FFAudioFormat.FFEncoding.getInstance(targetFormat);
-        AudioFormat audioFormat = new AudioFormat(ffEncoding,
-            targetFormat.getSampleRate(), targetFormat.getSampleSizeInBits(), targetFormat.getChannels(),
-            targetFormat.getFrameSize(), targetFormat.getFrameRate(), targetFormat.isBigEndian());
-
-        this.wrappedStream = stream.getNativePeerInputStream();
-
-        // workaround covariant return type introduced in Java 9
-        // ensure limit(int) is called on Buffer, not ByteBuffer
-        ((Buffer)this.nativeBuffer).limit(0);
-        this.pointer = lockedOpen(audioFormat, stream.getNativePeerInputStreamPointer());
+    if (!isEncodingSupported(targetFormat)) {
+      throw new IllegalArgumentException(
+          "This codec does not support the encoding \""
+              + targetFormat.getEncoding()
+              + "\". Supported codecs are: "
+              + FFAudioFormat.FFEncoding.getSupportedEncodings());
     }
-
-    /**
-     * Indicates whether the combination of channels, frame size and sample size is supported.
-     * In essence we only support formats that completely fill a frame.
-     * As an example, mono 24bit audio has to have a framesize of 3 bytes, <em>not</em> 4 bytes.
-     *
-     * @param targetFormat desired target format
-     * @return true, if supported
-     */
-    static boolean isSampleSizeFrameSizeChannelsSupported(final AudioFormat targetFormat) {
-        boolean supported = true;
-
-        if (targetFormat.getChannels() < 1 || targetFormat.getChannels() > 2) supported = false;
-        // check valid sampleSize/frameSize/channels combinations
-        switch (targetFormat.getSampleSizeInBits()) {
-            case 8:
-                if (targetFormat.getFrameSize() != targetFormat.getChannels()) supported = false;
-                break;
-            case 16:
-                if (targetFormat.getFrameSize() != 2*targetFormat.getChannels()) supported = false;
-                break;
-            case 24:
-                if (targetFormat.getFrameSize() != 3*targetFormat.getChannels()) supported = false;
-                break;
-            case 32:
-                if (targetFormat.getFrameSize() != 4*targetFormat.getChannels()) supported = false;
-                break;
-            case 64:
-                if (targetFormat.getFrameSize() != 8*targetFormat.getChannels()) supported = false;
-                break;
-            default:
-                supported = false;
-        }
-        return supported;
+    if (!isSampleSizeFrameSizeChannelsSupported(targetFormat)) {
+      throw new IllegalArgumentException(
+          "This codec does not support the desired frame size "
+              + targetFormat.getFrameSize()
+              + ".");
     }
+    final FFAudioFormat.FFEncoding ffEncoding = FFAudioFormat.FFEncoding.getInstance(targetFormat);
+    AudioFormat audioFormat =
+        new AudioFormat(
+            ffEncoding,
+            targetFormat.getSampleRate(),
+            targetFormat.getSampleSizeInBits(),
+            targetFormat.getChannels(),
+            targetFormat.getFrameSize(),
+            targetFormat.getFrameRate(),
+            targetFormat.isBigEndian());
 
-    /**
-     * Indicates whether a desired {@link AudioFormat.Encoding} is supported as target encoding.
-     * Essentially, only PCM_SIGNED, PCM_UNSIGNED and PCM_FLOAT are supported.
-     *
-     * @param targetFormat target format
-     * @return true, if supported
-     */
-    static boolean isEncodingSupported(final AudioFormat targetFormat) {
-        final FFAudioFormat.FFEncoding ffEncoding = FFAudioFormat.FFEncoding.getInstance(targetFormat.getEncoding().toString());
-        boolean supported;
-        if (PCM_UNSIGNED.getEncoding().equals(ffEncoding) && PCM_VALID_SAMPLE_SIZES.contains(targetFormat.getSampleSizeInBits())) {
-            supported = true;
-        } else if (PCM_FLOAT.getEncoding().equals(ffEncoding) && PCM_FLOAT_VALID_SAMPLE_SIZES.contains(targetFormat.getSampleSizeInBits())) {
-            supported = true;
-        } else if (PCM_SIGNED.getEncoding().equals(ffEncoding) && PCM_VALID_SAMPLE_SIZES.contains(targetFormat.getSampleSizeInBits())) {
-            supported = true;
-        } else {
-            supported = false;
-        }
-        return supported;
+    this.wrappedStream = stream.getNativePeerInputStream();
+
+    // workaround covariant return type introduced in Java 9
+    // ensure limit(int) is called on Buffer, not ByteBuffer
+    ((Buffer) this.nativeBuffer).limit(0);
+    this.pointer = lockedOpen(audioFormat, stream.getNativePeerInputStreamPointer());
+  }
+
+  /**
+   * Indicates whether the combination of channels, frame size and sample size is supported. In
+   * essence we only support formats that completely fill a frame. As an example, mono 24bit audio
+   * has to have a framesize of 3 bytes, <em>not</em> 4 bytes.
+   *
+   * @param targetFormat desired target format
+   * @return true, if supported
+   */
+  static boolean isSampleSizeFrameSizeChannelsSupported(final AudioFormat targetFormat) {
+    boolean supported = true;
+
+    if (targetFormat.getChannels() < 1 || targetFormat.getChannels() > 2) supported = false;
+    // check valid sampleSize/frameSize/channels combinations
+    switch (targetFormat.getSampleSizeInBits()) {
+      case 8:
+        if (targetFormat.getFrameSize() != targetFormat.getChannels()) supported = false;
+        break;
+      case 16:
+        if (targetFormat.getFrameSize() != 2 * targetFormat.getChannels()) supported = false;
+        break;
+      case 24:
+        if (targetFormat.getFrameSize() != 3 * targetFormat.getChannels()) supported = false;
+        break;
+      case 32:
+        if (targetFormat.getFrameSize() != 4 * targetFormat.getChannels()) supported = false;
+        break;
+      case 64:
+        if (targetFormat.getFrameSize() != 8 * targetFormat.getChannels()) supported = false;
+        break;
+      default:
+        supported = false;
     }
+    return supported;
+  }
 
-    @Override
-    public int read(final byte[] b, final int off, final int len) throws IOException {
-        return wrappedStream.read(b, off, len);
+  /**
+   * Indicates whether a desired {@link AudioFormat.Encoding} is supported as target encoding.
+   * Essentially, only PCM_SIGNED, PCM_UNSIGNED and PCM_FLOAT are supported.
+   *
+   * @param targetFormat target format
+   * @return true, if supported
+   */
+  static boolean isEncodingSupported(final AudioFormat targetFormat) {
+    final FFAudioFormat.FFEncoding ffEncoding =
+        FFAudioFormat.FFEncoding.getInstance(targetFormat.getEncoding().toString());
+    boolean supported;
+    if (PCM_UNSIGNED.getEncoding().equals(ffEncoding)
+        && PCM_VALID_SAMPLE_SIZES.contains(targetFormat.getSampleSizeInBits())) {
+      supported = true;
+    } else if (PCM_FLOAT.getEncoding().equals(ffEncoding)
+        && PCM_FLOAT_VALID_SAMPLE_SIZES.contains(targetFormat.getSampleSizeInBits())) {
+      supported = true;
+    } else if (PCM_SIGNED.getEncoding().equals(ffEncoding)
+        && PCM_VALID_SAMPLE_SIZES.contains(targetFormat.getSampleSizeInBits())) {
+      supported = true;
+    } else {
+      supported = false;
     }
+    return supported;
+  }
 
-    @Override
-    public int read() throws IOException {
-        return wrappedStream.read();
+  @Override
+  public int read(final byte[] b, final int off, final int len) throws IOException {
+    return wrappedStream.read(b, off, len);
+  }
+
+  @Override
+  public int read() throws IOException {
+    return wrappedStream.read();
+  }
+
+  @Override
+  protected boolean isOpen() {
+    return wrappedStream.isOpen();
+  }
+
+  @Override
+  public void close() throws IOException {
+    wrappedStream.close();
+  }
+
+  @Override
+  protected void close(final long pointer) throws IOException {
+    wrappedStream.close();
+  }
+
+  @Override
+  protected void fillNativeBuffer() throws IOException {
+    wrappedStream.fillNativeBuffer();
+  }
+
+  @Override
+  public boolean isSeekable() {
+    return wrappedStream.isSeekable();
+  }
+
+  @Override
+  public void seek(final long time, final TimeUnit timeUnit)
+      throws UnsupportedOperationException, IOException {
+    wrappedStream.seek(time, timeUnit);
+  }
+
+  private long lockedOpen(final AudioFormat target, final long pointer) throws IOException {
+    LOCK.lock();
+    try {
+      return open(target, pointer);
+    } finally {
+      LOCK.unlock();
     }
+  }
 
-    @Override
-    protected boolean isOpen() {
-        return wrappedStream.isOpen();
-    }
-
-    @Override
-    public void close() throws IOException {
-        wrappedStream.close();
-    }
-
-    @Override
-    protected void close(final long pointer) throws IOException {
-        wrappedStream.close();
-    }
-
-    @Override
-    protected void fillNativeBuffer() throws IOException {
-        wrappedStream.fillNativeBuffer();
-    }
-
-    @Override
-    public boolean isSeekable() {
-        return wrappedStream.isSeekable();
-    }
-
-    @Override
-    public void seek(final long time, final TimeUnit timeUnit) throws UnsupportedOperationException, IOException {
-        wrappedStream.seek(time, timeUnit);
-    }
-
-    private long lockedOpen(final AudioFormat target, final long pointer) throws IOException {
-        LOCK.lock();
-        try {
-            return open(target, pointer);
-        } finally {
-            LOCK.unlock();
-        }
-    }
-
-    private native long open(final AudioFormat target, final long pointer) throws IOException;
-
+  private native long open(final AudioFormat target, final long pointer) throws IOException;
 }

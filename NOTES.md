@@ -1,7 +1,12 @@
 - 0.9.54
+  - Moved to FFmpeg 8.1, tagtraum package 8.1.0.
   - Updated Maven project report skin (fixing the *Fork Me*-banner).
   - Support emojis and %20 in paths.
   - Added source code formatters and pre-commit hooks.
+  - Added support for explicit I/O buffer control and a large default buffer for files.
+  - Reduced number of necessary JNI roundtrips when filling the native buffer.
+  - Added source code formatter.
+  - Updated Fluido docs skin.
 
  
 - 0.9.53

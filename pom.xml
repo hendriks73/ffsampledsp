@@ -130,7 +130,6 @@
                 <configuration>
                     <minmemory>250m</minmemory>
                     <maxmemory>1g</maxmemory>
-                    <verbose>true</verbose>
                     <doctitle>FFSampledSP ${project.version} API</doctitle>
                     <windowtitle>FFSampledSP ${project.version} API</windowtitle>
                 </configuration>
@@ -159,7 +158,7 @@
                 <plugin>
                     <groupId>org.jacoco</groupId>
                     <artifactId>jacoco-maven-plugin</artifactId>
-                    <version>0.8.6</version>
+                    <version>0.8.13</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -293,8 +292,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <release>8</release>
                     <compilerArgs>
                         <arg>-h</arg>
                         <arg>${project.build.directory}/native/include</arg>
@@ -308,7 +306,6 @@
                 <configuration>
                     <minmemory>250m</minmemory>
                     <maxmemory>1g</maxmemory>
-                    <verbose>true</verbose>
                     <doctitle>FFSampledSP ${project.version} API</doctitle>
                     <windowtitle>FFSampledSP ${project.version} API</windowtitle>
                 </configuration>
@@ -355,64 +352,6 @@
                 </executions>
             </plugin>
 
-            <plugin>
-                <groupId>com.diffplug.spotless</groupId>
-                <artifactId>spotless-maven-plugin</artifactId>
-                <configuration>
-                    <java>
-                        <excludes>
-                            <exclude>**/*.c</exclude>
-                            <exclude>**/*.h</exclude>
-                            <exclude>**/*.cpp</exclude>
-                            <exclude>**/*.cc</exclude>
-                            <exclude>**/*.cxx</exclude>
-                            <exclude>**/*.m</exclude>
-                            <exclude>**/*.mm</exclude>
-                        </excludes>
-                        <googleJavaFormat/>
-                    </java>
-                    <yaml>
-                        <includes>
-                            <include>**/*.yaml</include>
-                            <include>**/*.yml</include>
-                        </includes>
-                        <jackson/>
-                    </yaml>
-                    <formats>
-                        <format>
-                            <includes>
-                                <include>src/**/*.html</include>
-                            </includes>
-                            <eclipseWtp>
-                                <type>HTML</type>
-                            </eclipseWtp>
-                        </format>
-                        <format>
-                            <includes>
-                                <include>src/**/*.css</include>
-                            </includes>
-                            <eclipseWtp>
-                                <type>CSS</type>
-                            </eclipseWtp>
-                        </format>
-                        <format>
-                            <includes>
-                                <include>src/**/*.xml</include>
-                            </includes>
-                            <eclipseWtp>
-                                <type>XML</type>
-                            </eclipseWtp>
-                        </format>
-                    </formats>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
         <extensions>
             <extension>
@@ -429,14 +368,6 @@
     </build>
 
     <distributionManagement>
-        <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
-        <repository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-        </repository>
         <site>
             <id>tagtraum-site</id>
             <url>sftp://ssh.strato.de/ffsampledsp/</url>
@@ -458,19 +389,21 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <!-- alias, because of https://maven.apache.org/plugins/maven-site-plugin/examples/creating-content.html#Filtering -->
+        <projectversion>${project.version}</projectversion>
+        <central.autoPublish>true</central.autoPublish>
 
         <!-- override with -D on commandline to pass additional flags, like -DDEBUG via the cflags property -->
         <!-- <cflags>-DDEBUG</cflags> -->
         <cflags/>
 
-        <!-- alias, because of https://maven.apache.org/plugins/maven-site-plugin/examples/creating-content.html#Filtering -->
-        <projectversion>${project.version}</projectversion>
-        
+        <mmacosx-version-min>11.0</mmacosx-version-min>
+        <codesign.identity>Developer ID Application: Jalulo UG (haftungsbeschrankt) (2J6368YSP2)</codesign.identity>
         <!-- overwritten by modules -->
         <arch>x86_64</arch>
         <host>macos</host>
-        <ffmpeg.version>4.0.11</ffmpeg.version>
         <doxygen>doxygen</doxygen>
+        <ffmpeg.version>8.1.0</ffmpeg.version>
         <ffmpegversion>${ffmpeg.version}</ffmpegversion>
     </properties>
 
@@ -508,7 +441,7 @@
                 <headers.os>win32</headers.os>
                 <compiler.startoptions>${cflags} ${gcc.code} -DTARGET_OS_${target} -Wall -x c -Wno-multichar -D_JNI_IMPLEMENTATION_ -O3</compiler.startoptions>
                 <linker.startoptions>-v ${gcc.code} -Wl,--kill-at -Wl,--allow-multiple-definition -static-libgcc -shared -s</linker.startoptions>
-                <linker.endoptions>-Wl,-Bstatic -L${project.build.directory}\lib -lavformat -lavcodec -lavutil -lswresample -lz -lbz2 -lws2_32 -lsecur32 -lbcrypt -llzma</linker.endoptions>
+                <linker.endoptions>-Wl,-Bstatic -L${project.build.directory}\lib -lavformat -lavcodec -lavutil -lswresample -lz -lbz2 -lws2_32 -lsecur32 -lbcrypt -lncrypt -lcrypt32 -llzma</linker.endoptions>
                 <doxygen>doxygen</doxygen>
             </properties>
         </profile>
@@ -529,7 +462,7 @@
                 <headers.os>win32</headers.os>
                 <compiler.startoptions>${cflags} ${gcc.code} -DTARGET_OS_${target} -Wall -x c -Wno-multichar -D_JNI_IMPLEMENTATION_ -O3</compiler.startoptions>
                 <linker.startoptions>-v ${gcc.code} -Wl,--kill-at -Wl,--allow-multiple-definition -static-libgcc -shared -s</linker.startoptions>
-                <linker.endoptions>-Wl,-Bstatic -L${project.build.directory}\lib -lavformat -lavcodec -lavutil -lswresample -lz -lbz2  -lws2_32 -lsecur32 -lbcrypt -llzma</linker.endoptions>
+                <linker.endoptions>-Wl,-Bstatic -L${project.build.directory}\lib -lavformat -lavcodec -lavutil -lswresample -lz -lbz2 -lws2_32 -lsecur32 -lbcrypt -lncrypt -lcrypt32 -llzma</linker.endoptions>
                 <doxygen>doxygen</doxygen>
             </properties>
         </profile>
@@ -548,17 +481,15 @@
                 <isysroot>
                     /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/
                 </isysroot>
-                <mmacosx-version-min>10.8</mmacosx-version-min>
                 <headers.jni>${env.JAVA_HOME}/include/</headers.jni>
                 <headers.os>darwin</headers.os>
                 <!-- add -DDEBUG to enable standard out debug messages -->
                 <compiler.startoptions>${cflags} -DTARGET_OS_MAC
                     -arch ${arch} -fmessage-length=0
-                    -pipe -Wno-trigraphs -fpascal-strings -fasm-blocks
+                    -pipe -Wno-trigraphs
                     -O3 -Wunused-variable -isysroot ${isysroot}
                     -mmacosx-version-min=${mmacosx-version-min} -Wmost
                     -Wno-four-char-constants -Wno-unknown-pragmas
-                    -I/System/Library/Frameworks/JavaVM.framework/Headers
                 </compiler.startoptions>
                 <linker.startoptions>
                     -arch ${arch}
@@ -571,10 +502,8 @@
                     -framework VideoToolbox
                     -framework AudioToolbox
                     -framework Security
-                    -single_module
                     -compatibility_version 1
                     -current_version 1
-                    -read_only_relocs suppress
                 </linker.startoptions>
                 <linker.endoptions>-L${project.build.directory}/lib -lavformat -lavcodec -lavutil -lswresample -lz -lbz2</linker.endoptions>
             </properties>
@@ -588,40 +517,20 @@
                 <module>ffsampledsp-aarch64-macos</module>
             </modules>
 
-            <build>
-                <plugins>
-                    <plugin>
-                        <!--
-                        We are building this on a x86_64 with a arm64
-                        toolchain. Because of this mismatch we cannot
-                        test the native code and skip testing
-                        altogether.
-                        -->
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-surefire-plugin</artifactId>
-                        <configuration>
-                            <skipTests>true</skipTests>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-
             <properties>
                 <arch>aarch64</arch>
                 <isysroot>
                     /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/
                 </isysroot>
-                <mmacosx-version-min>10.8</mmacosx-version-min>
                 <headers.jni>${env.JAVA_HOME}/include/</headers.jni>
                 <headers.os>darwin</headers.os>
                 <!-- add -DDEBUG to enable standard out debug messages -->
                 <compiler.startoptions>${cflags} -DTARGET_OS_MAC
                     -arch arm64 -fmessage-length=0
-                    -pipe -Wno-trigraphs -fpascal-strings -fasm-blocks
+                    -pipe -Wno-trigraphs
                     -O3 -Wunused-variable -isysroot ${isysroot}
                     -mmacosx-version-min=${mmacosx-version-min} -Wmost
                     -Wno-four-char-constants -Wno-unknown-pragmas
-                    -I/System/Library/Frameworks/JavaVM.framework/Headers
                 </compiler.startoptions>
                 <linker.startoptions>
                     -arch arm64
@@ -634,10 +543,8 @@
                     -framework VideoToolbox
                     -framework AudioToolbox
                     -framework Security
-                    -single_module
                     -compatibility_version 1
                     -current_version 1
-                    -read_only_relocs suppress
                 </linker.startoptions>
                 <linker.endoptions>-L${project.build.directory}/lib -lavformat -lavcodec -lavutil -lswresample -lz -lbz2</linker.endoptions>
             </properties>
@@ -669,13 +576,72 @@
                 <module>ffsampledsp-aarch64-linux</module>
             </modules>
             <properties>
-                <ccompiler>aarch64-linux-gnu-gcc</ccompiler>
+                <ccompiler>gcc</ccompiler>
                 <headers.jni>${env.JAVA_HOME}/include/</headers.jni>
                 <headers.os>linux</headers.os>
                 <compiler.startoptions>${cflags} -fPIC -Wall -x c -Wno-multichar -D_JNI_IMPLEMENTATION_ -O3</compiler.startoptions>
-                <linker.startoptions>-v -shared -s</linker.startoptions>
+                <linker.startoptions>-v -shared -s -Wl,-Bsymbolic</linker.startoptions>
                 <linker.endoptions>-L${project.build.directory}/lib -lavformat -lavcodec -lavutil -lswresample -lz -lbz2</linker.endoptions>
             </properties>
+        </profile>
+
+        <profile>
+            <id>spotless</id>
+            <activation>
+                <jdk>[17,)</jdk>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.diffplug.spotless</groupId>
+                        <artifactId>spotless-maven-plugin</artifactId>
+                        <configuration>
+                            <java>
+                                <excludes>
+                                    <exclude>**/*.c</exclude>
+                                    <exclude>**/*.h</exclude>
+                                    <exclude>**/*.cpp</exclude>
+                                    <exclude>**/*.cc</exclude>
+                                    <exclude>**/*.cxx</exclude>
+                                    <exclude>**/*.m</exclude>
+                                    <exclude>**/*.mm</exclude>
+                                </excludes>
+                                <googleJavaFormat/>
+                            </java>
+                            <formats>
+                                <format>
+                                    <includes>
+                                        <include>**/*.yaml</include>
+                                        <include>**/*.yml</include>
+                                    </includes>
+                                    <trimTrailingWhitespace/>
+                                    <endWithNewline/>
+                                </format>
+                                <format>
+                                    <includes>
+                                        <include>src/**/*.html</include>
+                                        <include>src/**/*.css</include>
+                                        <include>src/**/*.xml</include>
+                                    </includes>
+                                    <trimTrailingWhitespace/>
+                                    <endWithNewline/>
+                                    <indent>
+                                        <spaces>true</spaces>
+                                        <spacesPerTab>4</spacesPerTab>
+                                    </indent>
+                                </format>
+                            </formats>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>check</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
 
         <profile>
@@ -715,7 +681,7 @@
                         <extensions>true</extensions>
                         <configuration>
                             <publishingServerId>central</publishingServerId>
-                            <autoPublish>true</autoPublish>
+                            <autoPublish>${central.autoPublish}</autoPublish>
                         </configuration>
                     </plugin>
                 </plugins>

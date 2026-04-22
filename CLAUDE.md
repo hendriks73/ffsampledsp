@@ -102,6 +102,8 @@ The Java classes in `com.tagtraum.ffsampledsp` implement the `javax.sound.sample
 - **`FFGlobalLock`** — a single `ReentrantLock` (`LOCK`) used to serialize FFmpeg calls that are not thread-safe (`avcodec_open2`, etc.).
 - **`FFNativeLibraryLoader`** — extracts the embedded native library to `java.io.tmpdir` and loads it. Naming convention: `ffsampledsp-{arch}-{host}.{ext}` (e.g. `ffsampledsp-aarch64-macos.dylib`).
 
+All native sources live in one directory — all platforms share them: ffsampledsp-x86_64-macos/src/main/c/
+
 Java language/compiler is specified in the main pom.xml file.
 
 ### C Native Layer (`ffsampledsp-x86_64-macos/src/main/c/`)

@@ -352,65 +352,6 @@
                 </executions>
             </plugin>
 
-            <plugin>
-                <groupId>com.diffplug.spotless</groupId>
-                <artifactId>spotless-maven-plugin</artifactId>
-                <configuration>
-                    <java>
-                        <excludes>
-                            <exclude>**/*.c</exclude>
-                            <exclude>**/*.h</exclude>
-                            <exclude>**/*.cpp</exclude>
-                            <exclude>**/*.cc</exclude>
-                            <exclude>**/*.cxx</exclude>
-                            <exclude>**/*.m</exclude>
-                            <exclude>**/*.mm</exclude>
-                        </excludes>
-                        <googleJavaFormat/>
-                    </java>
-                    <formats>
-                        <format>
-                            <includes>
-                                <include>**/*.yaml</include>
-                                <include>**/*.yml</include>
-                            </includes>
-                            <trimTrailingWhitespace/>
-                            <endWithNewline/>
-                        </format>
-                        <format>
-                            <includes>
-                                <include>src/**/*.html</include>
-                            </includes>
-                            <eclipseWtp>
-                                <type>HTML</type>
-                            </eclipseWtp>
-                        </format>
-                        <format>
-                            <includes>
-                                <include>src/**/*.css</include>
-                            </includes>
-                            <eclipseWtp>
-                                <type>CSS</type>
-                            </eclipseWtp>
-                        </format>
-                        <format>
-                            <includes>
-                                <include>src/**/*.xml</include>
-                            </includes>
-                            <eclipseWtp>
-                                <type>XML</type>
-                            </eclipseWtp>
-                        </format>
-                    </formats>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
         <extensions>
             <extension>
@@ -650,6 +591,76 @@
                 <linker.startoptions>-v -shared -s</linker.startoptions>
                 <linker.endoptions>-L${project.build.directory}/lib -lavformat -lavcodec -lavutil -lswresample -lz -lbz2</linker.endoptions>
             </properties>
+        </profile>
+
+        <profile>
+            <id>spotless</id>
+            <activation>
+                <jdk>[17,)</jdk>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.diffplug.spotless</groupId>
+                        <artifactId>spotless-maven-plugin</artifactId>
+                        <configuration>
+                            <java>
+                                <excludes>
+                                    <exclude>**/*.c</exclude>
+                                    <exclude>**/*.h</exclude>
+                                    <exclude>**/*.cpp</exclude>
+                                    <exclude>**/*.cc</exclude>
+                                    <exclude>**/*.cxx</exclude>
+                                    <exclude>**/*.m</exclude>
+                                    <exclude>**/*.mm</exclude>
+                                </excludes>
+                                <googleJavaFormat/>
+                            </java>
+                            <formats>
+                                <format>
+                                    <includes>
+                                        <include>**/*.yaml</include>
+                                        <include>**/*.yml</include>
+                                    </includes>
+                                    <trimTrailingWhitespace/>
+                                    <endWithNewline/>
+                                </format>
+                                <format>
+                                    <includes>
+                                        <include>src/**/*.html</include>
+                                    </includes>
+                                    <eclipseWtp>
+                                        <type>HTML</type>
+                                    </eclipseWtp>
+                                </format>
+                                <format>
+                                    <includes>
+                                        <include>src/**/*.css</include>
+                                    </includes>
+                                    <eclipseWtp>
+                                        <type>CSS</type>
+                                    </eclipseWtp>
+                                </format>
+                                <format>
+                                    <includes>
+                                        <include>src/**/*.xml</include>
+                                    </includes>
+                                    <eclipseWtp>
+                                        <type>XML</type>
+                                    </eclipseWtp>
+                                </format>
+                            </formats>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>check</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
 
         <profile>

@@ -6,10 +6,20 @@
         <version>0.9.54</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
+    <groupId>com.tagtraum</groupId>
     <artifactId>ffsampledsp-aarch64-linux</artifactId>
+    <version>0.9.54</version>
     <packaging>so</packaging>
     <name>FFSampledSP Native Library Linux (arm64)</name>
     <description>Linux ARM64 binary library for FFSampledSP.</description>
+
+    <licenses>
+        <license>
+            <name>LGPL 2.1</name>
+            <url>https://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt</url>
+            <comments>LGPL 2.1</comments>
+        </license>
+    </licenses>
 
     <dependencies>
         <dependency>

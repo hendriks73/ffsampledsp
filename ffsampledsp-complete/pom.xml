@@ -6,10 +6,20 @@
         <version>0.9.54</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
+    <groupId>com.tagtraum</groupId>
     <artifactId>ffsampledsp-complete</artifactId>
+    <version>0.9.54</version>
     <packaging>jar</packaging>
     <name>FFSampledSP Complete</name>
     <description>FFSampledSP complete with embedded native libraries.</description>
+
+    <licenses>
+        <license>
+            <name>LGPL 2.1</name>
+            <url>https://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt</url>
+            <comments>LGPL 2.1</comments>
+        </license>
+    </licenses>
 
     <dependencies>
         <dependency>

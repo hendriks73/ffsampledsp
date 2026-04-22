@@ -620,26 +620,15 @@
                                 <format>
                                     <includes>
                                         <include>src/**/*.html</include>
-                                    </includes>
-                                    <eclipseWtp>
-                                        <type>HTML</type>
-                                    </eclipseWtp>
-                                </format>
-                                <format>
-                                    <includes>
                                         <include>src/**/*.css</include>
-                                    </includes>
-                                    <eclipseWtp>
-                                        <type>CSS</type>
-                                    </eclipseWtp>
-                                </format>
-                                <format>
-                                    <includes>
                                         <include>src/**/*.xml</include>
                                     </includes>
-                                    <eclipseWtp>
-                                        <type>XML</type>
-                                    </eclipseWtp>
+                                    <trimTrailingWhitespace/>
+                                    <endWithNewline/>
+                                    <indent>
+                                        <spaces>true</spaces>
+                                        <spacesPerTab>4</spacesPerTab>
+                                    </indent>
                                 </format>
                             </formats>
                         </configuration>

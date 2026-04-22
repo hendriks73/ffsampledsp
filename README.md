@@ -1,5 +1,5 @@
 [![LGPL 2.1](https://img.shields.io/badge/License-LGPL_2.1-blue.svg)](https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.tagtraum/ffsampledsp/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.tagtraum/ffsampledsp)
+[![Maven Central](https://img.shields.io/maven-central/v/com.tagtraum/ffsampledsp)](https://central.sonatype.com/artifact/com.tagtraum/ffsampledsp)
 [![Build and Test](https://github.com/hendriks73/ffsampledsp/workflows/Build%20and%20Test/badge.svg)](https://github.com/hendriks73/ffsampledsp/actions)
 [![CodeCov](https://codecov.io/gh/hendriks73/ffsampledsp/branch/main/graph/badge.svg?token=7K9ACGFWY4)](https://codecov.io/gh/hendriks73/ffsampledsp/branch/main)
 

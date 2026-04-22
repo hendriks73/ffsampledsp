@@ -312,7 +312,8 @@ public final class FFNativeLibraryLoader {
     final boolean aarch64 = "aarch64".equals(arch) || "arm64".equals(arch);
 
     final String resultingArch = x84_64 ? "x86_64" : (i386 ? "i386" : (aarch64 ? "aarch64" : arch));
-    if (LOG.isLoggable(Level.INFO)) LOG.info("Using arch=" + resultingArch);
+    if (LOG.isLoggable(Level.INFO))
+      LOG.info("Using arch=" + resultingArch + ", based on os.arch=" + arch);
     return resultingArch;
   }
 

@@ -18,6 +18,11 @@ jobs:
       matrix:
         jarch: [aarch64, x86_64]
         java: ['8', '11', '15', '17', '20', '25']
+        include:
+          - jarch: aarch64
+            javaarch: arm64
+          - jarch: x86_64
+            javaarch: x64
     steps:
       - name: Set up Doxygen
         run: brew install doxygen
@@ -28,7 +33,7 @@ jobs:
         uses: actions/setup-java@v5
         with:
           java-version: ${{ matrix.java }}
-          architecture: x64
+          architecture: ${{ matrix.javaarch }}
           distribution: zulu
           cache: maven
 

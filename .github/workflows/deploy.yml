@@ -274,7 +274,7 @@ jobs:
         uses: actions/setup-java@v5
         with:
           java-version: '8'
-          architecture: x64
+          architecture: arm64
           server-id: central
           server-username: SONATYPE_USERNAME
           server-password: SONATYPE_PASSWORD

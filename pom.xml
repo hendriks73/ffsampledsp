@@ -456,13 +456,13 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <!-- alias, because of https://maven.apache.org/plugins/maven-site-plugin/examples/creating-content.html#Filtering -->
+        <projectversion>${project.version}</projectversion>
+        <central.autoPublish>true</central.autoPublish>
 
         <!-- override with -D on commandline to pass additional flags, like -DDEBUG via the cflags property -->
         <!-- <cflags>-DDEBUG</cflags> -->
         <cflags/>
-
-        <!-- alias, because of https://maven.apache.org/plugins/maven-site-plugin/examples/creating-content.html#Filtering -->
-        <projectversion>${project.version}</projectversion>
 
         <mmacosx-version-min>11.0</mmacosx-version-min>
         <codesign.identity>Developer ID Application: Jalulo UG (haftungsbeschrankt) (2J6368YSP2)</codesign.identity>
@@ -689,7 +689,7 @@
                         <extensions>true</extensions>
                         <configuration>
                             <publishingServerId>central</publishingServerId>
-                            <autoPublish>true</autoPublish>
+                            <autoPublish>${central.autoPublish}</autoPublish>
                         </configuration>
                     </plugin>
                 </plugins>

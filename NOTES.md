@@ -6,6 +6,7 @@
   - Added support for explicit I/O buffer control and a large default buffer for files.
   - Reduced number of necessary JNI roundtrips when filling the native buffer.
   - Added source code formatter.
+  - Updated Fluido docs skin.
 
  
 - 0.9.53

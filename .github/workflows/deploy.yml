@@ -5,6 +5,11 @@ on:
   push:
     branches:
       - main
+      - dev
+  pull_request:
+    branches:
+      - main
+      - dev
 
 jobs:
   windows-x64-build:
@@ -66,6 +71,7 @@ jobs:
             --no-transfer-progress \
             --batch-mode \
             -Dgpg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }} \
+            -Dcentral.autoPublish=${{ github.ref == 'refs/heads/main' && 'true' || 'false' }} \
             --activate-profiles release,ffsampledsp-x86_64-win \
             --file pom.xml \
             deploy
@@ -127,6 +133,7 @@ jobs:
             --no-transfer-progress \
             --batch-mode \
             -Dgpg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }} \
+            -Dcentral.autoPublish=${{ github.ref == 'refs/heads/main' && 'true' || 'false' }} \
             --activate-profiles release,ffsampledsp-i386-win \
             --file pom.xml \
             deploy
@@ -179,6 +186,7 @@ jobs:
             --no-transfer-progress \
             --batch-mode \
             -Dgpg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }} \
+            -Dcentral.autoPublish=${{ github.ref == 'refs/heads/main' && 'true' || 'false' }} \
             --activate-profiles release,ffsampledsp-x86_64-linux \
             --file pom.xml \
             deploy
@@ -236,6 +244,7 @@ jobs:
             --no-transfer-progress \
             --batch-mode \
             -Dgpg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }} \
+            -Dcentral.autoPublish=${{ github.ref == 'refs/heads/main' && 'true' || 'false' }} \
             --activate-profiles release,ffsampledsp-aarch64-linux \
             --file pom.xml \
             deploy \
@@ -297,6 +306,7 @@ jobs:
             --no-transfer-progress \
             --batch-mode \
             -Dgpg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }} \
+            -Dcentral.autoPublish=${{ github.ref == 'refs/heads/main' && 'true' || 'false' }} \
             --activate-profiles release,sign,ffsampledsp-aarch64-macos \
             --file pom.xml \
             deploy -Dmaven.test.skip=true
@@ -384,6 +394,7 @@ jobs:
             --no-transfer-progress \
             --batch-mode \
             -Dgpg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }} \
+            -Dcentral.autoPublish=${{ github.ref == 'refs/heads/main' && 'true' || 'false' }} \
             --activate-profiles release,sign,ffsampledsp-x86_64-macos \
             deploy --file pom.xml
 
@@ -404,6 +415,7 @@ jobs:
           cache: maven
 
       - name: Publish to tagtraum
+        if: github.ref == 'refs/heads/main'
         env:
           MAVEN_USERNAME: ${{ secrets.TAGTRAUM_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.TAGTRAUM_PASSWORD }}

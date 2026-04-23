@@ -64,13 +64,12 @@ jobs:
         env:
           SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
           SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
-          GPG_TTY: $(tty)
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}
         run: |
           mvn \
             --projects ffsampledsp-x86_64-win \
             --no-transfer-progress \
             --batch-mode \
-            -Dgpg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }} \
             -Dcentral.autoPublish=${{ github.ref == 'refs/heads/main' && 'true' || 'false' }} \
             --activate-profiles release,ffsampledsp-x86_64-win \
             --file pom.xml \
@@ -126,13 +125,13 @@ jobs:
         env:
           SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
           SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
-          GPG_TTY: $(tty)
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}
         run: |
           mvn \
             --projects ffsampledsp-i386-win \
             --no-transfer-progress \
             --batch-mode \
-            -Dgpg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }} \
+
             -Dcentral.autoPublish=${{ github.ref == 'refs/heads/main' && 'true' || 'false' }} \
             --activate-profiles release,ffsampledsp-i386-win \
             --file pom.xml \
@@ -179,13 +178,13 @@ jobs:
         env:
           SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
           SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
-          GPG_TTY: $(tty)
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}
         run: |
           mvn \
             --projects ffsampledsp-x86_64-linux \
             --no-transfer-progress \
             --batch-mode \
-            -Dgpg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }} \
+
             -Dcentral.autoPublish=${{ github.ref == 'refs/heads/main' && 'true' || 'false' }} \
             --activate-profiles release,ffsampledsp-x86_64-linux \
             --file pom.xml \
@@ -232,13 +231,13 @@ jobs:
         env:
           SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
           SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
-          GPG_TTY: $(tty)
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}
         run: |
           mvn \
             --projects ffsampledsp-aarch64-linux \
             --no-transfer-progress \
             --batch-mode \
-            -Dgpg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }} \
+
             -Dcentral.autoPublish=${{ github.ref == 'refs/heads/main' && 'true' || 'false' }} \
             --activate-profiles release,ffsampledsp-aarch64-linux \
             --file pom.xml \
@@ -294,13 +293,13 @@ jobs:
           MACOS_CERTIFICATE_PWD: ${{ secrets.MACOS_CERTIFICATE_PWD }}
           SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
           SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
-          GPG_TTY: $(tty)
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}
         run: |
           mvn \
             --projects ffsampledsp-aarch64-macos \
             --no-transfer-progress \
             --batch-mode \
-            -Dgpg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }} \
+
             -Dcentral.autoPublish=${{ github.ref == 'refs/heads/main' && 'true' || 'false' }} \
             --activate-profiles release,sign,ffsampledsp-aarch64-macos \
             --file pom.xml \
@@ -383,12 +382,12 @@ jobs:
           MACOS_CERTIFICATE_PWD: ${{ secrets.MACOS_CERTIFICATE_PWD }}
           SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
           SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
-          GPG_TTY: $(tty)
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}
         run: |
           mvn \
             --no-transfer-progress \
             --batch-mode \
-            -Dgpg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }} \
+
             -Dcentral.autoPublish=${{ github.ref == 'refs/heads/main' && 'true' || 'false' }} \
             --activate-profiles release,sign,ffsampledsp-x86_64-macos \
             deploy --file pom.xml

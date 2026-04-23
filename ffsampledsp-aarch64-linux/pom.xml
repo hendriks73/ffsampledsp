@@ -50,20 +50,6 @@
             <groupId>com.tagtraum</groupId>
             <artifactId>ffsampledsp-java</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.tagtraum</groupId>
-            <artifactId>ffmpeg-${arch}-${host}</artifactId>
-            <version>${ffmpeg.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.tagtraum</groupId>
-            <artifactId>ffmpeg-${arch}-${host}</artifactId>
-            <version>${ffmpeg.version}</version>
-            <type>tar.bz2</type>
-            <classifier>ffmpeg-sources</classifier>
-            <scope>provided</scope>
-        </dependency>
     </dependencies>
 
     <properties>

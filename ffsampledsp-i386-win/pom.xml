@@ -3,12 +3,12 @@
     <parent>
         <groupId>com.tagtraum</groupId>
         <artifactId>ffsampledsp</artifactId>
-        <version>0.9.54</version>
+        <version>0.9.54-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <groupId>com.tagtraum</groupId>
     <artifactId>ffsampledsp-i386-win</artifactId>
-    <version>0.9.54</version>
+    <version>0.9.54-SNAPSHOT</version>
     <packaging>dll</packaging>
     <name>FFSampledSP Native Library Windows (32bit)</name>
     <description>Windows 32bit binary library for FFSampledSP compiled via MinGW.</description>
@@ -49,7 +49,7 @@
         <dependency>
             <groupId>com.tagtraum</groupId>
             <artifactId>ffsampledsp-java</artifactId>
-            <version>0.9.54</version>
+            <version>0.9.54-SNAPSHOT</version>
         </dependency>
     </dependencies>
 

@@ -403,7 +403,7 @@ jobs:
         uses: JamesIves/github-pages-deploy-action@4.1.5
         with:
           branch: gh-pages
-          folder: ffsampledsp-complete/target/apidocs/
+          folder: ffsampledsp-complete/target/reports/apidocs/
 
       - name: Set up publication to tagtraum
         uses: actions/setup-java@v5

@@ -309,6 +309,9 @@ jobs:
       - linux-x64-build
       - linux-aarch64-build
     runs-on: macos-latest
+    permissions:
+      pages: write
+      id-token: write
     steps:
       - name: Set up Doxygen
         run: brew install doxygen
@@ -398,12 +401,15 @@ jobs:
             -pl ffsampledsp-complete \
             javadoc:javadoc
 
-      - name: Deploy Javadocs to GitHub Pages Branch
+      - name: Upload Javadocs as Pages artifact
         if: github.ref == 'refs/heads/main'
-        uses: JamesIves/github-pages-deploy-action@4.1.5
+        uses: actions/upload-pages-artifact@v3
         with:
-          branch: gh-pages
-          folder: ffsampledsp-complete/target/reports/apidocs/
+          path: ffsampledsp-complete/target/reports/apidocs/
+
+      - name: Deploy to GitHub Pages
+        if: github.ref == 'refs/heads/main'
+        uses: actions/deploy-pages@v4
 
       - name: Set up publication to tagtraum
         uses: actions/setup-java@v5

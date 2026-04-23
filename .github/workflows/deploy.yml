@@ -387,7 +387,19 @@ jobs:
             --activate-profiles release,sign,ffsampledsp-x86_64-macos \
             deploy --file pom.xml
 
+      - name: Generate Javadocs
+        if: github.ref == 'refs/heads/main'
+        run: |
+          mvn \
+            --activate-profiles ffsampledsp-x86_64-macos \
+            --no-transfer-progress \
+            --batch-mode \
+            --file pom.xml \
+            -pl ffsampledsp-complete \
+            javadoc:javadoc
+
       - name: Deploy Javadocs to GitHub Pages Branch
+        if: github.ref == 'refs/heads/main'
         uses: JamesIves/github-pages-deploy-action@4.1.5
         with:
           branch: gh-pages

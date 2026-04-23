@@ -21,6 +21,30 @@
         </license>
     </licenses>
 
+    <url>https://www.tagtraum.com/ffsampledsp</url>
+
+    <developers>
+        <developer>
+            <id>hendrik</id>
+            <name>Hendrik Schreiber</name>
+            <email>hs@tagtraum.com</email>
+            <url>https://jalulo.eu/</url>
+            <organization>Jalulo UG (haftungsbeschränkt)</organization>
+            <organizationUrl>https://jalulo.eu/</organizationUrl>
+            <roles>
+                <role>creator</role>
+            </roles>
+            <timezone>+1</timezone>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:git://github.com/hendriks73/ffsampledsp.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/hendriks73/ffsampledsp.git</developerConnection>
+        <url>https://github.com/hendriks73/ffsampledsp/tree/main</url>
+        <tag>HEAD</tag>
+    </scm>
+
     <build>
         <resources>
             <resource>

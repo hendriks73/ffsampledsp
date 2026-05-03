@@ -23,6 +23,10 @@ package com.tagtraum.ffsampledsp;
 import static org.junit.Assert.*;
 
 import java.io.*;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.DoubleBuffer;
+import java.nio.FloatBuffer;
 import java.util.concurrent.TimeUnit;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -884,6 +888,176 @@ public class TestFFCodecInputStream {
     }
     System.out.println("Read " + bytesRead + " bytes.");
     assertEquals(1069056, bytesRead);
+  }
+
+  @Test
+  public void testConvertWavToFloat32SamplesInRange()
+      throws IOException, UnsupportedAudioFileException {
+    final String filename = "test.wav";
+    final File file = File.createTempFile("testConvertWavToFloat32SamplesInRange", filename);
+    extractFile(filename, file);
+    boolean hasNonZero = false;
+    FFCodecInputStream pcmStream = null;
+    try (final AudioInputStream sourceStream = new FFAudioFileReader().getAudioInputStream(file)) {
+      final AudioFormat targetFormat =
+          new AudioFormat(AudioFormat.Encoding.PCM_FLOAT, 44100, 32, 2, 8, 44100, false);
+      final ByteOrder byteOrder =
+          targetFormat.isBigEndian() ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
+      pcmStream = new FFCodecInputStream(targetFormat, (FFAudioInputStream) sourceStream);
+      final byte[] buf = new byte[4096];
+      int justRead;
+      while ((justRead = pcmStream.read(buf)) != -1) {
+        assertEquals("reads must be 4-byte aligned", 0, justRead % 4);
+        final FloatBuffer floats =
+            ByteBuffer.wrap(buf, 0, justRead).order(byteOrder).asFloatBuffer();
+        while (floats.hasRemaining()) {
+          final float s = floats.get();
+          assertTrue("Sample out of range [-1,1]: " + s, s >= -1.0f && s <= 1.0f);
+          if (s != 0.0f) hasNonZero = true;
+        }
+      }
+    } finally {
+      if (pcmStream != null) pcmStream.close();
+      file.delete();
+    }
+    assertTrue("Expected non-silent audio", hasNonZero);
+  }
+
+  @Test
+  public void testConvertMp3ToFloat32SamplesFiniteAndReasonable()
+      throws IOException, UnsupportedAudioFileException {
+    // MP3 reconstruction can produce inter-sample peaks slightly outside [-1, 1] — this is
+    // expected behaviour (same as libsndfile, dr_mp3, etc.), not a bug. We verify samples are
+    // finite and within a small headroom rather than asserting strict [-1, 1].
+    final String filename = "test.mp3";
+    final File file =
+        File.createTempFile("testConvertMp3ToFloat32SamplesFiniteAndReasonable", filename);
+    extractFile(filename, file);
+    boolean hasNonZero = false;
+    FFCodecInputStream pcmStream = null;
+    try (final AudioInputStream sourceStream = new FFAudioFileReader().getAudioInputStream(file)) {
+      final AudioFormat targetFormat =
+          new AudioFormat(AudioFormat.Encoding.PCM_FLOAT, 44100, 32, 2, 8, 44100, false);
+      final ByteOrder byteOrder =
+          targetFormat.isBigEndian() ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
+      pcmStream = new FFCodecInputStream(targetFormat, (FFAudioInputStream) sourceStream);
+      final byte[] buf = new byte[4096];
+      int justRead;
+      while ((justRead = pcmStream.read(buf)) != -1) {
+        assertEquals("reads must be 4-byte aligned", 0, justRead % 4);
+        final FloatBuffer floats =
+            ByteBuffer.wrap(buf, 0, justRead).order(byteOrder).asFloatBuffer();
+        while (floats.hasRemaining()) {
+          final float s = floats.get();
+          assertTrue("Sample must be finite: " + s, Float.isFinite(s));
+          assertTrue("Sample implausibly large: " + s, s >= -2.0f && s <= 2.0f);
+          if (s != 0.0f) hasNonZero = true;
+        }
+      }
+    } finally {
+      if (pcmStream != null) pcmStream.close();
+      file.delete();
+    }
+    assertTrue("Expected non-silent audio", hasNonZero);
+  }
+
+  @Test
+  public void testConvertFlac24ToFloat32SamplesInRange()
+      throws IOException, UnsupportedAudioFileException {
+    final String filename = "test24bit.flac";
+    final File file = File.createTempFile("testConvertFlac24ToFloat32SamplesInRange", filename);
+    extractFile(filename, file);
+    boolean hasNonZero = false;
+    FFCodecInputStream pcmStream = null;
+    try (final AudioInputStream sourceStream = new FFAudioFileReader().getAudioInputStream(file)) {
+      final AudioFormat targetFormat =
+          new AudioFormat(AudioFormat.Encoding.PCM_FLOAT, 44100, 32, 2, 8, 44100, false);
+      final ByteOrder byteOrder =
+          targetFormat.isBigEndian() ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
+      pcmStream = new FFCodecInputStream(targetFormat, (FFAudioInputStream) sourceStream);
+      final byte[] buf = new byte[4096];
+      int justRead;
+      while ((justRead = pcmStream.read(buf)) != -1) {
+        assertEquals("reads must be 4-byte aligned", 0, justRead % 4);
+        final FloatBuffer floats =
+            ByteBuffer.wrap(buf, 0, justRead).order(byteOrder).asFloatBuffer();
+        while (floats.hasRemaining()) {
+          final float s = floats.get();
+          assertTrue("Sample out of range [-1,1]: " + s, s >= -1.0f && s <= 1.0f);
+          if (s != 0.0f) hasNonZero = true;
+        }
+      }
+    } finally {
+      if (pcmStream != null) pcmStream.close();
+      file.delete();
+    }
+    assertTrue("Expected non-silent audio", hasNonZero);
+  }
+
+  @Test
+  public void testConvertWavToFloat64SamplesInRange()
+      throws IOException, UnsupportedAudioFileException {
+    final String filename = "test.wav";
+    final File file = File.createTempFile("testConvertWavToFloat64SamplesInRange", filename);
+    extractFile(filename, file);
+    boolean hasNonZero = false;
+    FFCodecInputStream pcmStream = null;
+    try (final AudioInputStream sourceStream = new FFAudioFileReader().getAudioInputStream(file)) {
+      final AudioFormat targetFormat =
+          new AudioFormat(AudioFormat.Encoding.PCM_FLOAT, 44100, 64, 2, 16, 44100, false);
+      final ByteOrder byteOrder =
+          targetFormat.isBigEndian() ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
+      pcmStream = new FFCodecInputStream(targetFormat, (FFAudioInputStream) sourceStream);
+      final byte[] buf = new byte[4096];
+      int justRead;
+      while ((justRead = pcmStream.read(buf)) != -1) {
+        assertEquals("reads must be 8-byte aligned", 0, justRead % 8);
+        final DoubleBuffer doubles =
+            ByteBuffer.wrap(buf, 0, justRead).order(byteOrder).asDoubleBuffer();
+        while (doubles.hasRemaining()) {
+          final double d = doubles.get();
+          assertTrue("Sample out of range [-1,1]: " + d, d >= -1.0 && d <= 1.0);
+          if (d != 0.0) hasNonZero = true;
+        }
+      }
+    } finally {
+      if (pcmStream != null) pcmStream.close();
+      file.delete();
+    }
+    assertTrue("Expected non-silent audio", hasNonZero);
+  }
+
+  @Test
+  public void testConvertFlac24ToFloat64SamplesInRange()
+      throws IOException, UnsupportedAudioFileException {
+    final String filename = "test24bit.flac";
+    final File file = File.createTempFile("testConvertFlac24ToFloat64SamplesInRange", filename);
+    extractFile(filename, file);
+    boolean hasNonZero = false;
+    FFCodecInputStream pcmStream = null;
+    try (final AudioInputStream sourceStream = new FFAudioFileReader().getAudioInputStream(file)) {
+      final AudioFormat targetFormat =
+          new AudioFormat(AudioFormat.Encoding.PCM_FLOAT, 44100, 64, 2, 16, 44100, false);
+      final ByteOrder byteOrder =
+          targetFormat.isBigEndian() ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
+      pcmStream = new FFCodecInputStream(targetFormat, (FFAudioInputStream) sourceStream);
+      final byte[] buf = new byte[4096];
+      int justRead;
+      while ((justRead = pcmStream.read(buf)) != -1) {
+        assertEquals("reads must be 8-byte aligned", 0, justRead % 8);
+        final DoubleBuffer doubles =
+            ByteBuffer.wrap(buf, 0, justRead).order(byteOrder).asDoubleBuffer();
+        while (doubles.hasRemaining()) {
+          final double d = doubles.get();
+          assertTrue("Sample out of range [-1,1]: " + d, d >= -1.0 && d <= 1.0);
+          if (d != 0.0) hasNonZero = true;
+        }
+      }
+    } finally {
+      if (pcmStream != null) pcmStream.close();
+      file.delete();
+    }
+    assertTrue("Expected non-silent audio", hasNonZero);
   }
 
   @Test

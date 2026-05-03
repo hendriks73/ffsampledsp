@@ -7,18 +7,19 @@
 # FFSampledSP
 
 *FFSampledSP* is an implementation of the
-[javax.sound.sampled](https://docs.oracle.com/javase/10/docs/api/javax/sound/sampled/spi/package-summary.html)
+[javax.sound.sampled](https://docs.oracle.com/javase/8/docs/api/javax/sound/sampled/spi/package-summary.html)
 service provider interfaces based on [FFmpeg](https://www.ffmpeg.org), a complete, cross-platform solution to record,
 convert and stream audio and video.
 FFSampledSP is part of the [SampledSP](https://www.tagtraum.com/sampledsp.html) collection of `javax.sound.sampled`
 libraries.
 
-Its main purpose is to decode audio files or streams to signed
-[linear PCM](https://en.wikipedia.org/wiki/Pulse-code_modulation).
+Its main purpose is to decode audio files or streams to
+[PCM](https://en.wikipedia.org/wiki/Pulse-code_modulation) — signed integer (`PCM_SIGNED`) or
+floating-point (`PCM_FLOAT`).
 
 Supported platforms are currently:
 
-- macOS x64 (>=10.8) and aarch64 (>=11)
+- macOS x64 (>=10.10) and aarch64 (>=11)
 - Windows i686 and x64
 - Linux (Ubuntu 20) x64 and aarch64 (arm64)
 
@@ -45,7 +46,7 @@ You can install it via the following dependency:
 ## Usage
 
 To use the library, simply use
-[javax.sound.sampled](https://docs.oracle.com/javase/10/docs/api/javax/sound/sampled/spi/package-summary.html)
+[javax.sound.sampled](https://docs.oracle.com/javase/8/docs/api/javax/sound/sampled/spi/package-summary.html)
 like you normally would.
 
 Note that opening an `AudioInputStream` of compressed audio (e.g. mp3), does
@@ -73,7 +74,7 @@ public class DecodeExample {
             mp3Format.isBigEndian()
             );
         // actually decompressed stream (signed PCM)
-        final AudioInputStream pcmIn = AudioSystem.getAudioInputStream(mp3In, pcmFormat);
+        final AudioInputStream pcmIn = AudioSystem.getAudioInputStream(pcmFormat, mp3In);
         // do something with the raw audio stream pcmIn... 
     }
 }
@@ -83,7 +84,7 @@ public class DecodeExample {
 ## Build
 
 You can build this library locally on macOS, Windows, or Linux (Ubuntu is tested).
-When doing so, only the appropriate  native libraries are included in the "complete" jar.
+When doing so, only the appropriate native libraries are included in the "complete" jar.
 The GitHub-based build also adds native libraries for other platforms.
 
 To do so, you also need:

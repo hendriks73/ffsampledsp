@@ -252,13 +252,18 @@ public class FFFormatConversionProvider extends FormatConversionProvider {
   public AudioInputStream getAudioInputStream(
       final AudioFormat.Encoding targetEncoding, final AudioInputStream sourceStream) {
     final AudioFormat sourceFormat = sourceStream.getFormat();
-    // we assume some defaults...
-    final int sampleSizeInBits =
-        sourceFormat.getSampleSizeInBits() > 0 ? sourceFormat.getSampleSizeInBits() : 16;
-    final int frameSize =
-        sourceFormat.getFrameSize() > 0
-            ? sourceFormat.getFrameSize()
-            : sampleSizeInBits * sourceFormat.getChannels() / 8;
+    final FFAudioFormat.FFEncoding ffEncoding =
+        FFAudioFormat.FFEncoding.getInstance(targetEncoding.toString());
+    // PCM_FLOAT requires at least 32 bits; a source like S16 must not be inherited as-is
+    final int sampleSizeInBits;
+    if (PCM_FLOAT.getEncoding().equals(ffEncoding)) {
+      final int srcBits = sourceFormat.getSampleSizeInBits();
+      sampleSizeInBits = srcBits >= 32 ? srcBits : 32;
+    } else {
+      sampleSizeInBits =
+          sourceFormat.getSampleSizeInBits() > 0 ? sourceFormat.getSampleSizeInBits() : 16;
+    }
+    final int frameSize = sampleSizeInBits * sourceFormat.getChannels() / 8;
     final AudioFormat targetFormat =
         new AudioFormat(
             targetEncoding,

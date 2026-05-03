@@ -80,6 +80,52 @@ public class DecodeExample {
 }
 ```
 
+To decode to 32-bit float PCM (`PCM_FLOAT`) instead, specify the float encoding and
+read the samples via a `FloatBuffer`:
+
+```java
+import java.io.File;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.FloatBuffer;
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+
+public class FloatDecodeExample {
+    public static void main(final String[] args) throws Exception {
+        // compressed stream
+        final AudioInputStream mp3In = AudioSystem.getAudioInputStream(new File(args[0]));
+        // AudioFormat describing the compressed stream
+        final AudioFormat mp3Format = mp3In.getFormat();
+        // AudioFormat describing 32-bit float PCM output (little-endian, samples in [-1.0, 1.0])
+        final AudioFormat pcmFloatFormat = new AudioFormat(
+            AudioFormat.Encoding.PCM_FLOAT,
+            mp3Format.getSampleRate(),
+            32,
+            mp3Format.getChannels(),
+            32 * mp3Format.getChannels() / 8,
+            mp3Format.getSampleRate(),
+            false  // little-endian
+            );
+        // decoded float PCM stream
+        final AudioInputStream pcmIn = AudioSystem.getAudioInputStream(pcmFloatFormat, mp3In);
+        // read and process samples as float values
+        final byte[] buf = new byte[4096];
+        int justRead;
+        while ((justRead = pcmIn.read(buf)) != -1) {
+            final FloatBuffer floats = ByteBuffer.wrap(buf, 0, justRead)
+                .order(ByteOrder.LITTLE_ENDIAN)
+                .asFloatBuffer();
+            while (floats.hasRemaining()) {
+                final float sample = floats.get(); // value in [-1.0, 1.0]
+                // process sample...
+            }
+        }
+    }
+}
+```
+
 
 ## Build
 

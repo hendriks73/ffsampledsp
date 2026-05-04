@@ -330,13 +330,6 @@ public class FFAudioFormat extends AudioFormat {
     private static final int AV_CODEC_ID_G728 = 0x1506b;
     private static final int AV_CODEC_ID_AHX = 0x1506c;
 
-    /**
-     * Float PCM - named just like the <code>PCM_FLOAT</code> in {@link
-     * javax.sound.sampled.AudioFormat.Encoding}. in Java 7 (not used for compatibility with Java
-     * &lt;7).
-     */
-    private static final String PCM_FLOAT_STRING = "PCM_FLOAT";
-
     /** Codecs supported by libavcodec. */
     public enum Codec {
       /** MPEG-1 Layer 1 audio. */
@@ -371,7 +364,7 @@ public class FFAudioFormat extends AudioFormat {
       /** Generic unsigned PCM (format determined by sample size and endianness). */
       PCM_UNSIGNED(Encoding.PCM_UNSIGNED.toString(), -1, true),
       /** Generic floating-point PCM (format determined by sample size and endianness). */
-      PCM_FLOAT(PCM_FLOAT_STRING, -1, true),
+      PCM_FLOAT(Encoding.PCM_FLOAT.toString(), -1, true),
 
       /** Signed 8-bit PCM. */
       PCM_S8(Encoding.PCM_SIGNED.toString(), AV_CODEC_ID_PCM_S8, true),
@@ -408,17 +401,17 @@ public class FFAudioFormat extends AudioFormat {
       PCM_U32LE(Encoding.PCM_UNSIGNED.toString(), AV_CODEC_ID_PCM_U32LE, true),
 
       /** 16-bit floating-point little-endian PCM. */
-      PCM_F16LE(PCM_FLOAT_STRING, AV_CODEC_ID_PCM_F16LE, true),
+      PCM_F16LE(Encoding.PCM_FLOAT.toString(), AV_CODEC_ID_PCM_F16LE, true),
       /** 24-bit floating-point little-endian PCM. */
-      PCM_F24LE(PCM_FLOAT_STRING, AV_CODEC_ID_PCM_F24LE, true),
+      PCM_F24LE(Encoding.PCM_FLOAT.toString(), AV_CODEC_ID_PCM_F24LE, true),
       /** 32-bit floating-point big-endian PCM. */
-      PCM_F32BE(PCM_FLOAT_STRING, AV_CODEC_ID_PCM_F32BE, true),
+      PCM_F32BE(Encoding.PCM_FLOAT.toString(), AV_CODEC_ID_PCM_F32BE, true),
       /** 32-bit floating-point little-endian PCM. */
-      PCM_F32LE(PCM_FLOAT_STRING, AV_CODEC_ID_PCM_F32LE, true),
+      PCM_F32LE(Encoding.PCM_FLOAT.toString(), AV_CODEC_ID_PCM_F32LE, true),
       /** 64-bit floating-point big-endian PCM. */
-      PCM_F64BE(PCM_FLOAT_STRING, AV_CODEC_ID_PCM_F64BE, true),
+      PCM_F64BE(Encoding.PCM_FLOAT.toString(), AV_CODEC_ID_PCM_F64BE, true),
       /** 64-bit floating-point little-endian PCM. */
-      PCM_F64LE(PCM_FLOAT_STRING, AV_CODEC_ID_PCM_F64LE, true),
+      PCM_F64LE(Encoding.PCM_FLOAT.toString(), AV_CODEC_ID_PCM_F64LE, true),
 
       /** Signed 8-bit planar PCM. */
       PCM_S8_PLANAR("PCM S8 Planar", AV_CODEC_ID_PCM_S8_PLANAR, true),

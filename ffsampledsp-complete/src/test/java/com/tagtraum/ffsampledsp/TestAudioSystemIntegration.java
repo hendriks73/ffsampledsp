@@ -27,6 +27,9 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.FloatBuffer;
 import javax.sound.sampled.*;
 import org.junit.Test;
 
@@ -132,5 +135,45 @@ public class TestAudioSystemIntegration {
                     / 1000L
                     * targetFormat.getFrameSize());
     assertEquals(expectedBytes, bytesRead);
+  }
+
+  @Test
+  public void testDecodeMp3ToFloatPCM() throws IOException, UnsupportedAudioFileException {
+    final String filename = "test.mp3";
+    final File file = File.createTempFile("testDecodeMp3ToFloatPCM", filename);
+    extractFile(filename, file);
+    boolean hasNonZero = false;
+    try (final AudioInputStream mp3In = AudioSystem.getAudioInputStream(file)) {
+      final AudioFormat mp3Format = mp3In.getFormat();
+      final AudioFormat pcmFloatFormat =
+          new AudioFormat(
+              AudioFormat.Encoding.PCM_FLOAT,
+              mp3Format.getSampleRate(),
+              32,
+              mp3Format.getChannels(),
+              32 * mp3Format.getChannels() / 8,
+              mp3Format.getSampleRate(),
+              false);
+      try (final AudioInputStream pcmIn = AudioSystem.getAudioInputStream(pcmFloatFormat, mp3In)) {
+        assertEquals(AudioFormat.Encoding.PCM_FLOAT, pcmIn.getFormat().getEncoding());
+        assertEquals(32, pcmIn.getFormat().getSampleSizeInBits());
+        final byte[] buf = new byte[4096];
+        int justRead;
+        while ((justRead = pcmIn.read(buf)) != -1) {
+          assertTrue(justRead > 0);
+          assertEquals("reads must be 4-byte aligned", 0, justRead % 4);
+          final FloatBuffer floats =
+              ByteBuffer.wrap(buf, 0, justRead).order(ByteOrder.LITTLE_ENDIAN).asFloatBuffer();
+          while (floats.hasRemaining()) {
+            final float sample = floats.get();
+            assertTrue("Sample must be finite: " + sample, Float.isFinite(sample));
+            if (sample != 0.0f) hasNonZero = true;
+          }
+        }
+      }
+    } finally {
+      file.delete();
+    }
+    assertTrue("Expected non-silent audio", hasNonZero);
   }
 }

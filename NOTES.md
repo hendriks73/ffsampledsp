@@ -1,5 +1,8 @@
 - 0.9.55
   - Publish to GitHub Pages via GitHub actions.
+  - Improved `PCM_FLOAT` support: `AudioFormat.Encoding.PCM_FLOAT` now works correctly via
+    `FFFormatConversionProvider`, defaulting to 32-bit float; 64-bit float decoding is also supported
+    and tested.
 
 
 - 0.9.54

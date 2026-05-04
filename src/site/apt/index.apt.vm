@@ -43,9 +43,11 @@ Introduction
 
 * Requirements
 
-    On macOS, <FFSampledSP> requires OS X/macOS 10.10 or later and an Intel processor. Starting with v0.9.29, only 64 bit is supported.
+    <FFSampledSP> requires Java 8 or later.
+
+    On macOS, <FFSampledSP> requires macOS 10.10 or later on Intel or Apple Silicon (aarch64). Only 64 bit is supported.
     On Windows, <FFSampledSP> should run with Windows XP or higher. Both 32 bit and 64 bit are supported.
-    On Linux/Debian, <FFSampledSP> should run with Ubuntu 20 or higher (x86/arm64). Only 64 bit is supported.
+    On Linux/Debian, <FFSampledSP> should run with Ubuntu 20 or higher (x86_64/arm64). Only 64 bit is supported.
 
 * Stems Support
 
@@ -58,6 +60,34 @@ Introduction
     <<<getAudioInputStream(..., streamIndex)>>> method correspond to each other.
 
     For a code sample please see {{{./stems.html}here}}.
+
+* File I/O Buffer Size
+
+    When opening a <<<File>>> or <<<URL>>> source, <FFSampledSP> allocates an internal FFmpeg read
+    buffer (<<<AVFormatContext.io_buffer_size>>>). The default size depends on the URL scheme:
+
+    * For <<<file:>>> URLs: <<1 MB>>. This keeps system-call overhead low when reading large audio
+    files from disk. The default can be overridden at the JVM level with
+    <<<-Dffsampledsp.fileBufferSize=N>>>.
+
+    * For non-<<<file:>>> URLs (e.g. HTTP/HTTPS): <<64 KB>>. The smaller default keeps latency low
+    when streaming over a network. The default can be overridden with
+    <<<-Dffsampledsp.urlBufferSize=N>>>.
+
+    []
+
+    Both defaults can also be overridden per stream using the three-argument overloads of
+    <<<getAudioInputStream()>>>:
+
++-------------------------------+
+// Open stream 0 with an explicit 512 KB I/O buffer:
+AudioInputStream in = new FFAudioFileReader()
+    .getAudioInputStream(file, 0, 512 * 1024);
++-------------------------------+
+
+    Larger buffers improve throughput for bulk transcoding or analysis; smaller buffers reduce
+    per-stream memory use and latency when streaming. The scheme-based defaults are a sensible
+    starting point for most applications.
 
 * Alternatives
 
@@ -78,11 +108,12 @@ Introduction
 
     There are numerous other Java-FFmpeg projects. Here's the short list, of the projects I'm aware of:
 
-        * {{{https://www.xuggle.com}Xuggle}} - Java wrapper around FFmpeg using JNI.
+        * {{{https://github.com/artclarke/xuggle-xuggler}Xuggler}} - Java wrapper around FFmpeg using JNI. Deprecated.
 
         * {{{https://github.com/MisterRager/jjmpeg}jjmpeg}} - thin Java wrapper around FFmpeg using JNI.
 
         * {{{https://www.sauronsoftware.it/projects/jave/}JAVE}} - Java wrapper around FFmpeg executables.
+        Apparently abandoned in 2012.
 
         * {{{http://fmj-sf.net/ffmpeg-java/getting_started.php}FFMPEG-Java}} - Java wrapper around FFmpeg,
         using {{{https://github.com/twall/jna}JNA}}. Apparently abandoned in 2007.

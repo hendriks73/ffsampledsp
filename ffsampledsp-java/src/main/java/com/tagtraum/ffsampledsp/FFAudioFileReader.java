@@ -29,6 +29,7 @@ import java.net.URLDecoder;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -398,7 +399,8 @@ public class FFAudioFileReader extends AudioFileReader {
       throws IOException, UnsupportedAudioFileException {
     LOCK.lock();
     try {
-      final AudioFileFormat[] audioFileFormat = getAudioFileFormatsFromURL(url);
+      final AudioFileFormat[] audioFileFormat =
+          getAudioFileFormatsFromURL(url, url.getBytes(StandardCharsets.UTF_8));
       checkPlausibility(audioFileFormat);
       return audioFileFormat;
     } finally {
@@ -434,8 +436,8 @@ public class FFAudioFileReader extends AudioFileReader {
    * @return {@link AudioFileFormat}s
    * @throws IOException if an IO error occurs
    */
-  private native AudioFileFormat[] getAudioFileFormatsFromURL(final String url)
-      throws IOException, UnsupportedAudioFileException;
+  private native AudioFileFormat[] getAudioFileFormatsFromURL(
+      final String url, final byte[] urlBytes) throws IOException, UnsupportedAudioFileException;
 
   /**
    * Determine {@link AudioFileFormat} from a file containing just the first kbs from a stream.

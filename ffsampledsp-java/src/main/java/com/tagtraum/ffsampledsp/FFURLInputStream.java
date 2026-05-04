@@ -25,6 +25,7 @@ import static com.tagtraum.ffsampledsp.FFGlobalLock.LOCK;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.Buffer;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
@@ -251,7 +252,7 @@ public class FFURLInputStream extends FFNativePeerInputStream {
       throws IOException, UnsupportedAudioFileException {
     LOCK.lock();
     try {
-      return open(url, streamIndex, fileBufferSize);
+      return open(url, url.getBytes(StandardCharsets.UTF_8), streamIndex, fileBufferSize);
     } finally {
       LOCK.unlock();
     }
@@ -263,7 +264,8 @@ public class FFURLInputStream extends FFNativePeerInputStream {
 
   private native void fillNativeBuffer(final long pointer) throws IOException;
 
-  private native long open(final String url, final int streamIndex, final int fileBufferSize)
+  private native long open(
+      final String url, final byte[] urlBytes, final int streamIndex, final int fileBufferSize)
       throws IOException, UnsupportedAudioFileException;
 
   protected native void close(final long pointer) throws IOException;

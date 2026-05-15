@@ -423,7 +423,7 @@ bail:
  */
 JNIEXPORT jobjectArray JNICALL
 Java_com_tagtraum_ffsampledsp_FFAudioFileReader_getAudioFileFormatsFromURL(
-    JNIEnv *env, jobject instance, jstring url) {
+    JNIEnv *env, jobject instance, jstring url, jbyteArray urlBytes) {
 
 #ifdef DEBUG
   fprintf(stderr, "openFromUrl_1\n");
@@ -432,19 +432,23 @@ Java_com_tagtraum_ffsampledsp_FFAudioFileReader_getAudioFileFormatsFromURL(
   int res = 0;
   AVFormatContext *format_context = NULL;
   jobjectArray array = NULL;
+  char *input_url = NULL;
 
   init_ids(env);
 
-  // Use ff_jstring_to_utf8 instead of GetStringUTFChars: the JNI function
-  // returns Modified UTF-8 (CESU-8), which encodes supplementary characters
-  // (U+10000+, e.g. emoji) as 6 bytes rather than the standard UTF-8 4-byte
-  // sequence.  File systems use standard UTF-8, so avformat_open_input would
-  // fail to find such files.
-  char *input_url = ff_jstring_to_utf8(env, url);
-  if (!input_url) {
-    throwIOExceptionIfError(env, AVERROR(ENOMEM),
-                            "Failed to convert URL to UTF-8");
-    goto bail;
+  {
+    jsize urlLen = (*env)->GetArrayLength(env, urlBytes);
+    jbyte *urlBuf = (*env)->GetByteArrayElements(env, urlBytes, NULL);
+    input_url = (char *)malloc(urlLen + 1);
+    if (!input_url) {
+      (*env)->ReleaseByteArrayElements(env, urlBytes, urlBuf, JNI_ABORT);
+      throwIOExceptionIfError(env, AVERROR(ENOMEM),
+                              "Failed to allocate URL buffer");
+      goto bail;
+    }
+    memcpy(input_url, urlBuf, urlLen);
+    input_url[urlLen] = '\0';
+    (*env)->ReleaseByteArrayElements(env, urlBytes, urlBuf, JNI_ABORT);
   }
 
   res = ff_open_format_context(env, &format_context, input_url, 0);

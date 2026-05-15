@@ -3,12 +3,12 @@
     <parent>
         <groupId>com.tagtraum</groupId>
         <artifactId>ffsampledsp</artifactId>
-        <version>0.9.55-SNAPSHOT</version>
+        <version>0.9.55</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <groupId>com.tagtraum</groupId>
     <artifactId>ffsampledsp-x86_64-linux</artifactId>
-    <version>0.9.55-SNAPSHOT</version>
+    <version>0.9.55</version>
     <packaging>so</packaging>
     <name>FFSampledSP Native Library Linux (64bit)</name>
     <description>Linux x86_64 binary library for FFSampledSP.</description>
@@ -49,7 +49,7 @@
         <dependency>
             <groupId>com.tagtraum</groupId>
             <artifactId>ffsampledsp-java</artifactId>
-            <version>0.9.55-SNAPSHOT</version>
+            <version>0.9.55</version>
         </dependency>
     </dependencies>
 

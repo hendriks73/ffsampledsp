@@ -1,3 +1,7 @@
+- 0.9.56
+  - Fixed deployment to tagtraum
+
+
 - 0.9.55
   - Publish to GitHub Pages via GitHub actions.
   - Improved `PCM_FLOAT` support: `AudioFormat.Encoding.PCM_FLOAT` now works correctly via

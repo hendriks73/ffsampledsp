@@ -1,5 +1,6 @@
 - 0.9.56
-  - Fixed deployment to tagtraum
+  - Fixed deployment to tagtraum.
+  - Fixed PCM endianness bug.
 
 
 - 0.9.55

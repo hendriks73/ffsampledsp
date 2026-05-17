@@ -59,8 +59,13 @@ jobs:
           path: nativelibs
           retention-days: 1
 
+      - name: Get project version
+        id: get_version
+        run: echo "version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout --file pom.xml)" >> $GITHUB_OUTPUT
+
       - id: publish-native-lib-to-central
         name: Publish to Central Repository
+        if: ${{ !endsWith(steps.get_version.outputs.version, 'SNAPSHOT') }}
         env:
           SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
           SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
@@ -120,8 +125,13 @@ jobs:
           path: nativelibs
           retention-days: 1
 
+      - name: Get project version
+        id: get_version
+        run: echo "version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout --file pom.xml)" >> $GITHUB_OUTPUT
+
       - id: publish-native-lib-to-central
         name: Publish to Central Repository
+        if: ${{ !endsWith(steps.get_version.outputs.version, 'SNAPSHOT') }}
         env:
           SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
           SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
@@ -172,8 +182,13 @@ jobs:
           path: nativelibs
           retention-days: 1
 
+      - name: Get project version
+        id: get_version
+        run: echo "version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout --file pom.xml)" >> $GITHUB_OUTPUT
+
       - id: publish-native-lib-to-central
         name: Publish to Central Repository
+        if: ${{ !endsWith(steps.get_version.outputs.version, 'SNAPSHOT') }}
         env:
           SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
           SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
@@ -224,8 +239,13 @@ jobs:
           path: nativelibs
           retention-days: 1
 
+      - name: Get project version
+        id: get_version
+        run: echo "version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout --file pom.xml)" >> $GITHUB_OUTPUT
+
       - id: publish-native-lib-to-central
         name: Publish to Central Repository
+        if: ${{ !endsWith(steps.get_version.outputs.version, 'SNAPSHOT') }}
         env:
           SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
           SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
@@ -283,8 +303,13 @@ jobs:
           path: nativelibs
           retention-days: 1
 
+      - name: Get project version
+        id: get_version
+        run: echo "version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout --file pom.xml)" >> $GITHUB_OUTPUT
+
       - id: publish-to-central
         name: Publish to Central Repository
+        if: ${{ !endsWith(steps.get_version.outputs.version, 'SNAPSHOT') }}
         env:
           MACOS_CERTIFICATE: ${{ secrets.MACOS_CERTIFICATE }}
           MACOS_CERTIFICATE_PWD: ${{ secrets.MACOS_CERTIFICATE_PWD }}
@@ -374,8 +399,13 @@ jobs:
           name: nativelibs-x64-win
           path: ffsampledsp-complete/target/classes/
 
+      - name: Get project version
+        id: get_version
+        run: echo "version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout --file pom.xml)" >> $GITHUB_OUTPUT
+
       - id: publish-to-central
         name: Publish to Central Repository
+        if: ${{ !endsWith(steps.get_version.outputs.version, 'SNAPSHOT') }}
         env:
           MACOS_CERTIFICATE: ${{ secrets.MACOS_CERTIFICATE }}
           MACOS_CERTIFICATE_PWD: ${{ secrets.MACOS_CERTIFICATE_PWD }}

@@ -1300,6 +1300,150 @@ public class TestFFCodecInputStream {
     assertTrue("Expected upsample to produce more bytes than source", bytesRead > 534528);
   }
 
+  /**
+   * The raw FFAudioInputStream from an AIFF file must deliver big-endian bytes (matching its
+   * reported isBigEndian()=true). Before the fix, the stream delivered native-LE bytes despite
+   * claiming BE, making it byte-for-byte identical to a LE-converted stream.
+   */
+  @Test
+  public void testRawAiffStreamBytesDifferFromLittleEndianConversion()
+      throws IOException, UnsupportedAudioFileException {
+    final String filename = "test.aiff";
+    final File fileRaw = File.createTempFile("testRawAiffRaw", filename);
+    final File fileLE = File.createTempFile("testRawAiffLE", filename);
+    extractFile(filename, fileRaw);
+    extractFile(filename, fileLE);
+    try {
+      final byte[] rawBytes;
+      try (final AudioInputStream src = new FFAudioFileReader().getAudioInputStream(fileRaw)) {
+        assertTrue("AIFF source must be big-endian", src.getFormat().isBigEndian());
+        final byte[] buf = new byte[4096];
+        final java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+        int n;
+        while ((n = src.read(buf)) != -1) {
+          baos.write(buf, 0, n);
+        }
+        rawBytes = baos.toByteArray();
+      }
+      final byte[] leBytes;
+      try (final AudioInputStream src = new FFAudioFileReader().getAudioInputStream(fileLE)) {
+        final AudioFormat fmt = src.getFormat();
+        final AudioFormat leTarget =
+            new AudioFormat(
+                AudioFormat.Encoding.PCM_SIGNED,
+                fmt.getSampleRate(),
+                fmt.getSampleSizeInBits(),
+                fmt.getChannels(),
+                fmt.getFrameSize(),
+                fmt.getSampleRate(),
+                false);
+        leBytes = readAllBytes(new FFCodecInputStream(leTarget, (FFAudioInputStream) src));
+      }
+      assertFalse(
+          "Raw AIFF stream (isBigEndian=true) must not be byte-for-byte identical to"
+              + " LE-converted stream — raw bytes must be big-endian",
+          java.util.Arrays.equals(rawBytes, leBytes));
+    } finally {
+      fileRaw.delete();
+      fileLE.delete();
+    }
+  }
+
+  @Test
+  public void testAiffLittleEndianAndBigEndianDiffer()
+      throws IOException, UnsupportedAudioFileException {
+    final String filename = "test.aiff";
+    final File fileLE = File.createTempFile("testAiffLEandBEDifferLE", filename);
+    final File fileBE = File.createTempFile("testAiffLEandBEDifferBE", filename);
+    extractFile(filename, fileLE);
+    extractFile(filename, fileBE);
+    try {
+      final byte[] leBytes;
+      try (final AudioInputStream src = new FFAudioFileReader().getAudioInputStream(fileLE)) {
+        assertTrue("AIFF source must be big-endian", src.getFormat().isBigEndian());
+        final AudioFormat fmt = src.getFormat();
+        final AudioFormat leTarget =
+            new AudioFormat(
+                AudioFormat.Encoding.PCM_SIGNED,
+                fmt.getSampleRate(),
+                fmt.getSampleSizeInBits(),
+                fmt.getChannels(),
+                fmt.getFrameSize(),
+                fmt.getSampleRate(),
+                false);
+        leBytes = readAllBytes(new FFCodecInputStream(leTarget, (FFAudioInputStream) src));
+      }
+      final byte[] beBytes;
+      try (final AudioInputStream src = new FFAudioFileReader().getAudioInputStream(fileBE)) {
+        final AudioFormat fmt = src.getFormat();
+        final AudioFormat beTarget =
+            new AudioFormat(
+                AudioFormat.Encoding.PCM_SIGNED,
+                fmt.getSampleRate(),
+                fmt.getSampleSizeInBits(),
+                fmt.getChannels(),
+                fmt.getFrameSize(),
+                fmt.getSampleRate(),
+                true);
+        beBytes = readAllBytes(new FFCodecInputStream(beTarget, (FFAudioInputStream) src));
+      }
+      assertFalse(
+          "LE and BE conversions of AIFF must produce different byte sequences",
+          java.util.Arrays.equals(leBytes, beBytes));
+    } finally {
+      fileLE.delete();
+      fileBE.delete();
+    }
+  }
+
+  @Test
+  public void testAiffLittleEndianIsByteSwapOfBigEndian()
+      throws IOException, UnsupportedAudioFileException {
+    final String filename = "test.aiff";
+    final File fileLE = File.createTempFile("testAiffByteSwapLE", filename);
+    final File fileBE = File.createTempFile("testAiffByteSwapBE", filename);
+    extractFile(filename, fileLE);
+    extractFile(filename, fileBE);
+    try {
+      final byte[] leBytes;
+      try (final AudioInputStream src = new FFAudioFileReader().getAudioInputStream(fileLE)) {
+        final AudioFormat fmt = src.getFormat();
+        final AudioFormat leTarget =
+            new AudioFormat(
+                AudioFormat.Encoding.PCM_SIGNED,
+                fmt.getSampleRate(),
+                fmt.getSampleSizeInBits(),
+                fmt.getChannels(),
+                fmt.getFrameSize(),
+                fmt.getSampleRate(),
+                false);
+        leBytes = readAllBytes(new FFCodecInputStream(leTarget, (FFAudioInputStream) src));
+      }
+      final byte[] beBytes;
+      try (final AudioInputStream src = new FFAudioFileReader().getAudioInputStream(fileBE)) {
+        final AudioFormat fmt = src.getFormat();
+        final AudioFormat beTarget =
+            new AudioFormat(
+                AudioFormat.Encoding.PCM_SIGNED,
+                fmt.getSampleRate(),
+                fmt.getSampleSizeInBits(),
+                fmt.getChannels(),
+                fmt.getFrameSize(),
+                fmt.getSampleRate(),
+                true);
+        beBytes = readAllBytes(new FFCodecInputStream(beTarget, (FFAudioInputStream) src));
+      }
+      assertEquals("LE and BE outputs must have the same length", leBytes.length, beBytes.length);
+      for (int i = 0; i + 1 < leBytes.length; i += 2) {
+        assertEquals("Byte swap mismatch at sample offset " + (i / 2), leBytes[i], beBytes[i + 1]);
+        assertEquals("Byte swap mismatch at sample offset " + (i / 2), leBytes[i + 1], beBytes[i]);
+      }
+    } finally {
+      fileLE.delete();
+      fileBE.delete();
+    }
+  }
+
   private void extractFile(final String filename, final File file) throws IOException {
     try (final InputStream in = getClass().getResourceAsStream(filename);
         final OutputStream out = new FileOutputStream(file)) {
@@ -1308,6 +1452,20 @@ public class TestFFCodecInputStream {
       while ((justRead = in.read(buf)) != -1) {
         out.write(buf, 0, justRead);
       }
+    }
+  }
+
+  private byte[] readAllBytes(final FFCodecInputStream stream) throws IOException {
+    try {
+      final java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+      final byte[] buf = new byte[4096];
+      int n;
+      while ((n = stream.read(buf)) != -1) {
+        baos.write(buf, 0, n);
+      }
+      return baos.toByteArray();
+    } finally {
+      stream.close();
     }
   }
 }

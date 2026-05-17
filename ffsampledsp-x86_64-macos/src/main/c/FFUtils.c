@@ -636,22 +636,29 @@ int ff_init_audioio(JNIEnv *env, FFAudioIO *aio) {
     // exception is already thrown
     goto bail;
   }
-  // if for some reason the codec delivers 24bit, we need to encode its output
-  // to little endian
-  if (aio->stream->codecpar->bits_per_coded_sample == 24) {
-    codec = ff_find_encoder(aio->stream->codecpar->format,
-                            aio->stream->codecpar->bits_per_coded_sample,
-                            ff_big_endian(aio->stream->codecpar->codec_id), 1);
-    if (!codec) {
-      res = AVERROR(EINVAL);
-      throwIOExceptionIfError(env, res,
-                              "Could not find suitable encoder codec.");
-      goto bail;
-    }
-    res = ff_init_encoder(env, aio, codec);
-    if (res < 0) {
-      throwIOExceptionIfError(env, res, "Could not initialize encoder codec.");
-      goto bail;
+  // Install a PCM encoder when the decoded output needs byte-order adjustment:
+  // - 24-bit: decoder outputs S32-padded frames; encoder repacks to 24-bit
+  // - multi-byte big-endian sources: FFmpeg's PCM decoder produces native-LE
+  //   frames regardless of the on-disk byte order, so without an encoder the
+  //   Java buffer would receive LE bytes while the AudioFormat reports BE.
+  {
+    int src_bits = aio->stream->codecpar->bits_per_coded_sample;
+    int src_big_endian = ff_big_endian(aio->stream->codecpar->codec_id);
+    if (src_bits == 24 || (src_big_endian && src_bits > 8)) {
+      codec = ff_find_encoder(aio->stream->codecpar->format, src_bits,
+                              src_big_endian, 1);
+      if (!codec) {
+        res = AVERROR(EINVAL);
+        throwIOExceptionIfError(env, res,
+                                "Could not find suitable encoder codec.");
+        goto bail;
+      }
+      res = ff_init_encoder(env, aio, codec);
+      if (res < 0) {
+        throwIOExceptionIfError(env, res,
+                                "Could not initialize encoder codec.");
+        goto bail;
+      }
     }
   }
 

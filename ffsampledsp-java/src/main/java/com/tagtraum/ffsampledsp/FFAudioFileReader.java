@@ -140,21 +140,17 @@ public class FFAudioFileReader extends AudioFileReader {
   }
 
   /**
-   * Convert file to URL. Assumes that any punctuation in the filename must not be url encoded.
+   * Convert file to URL. The returned URL keeps all path characters percent-encoded as produced by
+   * {@link File#toURI()}, except that {@code +} is encoded as {@code %2B} so that {@link
+   * #urlToString(URL)} (which calls {@link java.net.URLDecoder}) does not misinterpret it as a
+   * space. All decoding for FFmpeg is done exclusively in {@code urlToString}.
    *
    * @param file file
-   * @return correctly encoded URL
+   * @return percent-encoded file URL suitable for passing to {@link #urlToString(URL)}
    * @throws MalformedURLException if the URL is malformed
    */
   static URL fileToURL(final File file) throws MalformedURLException {
-    try {
-      String encoded = file.toURI().toString().replace("+", "%2B");
-      return new URL(URLDecoder.decode(encoded, "UTF-8"));
-    } catch (UnsupportedEncodingException e) {
-      final MalformedURLException malformedURLException = new MalformedURLException();
-      malformedURLException.initCause(e);
-      throw malformedURLException;
-    }
+    return new URL(file.toURI().toString().replace("+", "%2B"));
   }
 
   /**

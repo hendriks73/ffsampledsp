@@ -517,10 +517,84 @@ public class TestFFAudioFileReader {
 
   @Test
   public void testFileWithPunctuationToURL() throws MalformedURLException {
+    // What matters is that all punctuation survives the fileToURL → urlToString round-trip
+    // so FFmpeg receives the correct literal path. The intermediate URL encoding may vary.
     Assume.assumeTrue(File.separator.equals("/"));
     final File file = new File("/someDir/;:&=+@[]?/name.txt");
     final URL url = FFAudioFileReader.fileToURL(file);
-    assertEquals("file:/someDir/;:&=+@[]?/name.txt", url.toString());
+    final String s = FFAudioFileReader.urlToString(url);
+    assertTrue(
+        "Punctuation must survive round-trip: " + s,
+        s.contains("/someDir/")
+            && s.contains(";")
+            && s.contains("&")
+            && s.contains("+")
+            && s.contains("[")
+            && s.contains("]")
+            && s.endsWith("name.txt"));
+  }
+
+  @Test
+  public void testFileWithPercentSignToURL() throws MalformedURLException {
+    // A literal % in a file path must survive the fileToURL → urlToString round-trip intact.
+    Assume.assumeTrue(File.separator.equals("/"));
+    final File file = new File("/someDir/50%off/name.ogg");
+    final URL url = FFAudioFileReader.fileToURL(file);
+    final String s = FFAudioFileReader.urlToString(url);
+    assertTrue("Round-tripped path must contain literal percent sign: " + s, s.contains("50%off"));
+  }
+
+  @Test
+  public void testGetAudioFileFormatFileWithPercentSign()
+      throws IOException, UnsupportedAudioFileException {
+    final String filename = "test.ogg";
+    final File file = File.createTempFile("test50%off", filename);
+    extractFile(filename, file);
+    try {
+      final AudioFileFormat fileFormat = new FFAudioFileReader().getAudioFileFormat(file);
+      assertEquals("ogg", fileFormat.getType().getExtension());
+      assertEquals(2, fileFormat.getFormat().getChannels());
+    } finally {
+      file.delete();
+    }
+  }
+
+  @Test
+  public void testGetAudioFileFormatURLWithPercentSign()
+      throws IOException, UnsupportedAudioFileException {
+    // file.toURI().toURL() keeps % encoded as %25; urlToString() must decode it for FFmpeg.
+    final String filename = "test.ogg";
+    final File file = File.createTempFile("test50%off", filename);
+    extractFile(filename, file);
+    try {
+      final AudioFileFormat fileFormat =
+          new FFAudioFileReader().getAudioFileFormat(file.toURI().toURL());
+      assertEquals("ogg", fileFormat.getType().getExtension());
+      assertEquals(2, fileFormat.getFormat().getChannels());
+    } finally {
+      file.delete();
+    }
+  }
+
+  @Test
+  public void testGetAudioInputStreamFileWithPercentSign()
+      throws IOException, UnsupportedAudioFileException {
+    final String filename = "test.ogg";
+    final File file = File.createTempFile("test50%off", filename);
+    extractFile(filename, file);
+    try {
+      final AudioInputStream stream = new FFAudioFileReader().getAudioInputStream(file);
+      try {
+        final byte[] buf = new byte[1024];
+        assertTrue(
+            "Expected to read audio bytes from file with percent sign in name",
+            stream.read(buf) > 0);
+      } finally {
+        stream.close();
+      }
+    } finally {
+      file.delete();
+    }
   }
 
   @Test

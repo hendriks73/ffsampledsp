@@ -3,12 +3,12 @@
     <parent>
         <groupId>com.tagtraum</groupId>
         <artifactId>ffsampledsp</artifactId>
-        <version>0.9.56</version>
+        <version>0.9.57-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <groupId>com.tagtraum</groupId>
     <artifactId>ffsampledsp-aarch64-macos</artifactId>
-    <version>0.9.56</version>
+    <version>0.9.57-SNAPSHOT</version>
     <packaging>dylib</packaging>
     <name>FFSampledSP Native Library macOS (aarch64)</name>
     <description>Darwin aarch64/arm64 binary library for FFSampledSP.</description>
@@ -49,7 +49,7 @@
         <dependency>
             <groupId>com.tagtraum</groupId>
             <artifactId>ffsampledsp-java</artifactId>
-            <version>0.9.56</version>
+            <version>0.9.57-SNAPSHOT</version>
         </dependency>
     </dependencies>
 

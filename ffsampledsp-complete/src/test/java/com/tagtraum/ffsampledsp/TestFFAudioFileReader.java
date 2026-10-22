@@ -132,6 +132,35 @@ public class TestFFAudioFileReader {
   }
 
   @Test
+  public void testGetAudioFileFormatsPcmThenVorbisMKVFile()
+      throws IOException, UnsupportedAudioFileException {
+    // stream 0: PCM S16LE stereo 44.1 kHz, stream 1: Vorbis mono 22.05 kHz, both 0.5s.
+    // Neither stream has nb_frames and Vorbis has no fixed frame size, so the values of
+    // stream 1 must not be carried over from stream 0.
+    final String filename = "test_pcm_vorbis.mkv";
+    final File file = File.createTempFile("testGetAudioFileFormatsPcmThenVorbisMKVFile", filename);
+    extractFile(filename, file);
+    try {
+      final AudioFileFormat[] fileFormats = new FFAudioFileReader().getAudioFileFormats(file);
+      assertEquals(2, fileFormats.length);
+
+      final AudioFormat pcm = fileFormats[0].getFormat();
+      assertEquals(2, pcm.getChannels());
+      assertEquals(44100f, pcm.getSampleRate(), 0.001f);
+      assertEquals(4, pcm.getFrameSize());
+      assertTrue(fileFormats[0].getFrameLength() > 0);
+
+      final AudioFormat vorbis = fileFormats[1].getFormat();
+      assertEquals(1, vorbis.getChannels());
+      assertEquals(22050f, vorbis.getSampleRate(), 0.001f);
+      assertEquals(NOT_SPECIFIED, vorbis.getFrameSize());
+      assertEquals(NOT_SPECIFIED, fileFormats[1].getFrameLength());
+    } finally {
+      file.delete();
+    }
+  }
+
+  @Test
   public void testGetAudioFileFormatMP3File() throws IOException, UnsupportedAudioFileException {
     // first copy the file from resources to actual location in temp
     final String filename = "test.mp3";

@@ -24,9 +24,6 @@ jobs:
           install: mingw-w64-ucrt-x86_64-toolchain
           path-type: inherit
 
-      - name: Set up Doxygen
-        run: pacman --noconfirm -S mingw-w64-ucrt-x86_64-doxygen
-
       - id: install-secret-key
         name: Install gpg secret key
         run: |
@@ -92,9 +89,6 @@ jobs:
           install: mingw-w64-i686-toolchain
           path-type: inherit
 
-      - name: Set up Doxygen
-        run: pacman --noconfirm -S mingw-w64-i686-doxygen
-
       - id: install-secret-key
         name: Install gpg secret key
         run: |
@@ -149,8 +143,8 @@ jobs:
   linux-x64-build:
     runs-on: ubuntu-latest
     steps:
-      - name: Set up Doxygen and native build dependencies
-        run: sudo apt-get install -y doxygen libbz2-dev zlib1g-dev
+      - name: Set up native build dependencies
+        run: sudo apt-get install -y libbz2-dev zlib1g-dev
 
       - uses: actions/checkout@v6
 
@@ -206,8 +200,8 @@ jobs:
   linux-aarch64-build:
     runs-on: ubuntu-24.04-arm
     steps:
-      - name: Set up Doxygen and native build dependencies
-        run: sudo apt-get install -y doxygen libbz2-dev zlib1g-dev
+      - name: Set up native build dependencies
+        run: sudo apt-get install -y libbz2-dev zlib1g-dev
 
       - uses: actions/checkout@v6
 
@@ -264,9 +258,6 @@ jobs:
   macos-aarch64-build:
     runs-on: macos-latest
     steps:
-      - name: Set up Doxygen
-        run: brew install doxygen
-
       - id: install-secret-key
         name: Install gpg secret key
         run: |
@@ -469,4 +460,4 @@ jobs:
             --batch-mode \
             --activate-profiles ffsampledsp-x86_64-macos \
             --file pom.xml \
-            clean install site:site site:deploy
+            clean install site site-deploy

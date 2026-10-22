@@ -22,6 +22,7 @@
  */
 
 #include "FFUtils.h"
+#include "com_tagtraum_ffsampledsp_FFNativePeerInputStream.h"
 
 const uint32_t CODEC_TAG_DRMS = 'smrd'; // 'drms'
 
@@ -40,34 +41,47 @@ static const int MIN_PROBE_SCORE =
 static const int FF_FILL_TARGET = 64 * 1024;
 
 /**
- * Init static method and field ids for Java methods/fields, if we don't have
- * them already.
+ * Init static method and field ids for Java methods/fields.
+ *
+ * Called exactly once from the static initializer of FFNativePeerInputStream.
+ * Because the JVM serializes class initialization, the ids are guaranteed to
+ * be set before any thread can call into native code with a stream instance.
  *
  * @param env JNIEnv
- * @param stream FFNativePeerInputStream instance
+ * @param streamClass FFNativePeerInputStream class
  */
-static void init_ids(JNIEnv *env, jobject stream) {
-  if (!nativeBuffer_FID || !rewind_MID || !limit_MID) {
-    jclass bufferClass = NULL;
-    jclass streamClass = NULL;
+JNIEXPORT void JNICALL
+Java_com_tagtraum_ffsampledsp_FFNativePeerInputStream_initIDs(
+    JNIEnv *env, jclass streamClass) {
+  jclass bufferClass = (*env)->FindClass(env, "java/nio/Buffer");
+  if (!bufferClass)
+    return;
 
-    bufferClass = (*env)->FindClass(env, "java/nio/Buffer");
-    streamClass = (*env)->GetObjectClass(env, stream);
-
-    nativeBuffer_FID = (*env)->GetFieldID(env, streamClass, "nativeBuffer",
-                                          "Ljava/nio/ByteBuffer;");
-    rewind_MID =
-        (*env)->GetMethodID(env, bufferClass, "rewind", "()Ljava/nio/Buffer;");
-    limit_MID =
-        (*env)->GetMethodID(env, bufferClass, "limit", "(I)Ljava/nio/Buffer;");
-    capacity_MID = (*env)->GetMethodID(env, bufferClass, "capacity", "()I");
-    setNativeBufferCapacity_MID = (*env)->GetMethodID(
-        env, streamClass, "setNativeBufferCapacity", "(I)I");
-    logFine_MID = (*env)->GetMethodID(env, streamClass, "logFine",
-                                      "(Ljava/lang/String;)V");
-    logWarning_MID = (*env)->GetMethodID(env, streamClass, "logWarning",
-                                         "(Ljava/lang/String;)V");
-  }
+  nativeBuffer_FID = (*env)->GetFieldID(env, streamClass, "nativeBuffer",
+                                        "Ljava/nio/ByteBuffer;");
+  if (!nativeBuffer_FID)
+    return;
+  rewind_MID =
+      (*env)->GetMethodID(env, bufferClass, "rewind", "()Ljava/nio/Buffer;");
+  if (!rewind_MID)
+    return;
+  limit_MID =
+      (*env)->GetMethodID(env, bufferClass, "limit", "(I)Ljava/nio/Buffer;");
+  if (!limit_MID)
+    return;
+  capacity_MID = (*env)->GetMethodID(env, bufferClass, "capacity", "()I");
+  if (!capacity_MID)
+    return;
+  setNativeBufferCapacity_MID =
+      (*env)->GetMethodID(env, streamClass, "setNativeBufferCapacity", "(I)I");
+  if (!setNativeBufferCapacity_MID)
+    return;
+  logFine_MID =
+      (*env)->GetMethodID(env, streamClass, "logFine", "(Ljava/lang/String;)V");
+  if (!logFine_MID)
+    return;
+  logWarning_MID = (*env)->GetMethodID(env, streamClass, "logWarning",
+                                       "(Ljava/lang/String;)V");
 }
 
 /**
@@ -903,7 +917,6 @@ static int receive_and_process_frames(FFAudioIO *aio, int is_flush,
   int out_buf_samples = 0;
   int64_t out_sample_rate;
 
-  init_ids(aio->env, aio->java_instance);
   av_opt_get_int(aio->swr_context, "out_sample_rate", 0, &out_sample_rate);
 
   resample_buf = av_mallocz(sizeof(uint8_t *));

@@ -38,6 +38,19 @@ import javax.sound.sampled.UnsupportedAudioFileException;
  */
 public class FFStreamInputStream extends FFNativePeerInputStream {
 
+  static {
+    if (FFNativeLibraryLoader.loadLibrary()) {
+      initIDs();
+    }
+  }
+
+  /**
+   * Caches JNI field and method IDs used by native code. Called exactly once from the static
+   * initializer, which the JVM serializes, so that no thread can use a native peer before the IDs
+   * are set.
+   */
+  private static native void initIDs();
+
   private final ByteBuffer readBuffer = ByteBuffer.allocateDirect(32 * 1024);
   private final ReadableByteChannel channel;
 

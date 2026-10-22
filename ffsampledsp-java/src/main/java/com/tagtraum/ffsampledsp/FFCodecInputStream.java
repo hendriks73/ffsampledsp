@@ -56,6 +56,19 @@ public class FFCodecInputStream extends FFNativePeerInputStream {
   private static final Set<Integer> PCM_FLOAT_VALID_SAMPLE_SIZES = new HashSet<>(asList(32, 64));
   private final FFNativePeerInputStream wrappedStream;
 
+  static {
+    if (FFNativeLibraryLoader.loadLibrary()) {
+      initIDs();
+    }
+  }
+
+  /**
+   * Caches JNI field and method IDs used by native code. Called exactly once from the static
+   * initializer, which the JVM serializes, so that no thread can use a native peer before the IDs
+   * are set.
+   */
+  private static native void initIDs();
+
   /**
    * Creates a new {@code FFCodecInputStream} that resamples/converts {@code stream} to {@code
    * targetFormat}.

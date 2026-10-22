@@ -39,8 +39,17 @@ public abstract class FFNativePeerInputStream extends InputStream {
 
   static {
     // Ensure JNI library is loaded
-    FFNativeLibraryLoader.loadLibrary();
+    if (FFNativeLibraryLoader.loadLibrary()) {
+      initIDs();
+    }
   }
+
+  /**
+   * Caches JNI field and method IDs used by native code. Called exactly once from the static
+   * initializer, which the JVM serializes, so that no thread can use a native peer before the IDs
+   * are set.
+   */
+  private static native void initIDs();
 
   private static final int DEFAULT_NATIVE_BUFFER_SIZE = 1024 * 1024;
 

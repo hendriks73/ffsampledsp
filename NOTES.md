@@ -1,4 +1,5 @@
 - 0.9.57
+  - Fixed JVM crash when several threads decode concurrently right after the native library is loaded.
 
 
 - 0.9.56

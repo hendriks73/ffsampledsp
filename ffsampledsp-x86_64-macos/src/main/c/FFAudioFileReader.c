@@ -30,43 +30,52 @@ static jmethodID limit_MID = NULL;
 static jmethodID ffAudioFileFormat_MID = NULL;
 
 /**
- * Init static method and field ids for Java methods/fields, if we don't have
- * them already.
+ * Init static method and field ids for Java methods/fields.
+ *
+ * Called exactly once from the static initializer of FFAudioFileReader.
+ * Because the JVM serializes class initialization, the ids are guaranteed to
+ * be set before any thread can call into native code.
  *
  * @param env JNIEnv
+ * @param readerClass FFAudioFileReader class
  */
-static void init_ids(JNIEnv *env) {
+JNIEXPORT void JNICALL Java_com_tagtraum_ffsampledsp_FFAudioFileReader_initIDs(
+    JNIEnv *env, jclass readerClass) {
 #ifdef DEBUG
-  fprintf(stderr, "FFAudioFileReader.c init_ids(env)\n");
+  fprintf(stderr, "FFAudioFileReader.c initIDs(env)\n");
 #endif
 
-  if (!limit_MID) {
-    jclass bufferClass = NULL;
-    jclass ffAudioFileFormat_class = NULL;
-
-    bufferClass = (*env)->FindClass(env, "java/nio/Buffer");
-    ffAudioFileFormat_class =
-        (*env)->FindClass(env, "com/tagtraum/ffsampledsp/FFAudioFileFormat");
-
+  jclass bufferClass = (*env)->FindClass(env, "java/nio/Buffer");
+  if (!bufferClass) {
 #ifdef DEBUG
-    if (!bufferClass)
-      fprintf(stderr, "Failed to find java/nio/Buffer\n");
-    if (!ffAudioFileFormat_class)
-      fprintf(stderr,
-              "Failed to find com/tagtraum/ffsampledsp/FFAudioFileFormat\n");
+    fprintf(stderr, "Failed to find java/nio/Buffer\n");
 #endif
-
-    limit_MID = (*env)->GetMethodID(env, bufferClass, "limit", "()I");
-    ffAudioFileFormat_MID = (*env)->GetMethodID(
-        env, ffAudioFileFormat_class, "<init>",
-        "(Ljava/lang/String;IFIIIFIZJILjava/lang/Boolean;Z)V");
-#ifdef DEBUG
-    if (!limit_MID)
-      fprintf(stderr, "Failed to find limit method\n");
-    if (!ffAudioFileFormat_MID)
-      fprintf(stderr, "Failed to find constructor of AudioFileFormat\n");
-#endif
+    return;
   }
+  jclass ffAudioFileFormat_class =
+      (*env)->FindClass(env, "com/tagtraum/ffsampledsp/FFAudioFileFormat");
+  if (!ffAudioFileFormat_class) {
+#ifdef DEBUG
+    fprintf(stderr,
+            "Failed to find com/tagtraum/ffsampledsp/FFAudioFileFormat\n");
+#endif
+    return;
+  }
+
+  limit_MID = (*env)->GetMethodID(env, bufferClass, "limit", "()I");
+  if (!limit_MID) {
+#ifdef DEBUG
+    fprintf(stderr, "Failed to find limit method\n");
+#endif
+    return;
+  }
+  ffAudioFileFormat_MID = (*env)->GetMethodID(
+      env, ffAudioFileFormat_class, "<init>",
+      "(Ljava/lang/String;IFIIIFIZJILjava/lang/Boolean;Z)V");
+#ifdef DEBUG
+  if (!ffAudioFileFormat_MID)
+    fprintf(stderr, "Failed to find constructor of AudioFileFormat\n");
+#endif
 }
 
 /**
@@ -434,8 +443,6 @@ Java_com_tagtraum_ffsampledsp_FFAudioFileReader_getAudioFileFormatsFromURL(
   jobjectArray array = NULL;
   char *input_url = NULL;
 
-  init_ids(env);
-
   {
     jsize urlLen = (*env)->GetArrayLength(env, urlBytes);
     jbyte *urlBuf = (*env)->GetByteArrayElements(env, urlBytes, NULL);
@@ -488,8 +495,6 @@ Java_com_tagtraum_ffsampledsp_FFAudioFileReader_getAudioFileFormatsFromBuffer(
   unsigned char *callbackBuffer = NULL;
   FFCallback *callback = NULL;
   AVIOContext *io_context;
-
-  init_ids(env);
 
   callback = calloc(1, sizeof(FFCallback));
   if (!callback) {

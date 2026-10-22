@@ -34,37 +34,53 @@ static jmethodID isBigEndian_MID = NULL;
 static jmethodID toString_MID = NULL;
 
 /**
- * Init static method and field ids for Java methods/fields, if we don't have
- * them already.
+ * Init static method and field ids for Java methods/fields.
+ *
+ * Called exactly once from the static initializer of FFCodecInputStream.
+ * Because the JVM serializes class initialization, the ids are guaranteed to
+ * be set before any thread can call into native code with a stream instance.
  *
  * @param env JNIEnv
+ * @param streamClass FFCodecInputStream class
  */
-static void init_ids(JNIEnv *env) {
-  if (getSampleRate_MID == NULL) {
-    jclass audioFormat_class = NULL;
-    jclass encoding_class = NULL;
+JNIEXPORT void JNICALL Java_com_tagtraum_ffsampledsp_FFCodecInputStream_initIDs(
+    JNIEnv *env, jclass streamClass) {
+  jclass audioFormat_class =
+      (*env)->FindClass(env, "javax/sound/sampled/AudioFormat");
+  if (!audioFormat_class)
+    return;
+  jclass encoding_class =
+      (*env)->FindClass(env, "javax/sound/sampled/AudioFormat$Encoding");
+  if (!encoding_class)
+    return;
 
-    audioFormat_class =
-        (*env)->FindClass(env, "javax/sound/sampled/AudioFormat");
-    encoding_class =
-        (*env)->FindClass(env, "javax/sound/sampled/AudioFormat$Encoding");
-
-    getEncoding_MID =
-        (*env)->GetMethodID(env, audioFormat_class, "getEncoding",
-                            "()Ljavax/sound/sampled/AudioFormat$Encoding;");
-    getSampleRate_MID =
-        (*env)->GetMethodID(env, audioFormat_class, "getSampleRate", "()F");
-    getFrameSize_MID =
-        (*env)->GetMethodID(env, audioFormat_class, "getFrameSize", "()I");
-    getSampleSizeInBits_MID = (*env)->GetMethodID(env, audioFormat_class,
-                                                  "getSampleSizeInBits", "()I");
-    getChannels_MID =
-        (*env)->GetMethodID(env, audioFormat_class, "getChannels", "()I");
-    isBigEndian_MID =
-        (*env)->GetMethodID(env, audioFormat_class, "isBigEndian", "()Z");
-    toString_MID = (*env)->GetMethodID(env, encoding_class, "toString",
-                                       "()Ljava/lang/String;");
-  }
+  getEncoding_MID =
+      (*env)->GetMethodID(env, audioFormat_class, "getEncoding",
+                          "()Ljavax/sound/sampled/AudioFormat$Encoding;");
+  if (!getEncoding_MID)
+    return;
+  getSampleRate_MID =
+      (*env)->GetMethodID(env, audioFormat_class, "getSampleRate", "()F");
+  if (!getSampleRate_MID)
+    return;
+  getFrameSize_MID =
+      (*env)->GetMethodID(env, audioFormat_class, "getFrameSize", "()I");
+  if (!getFrameSize_MID)
+    return;
+  getSampleSizeInBits_MID =
+      (*env)->GetMethodID(env, audioFormat_class, "getSampleSizeInBits", "()I");
+  if (!getSampleSizeInBits_MID)
+    return;
+  getChannels_MID =
+      (*env)->GetMethodID(env, audioFormat_class, "getChannels", "()I");
+  if (!getChannels_MID)
+    return;
+  isBigEndian_MID =
+      (*env)->GetMethodID(env, audioFormat_class, "isBigEndian", "()Z");
+  if (!isBigEndian_MID)
+    return;
+  toString_MID = (*env)->GetMethodID(env, encoding_class, "toString",
+                                     "()Ljava/lang/String;");
 }
 
 /**
@@ -88,8 +104,6 @@ JNIEXPORT jlong JNICALL Java_com_tagtraum_ffsampledsp_FFCodecInputStream_open(
   AVCodec *encoder = NULL;
   int dither_method = SWR_DITHER_NONE;
   int output_sample_bits = 0;
-
-  init_ids(env);
 
   FFAudioIO *aio = (FFAudioIO *)(intptr_t)aio_pointer;
 

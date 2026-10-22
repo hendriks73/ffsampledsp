@@ -30,21 +30,24 @@ static jfieldID readBuffer_FID = NULL;
 static const int CALLBACK_BUFFERSIZE = 32 * 1024;
 
 /**
- * Init static method and field ids for Java methods/fields, if we don't have
- * them already.
+ * Init static method and field ids for Java methods/fields.
+ *
+ * Called exactly once from the static initializer of FFStreamInputStream.
+ * Because the JVM serializes class initialization, the ids are guaranteed to
+ * be set before any thread can call into native code with a stream instance.
  *
  * @param env JNIEnv
- * @param stream FFFileInputStream instance
+ * @param streamClass FFStreamInputStream class
  */
-static void init_ids(JNIEnv *env, jobject stream) {
-  if (!fillReadBuffer_MID || !readBuffer_FID) {
-    jclass streamClass = NULL;
-    streamClass = (*env)->GetObjectClass(env, stream);
-    readBuffer_FID = (*env)->GetFieldID(env, streamClass, "readBuffer",
-                                        "Ljava/nio/ByteBuffer;");
-    fillReadBuffer_MID =
-        (*env)->GetMethodID(env, streamClass, "fillReadBuffer", "()I");
-  }
+JNIEXPORT void JNICALL
+Java_com_tagtraum_ffsampledsp_FFStreamInputStream_initIDs(JNIEnv *env,
+                                                          jclass streamClass) {
+  readBuffer_FID = (*env)->GetFieldID(env, streamClass, "readBuffer",
+                                      "Ljava/nio/ByteBuffer;");
+  if (!readBuffer_FID)
+    return;
+  fillReadBuffer_MID =
+      (*env)->GetMethodID(env, streamClass, "fillReadBuffer", "()I");
 }
 
 /**
@@ -145,8 +148,6 @@ JNIEXPORT jlong JNICALL Java_com_tagtraum_ffsampledsp_FFStreamInputStream_open(
   FFAudioIO *aio;
   AVIOContext *io_context;
   unsigned char *callback_buffer = NULL;
-
-  init_ids(env, stream);
 
   aio = calloc(1, sizeof(FFAudioIO));
   if (!aio) {

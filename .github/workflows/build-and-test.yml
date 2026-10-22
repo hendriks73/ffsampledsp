@@ -48,14 +48,26 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
         if: matrix.os == 'macos-15' && matrix.java == '9' && matrix.jarch == 'x86_64'
 
+      # Build the site (incl. Doxygen C-Docs) once, mirroring the tagtraum publishing job in
+      # deploy.yml (x86_64 profile, Java 8). Uses the site phase, not the site:site goal,
+      # because the Doxygen execution is bound to that phase.
+      - name: Set up Doxygen
+        run: brew install doxygen
+        if: matrix.jarch == 'x86_64' && matrix.java == '8'
+
       - name: Build tagtraum site
         run: |
           mvn --no-transfer-progress \
             --batch-mode \
-            --activate-profiles ffsampledsp-aarch64-macos \
+            --activate-profiles ffsampledsp-${{ matrix.jarch }}-macos \
             --file pom.xml \
-            clean install site:site
-        if: matrix.os == 'macos-latest' && matrix.java == '9' && matrix.jarch == 'x86_64'
+            site
+        if: matrix.jarch == 'x86_64' && matrix.java == '8'
+
+      - name: Check that C-Docs were generated
+        # the Doxygen call itself does not fail the build
+        run: test -f target/site/doxygen/index.html
+        if: matrix.jarch == 'x86_64' && matrix.java == '8'
 
   windows-build:
     runs-on: windows-latest

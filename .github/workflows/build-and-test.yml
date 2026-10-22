@@ -69,8 +69,8 @@ jobs:
         include:
           - arch: x64
             jarch: x86_64
-            sys: mingw64
-            env: x86_64
+            sys: ucrt64
+            env: ucrt-x86_64
           - arch: x86
             jarch: i386
             sys: mingw32
@@ -118,6 +118,11 @@ jobs:
         run: |
           ls -la ffsampledsp-${{ matrix.jarch }}-win\\target\\lib
           ls -la ffsampledsp-${{ matrix.jarch }}-win\\target\\native\\include
+
+      - name: Print DLL imports
+        run: |
+          find ffsampledsp-${{ matrix.jarch }}-win/target -maxdepth 1 -name '*.dll' \
+            -exec sh -c 'echo "$1"; objdump -p "$1" | grep "DLL Name"' _ {} \;
 
   linux-build:
     runs-on: ubuntu-latest

@@ -64,7 +64,7 @@ mvn --activate-profiles ffsampledsp-x86_64-linux install
 mvn --activate-profiles ffsampledsp-aarch64-linux install
 ```
 
-### Windows (requires MSYS2 with MinGW toolchain)
+### Windows (requires MSYS2: UCRT64 environment for 64-bit, MINGW32 for 32-bit)
 ```bash
 mvn --activate-profiles ffsampledsp-x86_64-win install   # 64-bit
 mvn --activate-profiles ffsampledsp-i386-win install     # 32-bit (tests skipped)

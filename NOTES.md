@@ -1,6 +1,8 @@
 - 0.9.57
   - Fixed JVM crash when several threads decode concurrently right after the native library is loaded.
   - Added missing JNI error checks when creating audio file formats.
+  - Windows x86_64 binaries are now built with the MSYS2 UCRT64 toolchain (was the deprecated MINGW64)
+    and link against the Universal C Runtime (part of Windows 10 and later).
 
 
 - 0.9.56

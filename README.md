@@ -20,7 +20,9 @@ floating-point (`PCM_FLOAT`).
 Supported platforms are currently:
 
 - macOS x64 (>=10.10) and aarch64 (>=11)
-- Windows i686 and x64
+- Windows i686 and x64 (x64 requires the Universal C Runtime, which is part of Windows 10 and later;
+  on older versions such as Windows 7 SP1 or 8.1 install
+  [KB2999226](https://support.microsoft.com/help/2999226))
 - Linux (Ubuntu 20) x64 and aarch64 (arm64)
 
 FFSampledSP makes use of the [tagtraum FFmpeg package](https://www.tagtraum.com/ffmpeg).
@@ -138,7 +140,8 @@ To do so, you also need:
 - [Maven](https://maven.apache.org/)
 - For macOS: [Apple Command Line Tools](https://developer.apple.com/)
   or [XCode](https://developer.apple.com/xcode/)
-- For Windows: [MSYS2](https://www.msys2.org) with GCC etc.
+- For Windows: [MSYS2](https://www.msys2.org) with GCC etc., using the UCRT64 environment for x64
+  and MINGW32 for i686
 - a JDK (to run Maven and get the JNI headers)
 - [Doxygen](https://www.doxygen.nl), available via [MacPorts](https://www.macports.org), [HomeBrew](https://brew.sh) or [MSYS2](https://www.msys2.org).
 

@@ -264,20 +264,15 @@ static jfloat get_frame_rate(AVStream *stream, jlong duration) {
 /**
  * Creates an FFAudioFileFormat object.
  *
+ * @param ffAudioFileFormat_class FFAudioFileFormat class
  * @return freshly instantiated FFAudioFileFormat or NULL in case of an error
+ * (with a pending Java exception)
  */
-static jobject create_ffaudiofileformat(JNIEnv *env, jstring url, jint codecId,
-                                        jfloat sampleRate, jint sampleSize,
-                                        jint channels, jint frame_size,
-                                        jfloat frame_rate, jint frame_length,
-                                        jboolean big_endian, jlong duration,
-                                        jint bitRate, jobject vbr,
-                                        jboolean encrypted) {
-  jclass ffAudioFileFormat_class = NULL;
-
-  ffAudioFileFormat_class =
-      (*env)->FindClass(env, "com/tagtraum/ffsampledsp/FFAudioFileFormat");
-
+static jobject create_ffaudiofileformat(
+    JNIEnv *env, jclass ffAudioFileFormat_class, jstring url, jint codecId,
+    jfloat sampleRate, jint sampleSize, jint channels, jint frame_size,
+    jfloat frame_rate, jint frame_length, jboolean big_endian, jlong duration,
+    jint bitRate, jobject vbr, jboolean encrypted) {
   /* Construct an FFAudioFileFormat object */
   return (*env)->NewObject(env, ffAudioFileFormat_class, ffAudioFileFormat_MID,
                            url, codecId, sampleRate, sampleSize, channels,
@@ -301,6 +296,8 @@ static int create_ffaudiofileformats(JNIEnv *env,
   jobject vbr = NULL;
   jboolean big_endian = 1;
   jobject audio_format = NULL;
+  jclass audioFileFormat_class = NULL;
+  jclass ffAudioFileFormat_class = NULL;
 
   // count possible audio streams
   int i;
@@ -322,11 +319,25 @@ static int create_ffaudiofileformats(JNIEnv *env,
     goto bail;
   }
 
+  // look up classes once for all streams
+  audioFileFormat_class =
+      (*env)->FindClass(env, "javax/sound/sampled/AudioFileFormat");
+  if (!audioFileFormat_class) {
+    res = -1;
+    goto bail;
+  }
+  ffAudioFileFormat_class =
+      (*env)->FindClass(env, "com/tagtraum/ffsampledsp/FFAudioFileFormat");
+  if (!ffAudioFileFormat_class) {
+    res = -1;
+    goto bail;
+  }
+
   // create output array
-  *array = (*env)->NewObjectArray(
-      env, audio_stream_count,
-      (*env)->FindClass(env, "javax/sound/sampled/AudioFileFormat"), NULL);
+  *array = (*env)->NewObjectArray(env, audio_stream_count,
+                                  audioFileFormat_class, NULL);
   if (*array == NULL) {
+    res = -1;
     goto bail;
   }
 
@@ -406,19 +417,34 @@ static int create_ffaudiofileformats(JNIEnv *env,
 #endif
 
       audio_format = create_ffaudiofileformat(
-          env, url, stream->codecpar->codec_id,
+          env, ffAudioFileFormat_class, url, stream->codecpar->codec_id,
           (jfloat)stream->codecpar->sample_rate, sample_size,
           stream->codecpar->ch_layout.nb_channels, frame_size, frame_rate,
           frame_length, big_endian, duration_in_microseconds,
           stream->codecpar->bit_rate, vbr, encrypted);
+      if (!audio_format) {
+        res = -1;
+        goto bail;
+      }
 
       (*env)->SetObjectArrayElement(env, *array, audio_stream_number,
                                     audio_format);
+      // don't accumulate local refs for files with many streams
+      (*env)->DeleteLocalRef(env, audio_format);
       audio_stream_number++;
     }
   }
 
 bail:
+  if (res < 0 && *array) {
+    // a Java exception is pending, don't hand out a partially filled array
+    (*env)->DeleteLocalRef(env, *array);
+    *array = NULL;
+  }
+  if (ffAudioFileFormat_class)
+    (*env)->DeleteLocalRef(env, ffAudioFileFormat_class);
+  if (audioFileFormat_class)
+    (*env)->DeleteLocalRef(env, audioFileFormat_class);
   return res;
 }
 

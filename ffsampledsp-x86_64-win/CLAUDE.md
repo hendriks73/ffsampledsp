@@ -7,7 +7,8 @@ Native library module for Windows x86_64. Packages `ffsampledsp-x86_64-win.dll`.
 ## Build
 
 ```bash
-# Requires MSYS2 with MinGW-w64 GCC toolchain:
+# Requires an MSYS2 UCRT64 shell with the GCC toolchain (mingw-w64-ucrt-x86_64-toolchain).
+# UCRT64 matches the prebuilt FFmpeg static libs, which are compiled against UCRT.
 mvn --activate-profiles ffsampledsp-x86_64-win install
 
 # Debug build:

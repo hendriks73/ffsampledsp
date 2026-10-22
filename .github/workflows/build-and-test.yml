@@ -42,11 +42,15 @@ jobs:
             --file pom.xml \
             install
 
+      # Upload coverage once, from the native (aarch64) build with the newest Java.
+      # The JaCoCo XML report is written during the verify phase of the build above.
       - name: Upload CodeCov Report
-        uses: codecov/codecov-action@v2
+        uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-        if: matrix.os == 'macos-15' && matrix.java == '9' && matrix.jarch == 'x86_64'
+          files: ffsampledsp-complete/target/site/jacoco/jacoco.xml
+          disable_search: true
+        if: matrix.jarch == 'aarch64' && matrix.java == '25'
 
       # Build the site (incl. Doxygen C-Docs) once, mirroring the tagtraum publishing job in
       # deploy.yml (x86_64 profile, Java 8). Uses the site phase, not the site:site goal,

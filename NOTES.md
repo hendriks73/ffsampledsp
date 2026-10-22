@@ -3,6 +3,7 @@
   - Added missing JNI error checks when creating audio file formats.
   - Windows x86_64 binaries are now built with the MSYS2 UCRT64 toolchain (was the deprecated MINGW64)
     and link against the Universal C Runtime (part of Windows 10 and later).
+  - C-Docs (Doxygen) are generated again when publishing the site; Doxygen is no longer needed for regular builds.
 
 
 - 0.9.56

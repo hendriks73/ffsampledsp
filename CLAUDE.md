@@ -46,7 +46,7 @@ FFSampledSP is a Java/JNI library that implements `javax.sound.sampled` service 
 
 ## Build Commands
 
-The build requires Maven 3.6+, a JDK 8+, and Doxygen. Native compilation requires platform-specific toolchains. **A platform profile must be activated** — native modules are not built by default.
+The build requires Maven 3.6+ and a JDK 8+. Doxygen is only needed for the C-Docs, which the `site` lifecycle phase generates from the root `src/main/doxygen/Doxyfile` into `target/site/doxygen` (run `mvn site`, not just the `site:site` goal, or they are skipped). Native compilation requires platform-specific toolchains. **A platform profile must be activated** — native modules are not built by default.
 
 ### macOS (native for current platform)
 ```bash

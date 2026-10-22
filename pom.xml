@@ -255,13 +255,14 @@
                 <artifactId>maven-antrun-plugin</artifactId>
                 <executions>
                     <execution>
+                        <id>doxygen</id>
                         <configuration>
-                            <target>
-                                <echo>=====================================================================</echo>
-                                <echo>Project.Basedir: ${project.basedir}}</echo>
-                                <echo>This doxygen call may fail for modules without doxygen configuration.</echo>
-                                <echo>=====================================================================</echo>
-                                <exec dir="${basedir}" executable="${doxygen}" failonerror="false">
+                            <target xmlns:if="ant:if">
+                                <!-- only modules with a Doxyfile (i.e. the root) generate C-Docs -->
+                                <available file="${basedir}/src/main/doxygen/Doxyfile" property="doxyfile.present"/>
+                                <!-- doxygen does not create missing parent directories -->
+                                <mkdir if:set="doxyfile.present" dir="${project.build.directory}/site/doxygen"/>
+                                <exec if:set="doxyfile.present" dir="${basedir}" executable="${doxygen}" failonerror="false">
                                     <arg line="${basedir}/src/main/doxygen/Doxyfile"/>
                                 </exec>
                             </target>

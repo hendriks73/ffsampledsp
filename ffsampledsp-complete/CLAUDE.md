@@ -36,6 +36,7 @@ All tests live in `src/test/java/com/tagtraum/ffsampledsp/`. They require the na
 | `TestFFStreamInputStream` | Stream-based decoding, reference sample values |
 | `TestFFStreamInputStreamExtended` | Short files, concurrent reads |
 | `TestFFNativeLibraryLoader` | Library extraction and loading |
+| `TestConcurrentFirstUse` | Spawns fresh child JVMs that open/decode from several threads at once, so first-use JNI ID initialization happens concurrently |
 
 ### Test resources
 

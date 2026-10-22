@@ -33,6 +33,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -53,8 +54,27 @@ public class FFAudioFileReader extends AudioFileReader {
 
   static {
     // Ensure JNI library is loaded
-    nativeLibraryLoaded = FFNativeLibraryLoader.loadLibrary();
+    boolean loaded = FFNativeLibraryLoader.loadLibrary();
+    if (loaded) {
+      try {
+        initIDs();
+      } catch (UnsatisfiedLinkError e) {
+        // e.g. an outdated native library without initIDs()
+        Logger.getLogger(FFAudioFileReader.class.getName())
+            .severe(
+                "Incompatible native library 'ffsampledsp'. FFSampledSP will be dysfunctional: "
+                    + e);
+        loaded = false;
+      }
+    }
+    nativeLibraryLoaded = loaded;
   }
+
+  /**
+   * Caches JNI method IDs used by native code. Called exactly once from the static initializer,
+   * which the JVM serializes, so that no thread can call into native code before the IDs are set.
+   */
+  private static native void initIDs();
 
   private static final boolean WINDOWS =
       System.getProperty("os.name").toLowerCase().contains("win");

@@ -349,6 +349,11 @@ static int create_ffaudiofileformats(JNIEnv *env,
   for (i = 0; i < format_context->nb_streams; i++) {
     AVStream *stream = format_context->streams[i];
     if (stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
+      // reset values that are only set conditionally below,
+      // so they don't carry over from a previous stream
+      frame_size = -1;
+      frame_length = -1;
+
       // create object
       duration_in_microseconds = duration(format_context, stream);
       frame_rate = get_frame_rate(stream, duration_in_microseconds);

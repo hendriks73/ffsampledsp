@@ -4,6 +4,8 @@
   - Windows x86_64 binaries are now built with the MSYS2 UCRT64 toolchain (was the deprecated MINGW64)
     and link against the Universal C Runtime (part of Windows 10 and later).
   - C-Docs (Doxygen) are generated again when publishing the site; Doxygen is no longer needed for regular builds.
+  - Fixed frame size/length of an audio stream being reported with values of a preceding PCM stream
+    in multi-stream files.
 
 
 - 0.9.56

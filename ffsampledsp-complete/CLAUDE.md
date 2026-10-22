@@ -50,6 +50,7 @@ All tests live in `src/test/java/com/tagtraum/ffsampledsp/`. They require the na
 - `test.ogg` / `test.aiff` / `test.wma` — OGG, AIFF, WMA
 - `test_adpcm.wav` — ADPCM WAV
 - `test.stem.mp4` — multi-stream Stems file
+- `test_pcm_vorbis.mkv` — two audio streams: PCM S16LE stereo 44.1 kHz, then Vorbis mono 22.05 kHz (0.5 s each); checks per-stream values don't leak between streams
 
 ### PCM_FLOAT test coverage
 

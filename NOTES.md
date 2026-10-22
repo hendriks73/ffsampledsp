@@ -1,5 +1,6 @@
 - 0.9.57
   - Fixed JVM crash when several threads decode concurrently right after the native library is loaded.
+  - Added missing JNI error checks when creating audio file formats.
 
 
 - 0.9.56

@@ -361,6 +361,59 @@ public class TestFFStreamInputStream {
     }
   }
 
+  @Test
+  public void testIOExceptionWhileOpening() throws UnsupportedAudioFileException {
+    try (final FFStreamInputStream in =
+        new FFStreamInputStream(new FailingInputStream("test.wav", 16))) {
+      in.read(new byte[1024]);
+      fail("Expected IOException");
+    } catch (IOException e) {
+      // the original exception thrown by the Java stream must reach the caller
+      assertEquals(FailingInputStream.MESSAGE, e.getMessage());
+    }
+  }
+
+  @Test
+  public void testIOExceptionWhileReading() throws UnsupportedAudioFileException {
+    try (final FFStreamInputStream in =
+        new FFStreamInputStream(new FailingInputStream("test.wav", 128 * 1024))) {
+      final byte[] buf = new byte[1024 * 8];
+      while (in.read(buf) != -1) {
+        // keep reading
+      }
+      fail("Expected IOException");
+    } catch (IOException e) {
+      // the original exception thrown by the Java stream must reach the caller
+      assertEquals(FailingInputStream.MESSAGE, e.getMessage());
+    }
+  }
+
+  /** Serves a test resource, but throws an {@link IOException} after a given number of bytes. */
+  private static class FailingInputStream extends FilterInputStream {
+    static final String MESSAGE = "Simulated read failure";
+    private long remaining;
+
+    FailingInputStream(final String resource, final long failAfter) {
+      super(TestFFStreamInputStream.class.getResourceAsStream(resource));
+      this.remaining = failAfter;
+    }
+
+    @Override
+    public int read() throws IOException {
+      if (remaining <= 0) throw new IOException(MESSAGE);
+      remaining--;
+      return super.read();
+    }
+
+    @Override
+    public int read(final byte[] b, final int off, final int len) throws IOException {
+      if (remaining <= 0) throw new IOException(MESSAGE);
+      final int justRead = super.read(b, off, (int) Math.min(len, remaining));
+      if (justRead > 0) remaining -= justRead;
+      return justRead;
+    }
+  }
+
   static void extractFile(final String filename, final File file) throws IOException {
     try (final InputStream in = TestFFStreamInputStream.class.getResourceAsStream(filename);
         OutputStream out = new FileOutputStream(file)) {

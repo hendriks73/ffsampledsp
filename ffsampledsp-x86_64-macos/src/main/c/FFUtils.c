@@ -159,6 +159,24 @@ static int open_codec_context(int *stream_index,
 }
 
 /**
+ * Throws a new exception of the given class, unless an exception is already
+ * pending. In that case the pending exception wins, because it is usually the
+ * root cause (e.g. an IOException thrown by a Java InputStream during a read
+ * callback). Calling into JNI while an exception is pending is not allowed
+ * anyway.
+ */
+static void throw_new(JNIEnv *env, const char *class_name,
+                      const char *message) {
+  if ((*env)->ExceptionCheck(env))
+    return;
+  jclass excCls = (*env)->FindClass(env, class_name);
+  if (!excCls)
+    return; // FindClass threw
+  (*env)->ThrowNew(env, excCls, message);
+  (*env)->DeleteLocalRef(env, excCls);
+}
+
+/**
  * Throws an UnsupportedAudioFileException.
  */
 void throwUnsupportedAudioFileExceptionIfError(JNIEnv *env, int err,
@@ -170,9 +188,8 @@ void throwUnsupportedAudioFileExceptionIfError(JNIEnv *env, int err,
 #ifdef DEBUG
     fprintf(stderr, "UnsupportedAudioFileException: %s\n", formattedMessage);
 #endif
-    jclass excCls = (*env)->FindClass(
-        env, "javax/sound/sampled/UnsupportedAudioFileException");
-    (*env)->ThrowNew(env, excCls, formattedMessage);
+    throw_new(env, "javax/sound/sampled/UnsupportedAudioFileException",
+              formattedMessage);
   }
 }
 
@@ -186,9 +203,7 @@ void throwIndexOutOfBoundsExceptionIfError(JNIEnv *env, int err, int index) {
 #ifdef DEBUG
     fprintf(stderr, "IndexOutOfBoundsException: %d\n", index);
 #endif
-    jclass excCls =
-        (*env)->FindClass(env, "java/lang/IndexOutOfBoundsException");
-    (*env)->ThrowNew(env, excCls, formattedMessage);
+    throw_new(env, "java/lang/IndexOutOfBoundsException", formattedMessage);
   }
 }
 
@@ -203,13 +218,12 @@ void throwIOExceptionIfError(JNIEnv *env, int err, const char *message) {
 #ifdef DEBUG
     fprintf(stderr, "IOException: %s\n", formattedMessage);
 #endif
-    jclass excCls = (*env)->FindClass(env, "java/io/IOException");
-    (*env)->ThrowNew(env, excCls, formattedMessage);
+    throw_new(env, "java/io/IOException", formattedMessage);
   }
 }
 
 /**
- * Throws an IllegalArgumentException.
+ * Throws a FileNotFoundException.
  */
 void throwFileNotFoundExceptionIfError(JNIEnv *env, int err,
                                        const char *message) {
@@ -218,8 +232,42 @@ void throwFileNotFoundExceptionIfError(JNIEnv *env, int err,
     fprintf(stderr, "FileNotFoundException: '%s' %d (%4.4s)\n", message,
             (int)err, (char *)&err);
 #endif
-    jclass excCls = (*env)->FindClass(env, "java/io/FileNotFoundException");
-    (*env)->ThrowNew(env, excCls, message);
+    throw_new(env, "java/io/FileNotFoundException", message);
+  }
+}
+
+/**
+ * Passes a message to one of the Java-side log methods.
+ *
+ * Logging is best effort: nothing is logged while an exception is pending
+ * (JNI does not allow calling Java then), and an exception thrown by the
+ * logging itself is cleared, so it doesn't abort decoding.
+ */
+static void log_message(FFAudioIO *aio, jmethodID log_MID, int err,
+                        const char *message) {
+  JNIEnv *env = aio->env;
+  jstring s = NULL;
+
+  if ((*env)->ExceptionCheck(env)) {
+#ifdef DEBUG
+    fprintf(stderr, "Not logging, exception pending: %s\n", message);
+#endif
+    return;
+  }
+  if (err) {
+    char formattedMessage[strlen(message) + 20 + AV_ERROR_MAX_STRING_SIZE];
+    snprintf(formattedMessage, strlen(message) + 20 + AV_ERROR_MAX_STRING_SIZE,
+             "%s %i (%.64s)", message, err, av_err2str(err));
+    s = (*env)->NewStringUTF(env, formattedMessage);
+  } else {
+    s = (*env)->NewStringUTF(env, message);
+  }
+  if (s) {
+    (*env)->CallVoidMethod(env, aio->java_instance, log_MID, s);
+    (*env)->DeleteLocalRef(env, s);
+  }
+  if ((*env)->ExceptionCheck(env)) {
+    (*env)->ExceptionClear(env);
   }
 }
 
@@ -227,34 +275,14 @@ void throwFileNotFoundExceptionIfError(JNIEnv *env, int err,
  * Log a warning.
  */
 void logWarning(FFAudioIO *aio, int err, const char *message) {
-  if (err) {
-    char formattedMessage[strlen(message) + 20 + AV_ERROR_MAX_STRING_SIZE];
-    snprintf(formattedMessage, strlen(message) + 20 + AV_ERROR_MAX_STRING_SIZE,
-             "%s %i (%.64s)", message, err, av_err2str(err));
-    jstring s = (*aio->env)->NewStringUTF(aio->env, formattedMessage);
-    (*aio->env)->CallVoidMethod(aio->env, aio->java_instance, logWarning_MID,
-                                s);
-  } else {
-    jstring s = (*aio->env)->NewStringUTF(aio->env, message);
-    (*aio->env)->CallVoidMethod(aio->env, aio->java_instance, logWarning_MID,
-                                s);
-  }
+  log_message(aio, logWarning_MID, err, message);
 }
 
 /**
  * Log a debug message.
  */
 void logFine(FFAudioIO *aio, int err, const char *message) {
-  if (err) {
-    char formattedMessage[strlen(message) + 20 + AV_ERROR_MAX_STRING_SIZE];
-    snprintf(formattedMessage, strlen(message) + 20 + AV_ERROR_MAX_STRING_SIZE,
-             "%s %i (%.64s)", message, err, av_err2str(err));
-    jstring s = (*aio->env)->NewStringUTF(aio->env, formattedMessage);
-    (*aio->env)->CallVoidMethod(aio->env, aio->java_instance, logFine_MID, s);
-  } else {
-    jstring s = (*aio->env)->NewStringUTF(aio->env, message);
-    (*aio->env)->CallVoidMethod(aio->env, aio->java_instance, logFine_MID, s);
-  }
+  log_message(aio, logFine_MID, err, message);
 }
 
 /**
@@ -669,8 +697,7 @@ int ff_init_audioio(JNIEnv *env, FFAudioIO *aio) {
       }
       res = ff_init_encoder(env, aio, codec);
       if (res < 0) {
-        throwIOExceptionIfError(env, res,
-                                "Could not initialize encoder codec.");
+        // exception is already thrown
         goto bail;
       }
     }
@@ -846,8 +873,7 @@ static int copy_to_java_buffer(FFAudioIO *aio, uint32_t offset, int samples,
         aio->env, aio->java_instance, setNativeBufferCapacity_MID,
         (jint)(buffer_size + offset));
     if ((*aio->env)->ExceptionCheck(aio->env)) {
-      logWarning(aio, -1, "Failed to resize native Java buffer.");
-      (*aio->env)->CallObjectMethod(aio->env, byte_buffer, rewind_MID);
+      // let the pending exception propagate to Java
       res = -1;
       goto bail;
     }
@@ -865,13 +891,14 @@ static int copy_to_java_buffer(FFAudioIO *aio, uint32_t offset, int samples,
   // we have some samples, let's copy them to the java buffer, using the desired
   // encoding at the desired offset
   java_buffer =
-      (uint8_t *)(*aio->env)->GetDirectBufferAddress(aio->env, byte_buffer) +
-      offset;
+      (uint8_t *)(*aio->env)->GetDirectBufferAddress(aio->env, byte_buffer);
   if (!java_buffer) {
+    res = -1;
     throwIOExceptionIfError(aio->env, 1,
                             "Failed to get address for native buffer.");
     goto bail;
   }
+  java_buffer += offset;
   if (aio->encode_context) {
     aio->encode_frame->nb_samples = samples;
     res = encode_buffer(aio, resample_buf[0], buffer_size, java_buffer);
@@ -887,15 +914,30 @@ static int copy_to_java_buffer(FFAudioIO *aio, uint32_t offset, int samples,
   // set new bytebuffer limit and position to 0.
   if (offset == 0) {
     // only rewind, if this is the first call for this packet
-    (*aio->env)->CallObjectMethod(aio->env, byte_buffer, rewind_MID);
+    jobject self =
+        (*aio->env)->CallObjectMethod(aio->env, byte_buffer, rewind_MID);
+    if ((*aio->env)->ExceptionCheck(aio->env)) {
+      res = -1;
+      goto bail;
+    }
+    (*aio->env)->DeleteLocalRef(aio->env, self);
   }
-  (*aio->env)->CallObjectMethod(aio->env, byte_buffer, limit_MID,
-                                offset + buffer_size);
+  {
+    jobject self = (*aio->env)->CallObjectMethod(
+        aio->env, byte_buffer, limit_MID, offset + buffer_size);
+    if ((*aio->env)->ExceptionCheck(aio->env)) {
+      res = -1;
+      goto bail;
+    }
+    (*aio->env)->DeleteLocalRef(aio->env, self);
+  }
 
   aio->resampled_samples += buffer_size;
 
 bail:
-
+  // called once per decoded frame, don't accumulate local refs
+  if (byte_buffer)
+    (*aio->env)->DeleteLocalRef(aio->env, byte_buffer);
   return res;
 }
 
@@ -1045,7 +1087,8 @@ static int decode_packet(FFAudioIO *aio, uint32_t offset) {
   if (res == AVERROR(EINVAL)) {
     throwUnsupportedAudioFileExceptionIfError(aio->env, res,
                                               "Invalid argument for decoder.");
-    return 0;
+    // stop here, we must not make further JNI calls with a pending exception
+    return res;
   }
   if (res < 0 && res != AVERROR_EOF) {
     logWarning(aio, res, "Skipping packet. avcodec_send_packet failed:");
@@ -1070,6 +1113,13 @@ int ff_fill_buffer(FFAudioIO *aio) {
   // target.
   while (total_bytes < FF_FILL_TARGET) {
     int read_res = av_read_frame(aio->format_context, aio->decode_packet);
+    if ((*aio->env)->ExceptionCheck(aio->env)) {
+      // a read callback (FFStreamInputStream) threw, e.g. an IOException
+      // from the Java InputStream. Stop, so it propagates unchanged.
+      av_packet_unref(aio->decode_packet);
+      res = read_res < 0 ? read_res : -1;
+      goto bail;
+    }
     if (read_res >= 0) {
       if (aio->decode_packet->stream_index == aio->stream_index) {
         aio->timestamp += aio->decode_packet->duration;

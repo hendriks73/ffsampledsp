@@ -69,14 +69,14 @@ static int read_callback(void *opaque, uint8_t *buf, int size) {
   // tell java to fill buffer
   available_data = (int)(*aio->env)->CallIntMethod(aio->env, aio->java_instance,
                                                    fillReadBuffer_MID);
+  if ((*aio->env)->ExceptionCheck(aio->env)) {
+    res = AVERROR(EIO);
+    goto bail;
+  }
   if (available_data > size) {
     res = -1;
     throwIOExceptionIfError(
         aio->env, 1, "Available data must not be larger than callback buffer.");
-    goto bail;
-  }
-  if ((*aio->env)->ExceptionCheck(aio->env)) {
-    res = -1;
     goto bail;
   }
 
@@ -108,7 +108,9 @@ static int read_callback(void *opaque, uint8_t *buf, int size) {
   res = available_data;
 
 bail:
-
+  // called many times per native call, don't accumulate local refs
+  if (read_buffer)
+    (*aio->env)->DeleteLocalRef(aio->env, read_buffer);
   return res;
 }
 

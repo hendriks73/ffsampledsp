@@ -60,9 +60,20 @@ jobs:
         id: get_version
         run: echo "version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout --file pom.xml)" >> $GITHUB_OUTPUT
 
+      # Central rejects versions that already exist. Skip them, so a failed release can be re-run.
+      - name: Check whether already published
+        id: check_published
+        run: |
+          version=${{ steps.get_version.outputs.version }}
+          url=https://repo1.maven.org/maven2/com/tagtraum/ffsampledsp-x86_64-win/$version/ffsampledsp-x86_64-win-$version.pom
+          if curl --silent --fail --head --output /dev/null "$url"; then
+            echo "Already on Central: $url"
+            echo "published=true" >> $GITHUB_OUTPUT
+          fi
+
       - id: publish-native-lib-to-central
         name: Publish to Central Repository
-        if: ${{ !endsWith(steps.get_version.outputs.version, 'SNAPSHOT') }}
+        if: ${{ !endsWith(steps.get_version.outputs.version, 'SNAPSHOT') && steps.check_published.outputs.published != 'true' }}
         env:
           SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
           SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
@@ -123,9 +134,20 @@ jobs:
         id: get_version
         run: echo "version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout --file pom.xml)" >> $GITHUB_OUTPUT
 
+      # Central rejects versions that already exist. Skip them, so a failed release can be re-run.
+      - name: Check whether already published
+        id: check_published
+        run: |
+          version=${{ steps.get_version.outputs.version }}
+          url=https://repo1.maven.org/maven2/com/tagtraum/ffsampledsp-i386-win/$version/ffsampledsp-i386-win-$version.pom
+          if curl --silent --fail --head --output /dev/null "$url"; then
+            echo "Already on Central: $url"
+            echo "published=true" >> $GITHUB_OUTPUT
+          fi
+
       - id: publish-native-lib-to-central
         name: Publish to Central Repository
-        if: ${{ !endsWith(steps.get_version.outputs.version, 'SNAPSHOT') }}
+        if: ${{ !endsWith(steps.get_version.outputs.version, 'SNAPSHOT') && steps.check_published.outputs.published != 'true' }}
         env:
           SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
           SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
@@ -180,9 +202,20 @@ jobs:
         id: get_version
         run: echo "version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout --file pom.xml)" >> $GITHUB_OUTPUT
 
+      # Central rejects versions that already exist. Skip them, so a failed release can be re-run.
+      - name: Check whether already published
+        id: check_published
+        run: |
+          version=${{ steps.get_version.outputs.version }}
+          url=https://repo1.maven.org/maven2/com/tagtraum/ffsampledsp-x86_64-linux/$version/ffsampledsp-x86_64-linux-$version.pom
+          if curl --silent --fail --head --output /dev/null "$url"; then
+            echo "Already on Central: $url"
+            echo "published=true" >> $GITHUB_OUTPUT
+          fi
+
       - id: publish-native-lib-to-central
         name: Publish to Central Repository
-        if: ${{ !endsWith(steps.get_version.outputs.version, 'SNAPSHOT') }}
+        if: ${{ !endsWith(steps.get_version.outputs.version, 'SNAPSHOT') && steps.check_published.outputs.published != 'true' }}
         env:
           SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
           SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
@@ -237,9 +270,20 @@ jobs:
         id: get_version
         run: echo "version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout --file pom.xml)" >> $GITHUB_OUTPUT
 
+      # Central rejects versions that already exist. Skip them, so a failed release can be re-run.
+      - name: Check whether already published
+        id: check_published
+        run: |
+          version=${{ steps.get_version.outputs.version }}
+          url=https://repo1.maven.org/maven2/com/tagtraum/ffsampledsp-aarch64-linux/$version/ffsampledsp-aarch64-linux-$version.pom
+          if curl --silent --fail --head --output /dev/null "$url"; then
+            echo "Already on Central: $url"
+            echo "published=true" >> $GITHUB_OUTPUT
+          fi
+
       - id: publish-native-lib-to-central
         name: Publish to Central Repository
-        if: ${{ !endsWith(steps.get_version.outputs.version, 'SNAPSHOT') }}
+        if: ${{ !endsWith(steps.get_version.outputs.version, 'SNAPSHOT') && steps.check_published.outputs.published != 'true' }}
         env:
           SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
           SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
@@ -298,9 +342,20 @@ jobs:
         id: get_version
         run: echo "version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout --file pom.xml)" >> $GITHUB_OUTPUT
 
+      # Central rejects versions that already exist. Skip them, so a failed release can be re-run.
+      - name: Check whether already published
+        id: check_published
+        run: |
+          version=${{ steps.get_version.outputs.version }}
+          url=https://repo1.maven.org/maven2/com/tagtraum/ffsampledsp-aarch64-macos/$version/ffsampledsp-aarch64-macos-$version.pom
+          if curl --silent --fail --head --output /dev/null "$url"; then
+            echo "Already on Central: $url"
+            echo "published=true" >> $GITHUB_OUTPUT
+          fi
+
       - id: publish-to-central
         name: Publish to Central Repository
-        if: ${{ !endsWith(steps.get_version.outputs.version, 'SNAPSHOT') }}
+        if: ${{ !endsWith(steps.get_version.outputs.version, 'SNAPSHOT') && steps.check_published.outputs.published != 'true' }}
         env:
           MACOS_CERTIFICATE: ${{ secrets.MACOS_CERTIFICATE }}
           MACOS_CERTIFICATE_PWD: ${{ secrets.MACOS_CERTIFICATE_PWD }}
@@ -394,9 +449,20 @@ jobs:
         id: get_version
         run: echo "version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout --file pom.xml)" >> $GITHUB_OUTPUT
 
+      # Central rejects versions that already exist. Skip them, so a failed release can be re-run.
+      - name: Check whether already published
+        id: check_published
+        run: |
+          version=${{ steps.get_version.outputs.version }}
+          url=https://repo1.maven.org/maven2/com/tagtraum/ffsampledsp-complete/$version/ffsampledsp-complete-$version.pom
+          if curl --silent --fail --head --output /dev/null "$url"; then
+            echo "Already on Central: $url"
+            echo "published=true" >> $GITHUB_OUTPUT
+          fi
+
       - id: publish-to-central
         name: Publish to Central Repository
-        if: ${{ !endsWith(steps.get_version.outputs.version, 'SNAPSHOT') }}
+        if: ${{ !endsWith(steps.get_version.outputs.version, 'SNAPSHOT') && steps.check_published.outputs.published != 'true' }}
         env:
           MACOS_CERTIFICATE: ${{ secrets.MACOS_CERTIFICATE }}
           MACOS_CERTIFICATE_PWD: ${{ secrets.MACOS_CERTIFICATE_PWD }}

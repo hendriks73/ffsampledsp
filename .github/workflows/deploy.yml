@@ -506,6 +506,7 @@ jobs:
         uses: actions/setup-java@v5
         with:
           java-version: '8'
+          architecture: x64
           server-id: tagtraum-site
           server-username: MAVEN_USERNAME
           server-password: MAVEN_PASSWORD

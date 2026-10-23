@@ -363,27 +363,35 @@ public class TestFFStreamInputStream {
 
   @Test
   public void testIOExceptionWhileOpening() throws UnsupportedAudioFileException {
-    try (final FFStreamInputStream in =
-        new FFStreamInputStream(new FailingInputStream("test.wav", 16))) {
-      in.read(new byte[1024]);
-      fail("Expected IOException");
-    } catch (IOException e) {
-      // the original exception thrown by the Java stream must reach the caller
-      assertEquals(FailingInputStream.MESSAGE, e.getMessage());
-    }
+    assertIOExceptionReachesCaller("test.wav", 16);
   }
 
   @Test
   public void testIOExceptionWhileReading() throws UnsupportedAudioFileException {
-    try (final FFStreamInputStream in =
-        new FFStreamInputStream(new FailingInputStream("test.wav", 128 * 1024))) {
+    assertIOExceptionReachesCaller("test.wav", 128 * 1024);
+  }
+
+  @Test
+  public void testIOExceptionWhileReadingMKV() throws UnsupportedAudioFileException {
+    // the Matroska demuxer tries to resync after a read error and calls the
+    // native read callback again, while the exception is still pending
+    assertIOExceptionReachesCaller("test_pcm_vorbis.mkv", 40000);
+  }
+
+  /**
+   * Decodes the given resource through a stream that fails after {@code failAfter} bytes and checks
+   * that the original exception thrown by the stream reaches the caller.
+   */
+  private static void assertIOExceptionReachesCaller(final String resource, final long failAfter)
+      throws UnsupportedAudioFileException {
+    try (final FailingInputStream failing = new FailingInputStream(resource, failAfter);
+        final FFStreamInputStream in = new FFStreamInputStream(failing)) {
       final byte[] buf = new byte[1024 * 8];
       while (in.read(buf) != -1) {
         // keep reading
       }
       fail("Expected IOException");
     } catch (IOException e) {
-      // the original exception thrown by the Java stream must reach the caller
       assertEquals(FailingInputStream.MESSAGE, e.getMessage());
     }
   }

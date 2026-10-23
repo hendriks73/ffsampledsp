@@ -164,6 +164,11 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>3.5.5</version>
+                    <configuration>
+                        <!-- @{argLine} is the JaCoCo agent (set by prepare-agent).
+                        -Xcheck:jni makes the JVM verify our JNI usage; fatal JNI errors abort the test run. -->
+                        <argLine>@{argLine} -Xcheck:jni</argLine>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>

@@ -66,6 +66,13 @@ static int read_callback(void *opaque, uint8_t *buf, int size) {
   uint8_t *java_buffer = NULL;
   FFAudioIO *aio = (FFAudioIO *)opaque;
 
+  // FFmpeg may call us again after we reported an error (e.g. via avio_feof()
+  // in a demuxer's resync loop). Don't call Java with an exception pending.
+  if ((*aio->env)->ExceptionCheck(aio->env)) {
+    res = AVERROR(EIO);
+    goto bail;
+  }
+
   // tell java to fill buffer
   available_data = (int)(*aio->env)->CallIntMethod(aio->env, aio->java_instance,
                                                    fillReadBuffer_MID);
@@ -228,6 +235,12 @@ JNIEXPORT jlong JNICALL Java_com_tagtraum_ffsampledsp_FFStreamInputStream_open(
   fprintf(stderr, "frame_size : %i\n", aio->stream->codecpar->frame_size);
   fprintf(stderr, "codec_id   : %i\n", aio->stream->codecpar->codec_id);
 #endif
+
+  // FFmpeg may treat a read error as end of input and still succeed,
+  // but the exception thrown by the Java stream is pending.
+  if (!res && (*env)->ExceptionCheck(env)) {
+    res = -1;
+  }
 
 bail:
 

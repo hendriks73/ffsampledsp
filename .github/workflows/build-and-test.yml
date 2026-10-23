@@ -44,6 +44,17 @@ jobs:
 
       # Upload coverage once, from the native (aarch64) build with the newest Java.
       # The JaCoCo XML report is written during the verify phase of the build above.
+      - name: TEMP print surefire dumpstreams
+        if: always()
+        shell: bash
+        run: |
+          for f in ffsampledsp-complete/target/surefire-reports/*.dumpstream; do
+            [ -f "$f" ] || continue
+            echo "== $f"
+            grep -o "Stream '[^']*'" "$f" | sed "s/^Stream '//; s/'\$//" | grep -v '^\s*at \|^\s*- ' | sort | uniq -c | sort -rn | head -40
+            grep -o "Stream '[^']*'" "$f" | sed "s/^Stream '//; s/'\$//" | grep -A6 'WARNING in native\|FATAL' | head -60
+          done
+
       - name: Upload CodeCov Report
         uses: codecov/codecov-action@v7
         with:
@@ -123,6 +134,17 @@ jobs:
             --file pom.xml \
             install
 
+      - name: TEMP print surefire dumpstreams
+        if: always()
+        shell: bash
+        run: |
+          for f in ffsampledsp-complete/target/surefire-reports/*.dumpstream; do
+            [ -f "$f" ] || continue
+            echo "== $f"
+            grep -o "Stream '[^']*'" "$f" | sed "s/^Stream '//; s/'\$//" | grep -v '^\s*at \|^\s*- ' | sort | uniq -c | sort -rn | head -40
+            grep -o "Stream '[^']*'" "$f" | sed "s/^Stream '//; s/'\$//" | grep -A6 'WARNING in native\|FATAL' | head -60
+          done
+
       - name: Print lib/include dir
         if: always()
         run: |
@@ -166,6 +188,17 @@ jobs:
             install \
             -Dmaven.test.skip=${{ matrix.skiptests }}
 
+      - name: TEMP print surefire dumpstreams
+        if: always()
+        shell: bash
+        run: |
+          for f in ffsampledsp-complete/target/surefire-reports/*.dumpstream; do
+            [ -f "$f" ] || continue
+            echo "== $f"
+            grep -o "Stream '[^']*'" "$f" | sed "s/^Stream '//; s/'\$//" | grep -v '^\s*at \|^\s*- ' | sort | uniq -c | sort -rn | head -40
+            grep -o "Stream '[^']*'" "$f" | sed "s/^Stream '//; s/'\$//" | grep -A6 'WARNING in native\|FATAL' | head -60
+          done
+
       - name: Print lib dir
         if: always()
         run: ls -la ffsampledsp-${{ matrix.jarch }}-linux/target/lib
@@ -204,6 +237,17 @@ jobs:
             --batch-mode \
             --file pom.xml \
             install
+
+      - name: TEMP print surefire dumpstreams
+        if: always()
+        shell: bash
+        run: |
+          for f in ffsampledsp-complete/target/surefire-reports/*.dumpstream; do
+            [ -f "$f" ] || continue
+            echo "== $f"
+            grep -o "Stream '[^']*'" "$f" | sed "s/^Stream '//; s/'\$//" | grep -v '^\s*at \|^\s*- ' | sort | uniq -c | sort -rn | head -40
+            grep -o "Stream '[^']*'" "$f" | sed "s/^Stream '//; s/'\$//" | grep -A6 'WARNING in native\|FATAL' | head -60
+          done
 
       - name: Print lib dir
         if: always()

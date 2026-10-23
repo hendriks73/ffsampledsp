@@ -107,20 +107,54 @@ JNIEXPORT jlong JNICALL Java_com_tagtraum_ffsampledsp_FFCodecInputStream_open(
 
   FFAudioIO *aio = (FFAudioIO *)(intptr_t)aio_pointer;
 
-  jfloat sample_rate =
-      (*env)->CallFloatMethod(env, target_format, getSampleRate_MID);
-  jint sample_size_in_bits =
-      (*env)->CallIntMethod(env, target_format, getSampleSizeInBits_MID);
-  jint channels = (*env)->CallIntMethod(env, target_format, getChannels_MID);
-  jboolean big_endian =
-      (*env)->CallBooleanMethod(env, target_format, isBigEndian_MID);
-  jobject encoding =
-      (*env)->CallObjectMethod(env, target_format, getEncoding_MID);
-  jstring jencoding_name =
-      (jstring)(*env)->CallObjectMethod(env, encoding, toString_MID);
+  jfloat sample_rate = 0;
+  jint sample_size_in_bits = 0;
+  jint channels = 0;
+  jboolean big_endian = JNI_FALSE;
+  jobject encoding = NULL;
+  jstring jencoding_name = NULL;
+  const char *encoding_name = NULL;
 
-  const char *encoding_name =
-      (*env)->GetStringUTFChars(env, jencoding_name, NULL);
+  // AudioFormat getters may be overridden, so check for exceptions after
+  // each call
+  sample_rate = (*env)->CallFloatMethod(env, target_format, getSampleRate_MID);
+  if ((*env)->ExceptionCheck(env))
+    goto bail;
+  sample_size_in_bits =
+      (*env)->CallIntMethod(env, target_format, getSampleSizeInBits_MID);
+  if ((*env)->ExceptionCheck(env))
+    goto bail;
+  channels = (*env)->CallIntMethod(env, target_format, getChannels_MID);
+  if ((*env)->ExceptionCheck(env))
+    goto bail;
+  big_endian = (*env)->CallBooleanMethod(env, target_format, isBigEndian_MID);
+  if ((*env)->ExceptionCheck(env))
+    goto bail;
+  encoding = (*env)->CallObjectMethod(env, target_format, getEncoding_MID);
+  if ((*env)->ExceptionCheck(env))
+    goto bail;
+  if (!encoding) {
+    throwIOExceptionIfError(env, AVERROR(EINVAL),
+                            "Target format has no encoding.");
+    goto bail;
+  }
+  jencoding_name =
+      (jstring)(*env)->CallObjectMethod(env, encoding, toString_MID);
+  (*env)->DeleteLocalRef(env, encoding);
+  if ((*env)->ExceptionCheck(env))
+    goto bail;
+  if (!jencoding_name) {
+    throwIOExceptionIfError(env, AVERROR(EINVAL),
+                            "Target format has no encoding name.");
+    goto bail;
+  }
+
+  encoding_name = (*env)->GetStringUTFChars(env, jencoding_name, NULL);
+  if (!encoding_name) {
+    // OutOfMemoryError is pending
+    (*env)->DeleteLocalRef(env, jencoding_name);
+    goto bail;
+  }
   is_float = strcmp("PCM_FLOAT", encoding_name) == 0;
   is_signed = strcmp("PCM_SIGNED", encoding_name) == 0;
 
@@ -132,6 +166,7 @@ JNIEXPORT jlong JNICALL Java_com_tagtraum_ffsampledsp_FFCodecInputStream_open(
 #endif
 
   (*env)->ReleaseStringUTFChars(env, jencoding_name, encoding_name);
+  (*env)->DeleteLocalRef(env, jencoding_name);
 
   if (sample_size_in_bits <= 8) {
     out_sample_fmt = AV_SAMPLE_FMT_U8;

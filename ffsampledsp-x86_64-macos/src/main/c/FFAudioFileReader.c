@@ -121,6 +121,13 @@ static int read_callback(void *opaque, uint8_t *buf, int size) {
   availableData =
       (*callback->env)
           ->CallIntMethod(callback->env, callback->byte_buffer, limit_MID);
+  if ((*callback->env)->ExceptionCheck(callback->env)) {
+    res = AVERROR(EIO);
+    goto bail;
+  }
+  // never write past the end of buf
+  if (availableData > size)
+    availableData = size;
   // copy to c buf
   memcpy(buf, (const uint8_t *)java_buffer, availableData);
 

@@ -6,6 +6,9 @@
   - C-Docs (Doxygen) are generated again when publishing the site; Doxygen is no longer needed for regular builds.
   - Fixed frame size/length of an audio stream being reported with values of a preceding PCM stream
     in multi-stream files.
+  - Fixed JNI exception handling found with `-Xcheck:jni`: an `IOException` thrown by a Java
+    `InputStream` now reaches the caller unchanged, and a failure to grow the native buffer
+    no longer crashes the JVM.
 
 
 - 0.9.56

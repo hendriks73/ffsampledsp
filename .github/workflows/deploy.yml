@@ -311,6 +311,8 @@ jobs:
           security create-keychain -p my_secret build.keychain
           security default-keychain -s build.keychain
           security unlock-keychain -p my_secret build.keychain
+          # Keep the keychain unlocked; by default it locks after 5 minutes and codesign then waits forever for a password prompt.
+          security set-keychain-settings build.keychain
           security import certificate.p12 -k build.keychain -P "${{ secrets.MACOS_CERTIFICATE_PWD }}" -T /usr/bin/codesign
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k my_secret build.keychain
 
@@ -396,6 +398,8 @@ jobs:
           security create-keychain -p my_secret build.keychain
           security default-keychain -s build.keychain
           security unlock-keychain -p my_secret build.keychain
+          # Keep the keychain unlocked; by default it locks after 5 minutes and codesign then waits forever for a password prompt.
+          security set-keychain-settings build.keychain
           security import certificate.p12 -k build.keychain -P "${{ secrets.MACOS_CERTIFICATE_PWD }}" -T /usr/bin/codesign
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k my_secret build.keychain
 
